@@ -1,0 +1,3 @@
+mutation Submit($job: Job!) {
+    submit(job: $job)
+}

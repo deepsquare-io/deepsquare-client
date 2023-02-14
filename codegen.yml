@@ -1,0 +1,22 @@
+overwrite: true
+schema: '../../schemas/sbatchapi/schema.graphqls'
+documents: 'src/graphql/client/operations/*.graphql'
+config:
+  strictScalars: true
+  declarationKind: type
+  scalars:
+    BigNumber: string
+    DateTime: string
+  skipTypename: true
+  namingConvention:
+    enumValues: upper-case#upperCase
+  useTypeImports: true
+  # Apollo
+  withRefetchFn: true
+  pureMagicComment: true
+generates:
+  src/graphql/client/generated/:
+    preset: client
+hooks:
+  afterAllFileWrite:
+    - prettier --write

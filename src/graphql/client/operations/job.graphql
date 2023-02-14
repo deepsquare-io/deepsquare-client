@@ -1,0 +1,3 @@
+query Job($batchLocationHash: String!) {
+    job(batchLocationHash: $batchLocationHash)
+}
