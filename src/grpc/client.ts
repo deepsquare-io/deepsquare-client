@@ -1,8 +1,7 @@
-import { LoggerAPIClient } from '@grpc/generated/logger/v1alpha1/log.client';
-import env from '@lib/app/env';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
+import {LoggerAPIClient} from "./generated/logger/v1alpha1/log.client";
 
-const transport = new GrpcWebFetchTransport({ baseUrl: env.NEXT_PUBLIC_LOGGER_URL });
+const transport = new GrpcWebFetchTransport({ baseUrl: "https://grid-logger.deepsquare.run/" });
 
 const loggerClient = new LoggerAPIClient(transport);
 

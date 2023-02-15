@@ -1,7 +1,7 @@
 import { arrayify } from '@ethersproject/bytes';
 import type { JsonRpcProvider } from '@ethersproject/providers';
-import type { ReadResponse } from '@grpc/generated/logger/v1alpha1/log';
-import type { LoggerAPIClient } from '@grpc/generated/logger/v1alpha1/log.client';
+import {LoggerAPIClient} from "./generated/logger/v1alpha1/log.client";
+import {ReadResponse} from "./generated/logger/v1alpha1/log";
 
 export class GRPCService {
   private abortReadAndWatch: AbortController | null = null;

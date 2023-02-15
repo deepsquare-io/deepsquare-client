@@ -6,7 +6,7 @@ import { SubmitDocument } from "./graphql/client/generated/graphql";
 import type { BigNumber } from "@ethersproject/bignumber";
 import type { MetaScheduler } from "./contracts";
 import { Contract } from "ethers";
-import abi from "../abi/MetaScheduler.json";
+import abi from "./abi/MetaScheduler.json";
 import { GRPCService } from "./grpc/service";
 import loggerClient from "./grpc/client";
 import type {
