@@ -4,9 +4,10 @@ import { GraphQLClient } from "graphql-request";
 import type { Job } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
 import type { BigNumber } from "@ethersproject/bignumber";
-import type { MetaScheduler } from "./contracts";
+import type { Credit, MetaScheduler } from "./contracts";
 import { Contract } from "ethers";
-import abi from "./abi/MetaScheduler.json";
+import creditAbi from "./abi/Credit.json";
+import metaSchedulerAbi from "./abi/MetaScheduler.json";
 import { GRPCService } from "./grpc/service";
 import loggerClient from "./grpc/client";
 import type {
@@ -23,16 +24,20 @@ export default class DeepSquareClient {
 
   private readonly metaScheduler: MetaScheduler;
 
+  private readonly credit: Credit;
+
   private readonly grpcService: GRPCService;
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract
+   * @param creditAddr {string} Address of the credit smart contract
    * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service
    */
   constructor(
     privateKey: string,
     metaschedulerAddr = "0xc2a25432bBe7cf4b90c46aeB890414f83dD626F1",
+    creditAddr = '0x7EC55d280Be59e88b5c20695F9FEE1A4eE68d2e6',
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run"
   ) {
     const provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
@@ -44,9 +49,11 @@ export default class DeepSquareClient {
 
     this.graphqlClient = new GraphQLClient(sbatchServiceEndpoint);
 
-    this.metaScheduler = new Contract(metaschedulerAddr, abi, provider).connect(
+    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, provider).connect(
       this.wallet
     ) as MetaScheduler;
+
+    this.credit = new Contract(creditAddr, creditAbi, provider).connect(this.wallet) as Credit
 
     this.grpcService = new GRPCService(loggerClient, provider);
   }
@@ -56,6 +63,10 @@ export default class DeepSquareClient {
    * @param amount The amount to deposit.
    */
   async deposit(amount: BigNumber) {
+    const missingAllowance = amount.sub(await this.credit.allowance(this.wallet.address, this.metaScheduler.address))
+    if (missingAllowance.gt(0)) {
+      await (await this.credit.approve(this.metaScheduler.address, missingAllowance)).wait()
+    }
     await (await this.metaScheduler.deposit(amount)).wait();
   }
 
