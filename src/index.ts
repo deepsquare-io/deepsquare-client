@@ -3,7 +3,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { GraphQLClient } from "graphql-request";
 import type { Job } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
-import type { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import type { Credit, MetaScheduler } from "./contracts";
 import { Contract } from "ethers";
 import creditAbi from "./abi/Credit.json";
@@ -16,6 +16,7 @@ import type {
   JobTimeStructOutput,
 } from "./contracts/MetaScheduler";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
+import { formatBytes32String } from "ethers/lib/utils";
 
 export default class DeepSquareClient {
   private readonly wallet: Wallet;
@@ -38,7 +39,7 @@ export default class DeepSquareClient {
     privateKey: string,
     metaschedulerAddr = "0xc2a25432bBe7cf4b90c46aeB890414f83dD626F1",
     creditAddr = '0x7EC55d280Be59e88b5c20695F9FEE1A4eE68d2e6',
-    sbatchServiceEndpoint = "https://sbatch.deepsquare.run"
+    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql"
   ) {
     const provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
       name: "DeepSquare Testnet",
@@ -99,8 +100,8 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
           },
-          1e6,
-          jobName,
+          BigNumber.from(1e6).mul(1e18),
+          formatBytes32String(jobName),
           true
         )
       ).wait()
