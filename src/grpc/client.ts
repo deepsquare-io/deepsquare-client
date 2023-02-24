@@ -1,7 +1,12 @@
-import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
-import {LoggerAPIClient} from "./generated/logger/v1alpha1/log.client";
+import { GrpcTransport } from '@protobuf-ts/grpc-transport';
+import { LoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
+import { ChannelCredentials } from '@grpc/grpc-js';
 
-const transport = new GrpcWebFetchTransport({ baseUrl: "https://grid-logger.deepsquare.run/" });
+const transport = new GrpcTransport({
+        host: "grid-logger.deepsquare.run:443",
+        channelCredentials: ChannelCredentials.createInsecure(),
+        //channelCredentials: ChannelCredentials.createInsecure(),
+});
 
 const loggerClient = new LoggerAPIClient(transport);
 

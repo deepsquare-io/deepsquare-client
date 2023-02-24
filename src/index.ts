@@ -56,7 +56,7 @@ export default class DeepSquareClient {
 
     this.credit = new Contract(creditAddr, creditAbi, provider).connect(this.wallet) as Credit
 
-    this.grpcService = new GRPCService(loggerClient, provider);
+    this.grpcService = new GRPCService(loggerClient, provider, this.wallet);
   }
 
   /**
@@ -100,7 +100,7 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
           },
-          BigNumber.from(1e6).mul(1e18),
+          BigNumber.from(1e3).mul('1000000000000000000'),
           formatBytes32String(jobName),
           true
         )

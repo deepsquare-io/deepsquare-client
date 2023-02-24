@@ -19,6 +19,8 @@
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
+    "@grpc/grpc-js": "^1.8.10",
+    "@protobuf-ts/grpc-transport": "^2.8.2",
     "@protobuf-ts/grpcweb-transport": "^2.8.2",
     "@protobuf-ts/runtime": "^2.8.2",
     "@protobuf-ts/runtime-rpc": "^2.8.2",
