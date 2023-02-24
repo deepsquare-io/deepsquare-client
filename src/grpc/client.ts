@@ -4,8 +4,7 @@ import { ChannelCredentials } from '@grpc/grpc-js';
 
 const transport = new GrpcTransport({
         host: "grid-logger.deepsquare.run:443",
-        channelCredentials: ChannelCredentials.createInsecure(),
-        //channelCredentials: ChannelCredentials.createInsecure(),
+        channelCredentials: ChannelCredentials.createSsl(),
 });
 
 const loggerClient = new LoggerAPIClient(transport);
