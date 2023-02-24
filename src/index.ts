@@ -16,7 +16,7 @@ import type {
   JobTimeStructOutput,
 } from "./contracts/MetaScheduler";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
-import { formatBytes32String } from "ethers/lib/utils";
+import { formatBytes32String, parseUnits } from "ethers/lib/utils";
 
 export default class DeepSquareClient {
   private readonly wallet: Wallet;
@@ -100,7 +100,7 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
           },
-          BigNumber.from(1e6).mul(1e18),
+          parseUnits(1.6.toString(), "ether"),
           formatBytes32String(jobName),
           true
         )
