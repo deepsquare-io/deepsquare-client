@@ -98,6 +98,15 @@ Once you are done reading the logs, don't forget to close the stream with the se
 stopFetch();
 ```
 
+### Cancel a job
+
+In order to cancel a job you can use :
+
+```typescript
+await deepSquareClient.cancel(jobId);
+```
+
+
 ## Job specification
 
 ```typescript

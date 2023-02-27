@@ -128,6 +128,14 @@ export default class DeepSquareClient {
   }
 
   /**
+   *  Cancel a job by id
+   * @param jobId {string} The job id to cancel.
+   */
+  async cancel(jobId: string) {
+    return await this.metaScheduler.cancelJob(jobId)
+  }
+
+  /**
    * Get the iterable containing the live logs of given job. Make sure to close the stream with the second function returned once you're done with it.
    * @param jobId {string} The job id from which getting the job
    */
