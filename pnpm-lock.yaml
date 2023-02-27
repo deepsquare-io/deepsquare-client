@@ -13,7 +13,7 @@ specifiers:
   '@graphql-codegen/typescript': ^2.4.8
   '@graphql-codegen/typescript-operations': ^2.3.5
   '@graphql-typed-document-node/core': ^3.1.1
-  '@grpc/grpc-js': ^1.6.0
+  '@grpc/grpc-js': ^1.8.11
   '@parcel/core': ^2.8.3
   '@parcel/packager-ts': ^2.8.3
   '@parcel/transformer-typescript-types': ^2.8.3
@@ -46,8 +46,8 @@ dependencies:
   '@ethersproject/bytes': 5.7.0
   '@ethersproject/providers': 5.7.2
   '@ethersproject/wallet': 5.7.0
-  '@grpc/grpc-js': 1.8.10
-  '@protobuf-ts/grpc-transport': 2.8.2_@grpc+grpc-js@1.8.10
+  '@grpc/grpc-js': 1.8.11
+  '@protobuf-ts/grpc-transport': 2.8.2_@grpc+grpc-js@1.8.11
   '@protobuf-ts/runtime': 2.8.2
   '@protobuf-ts/runtime-rpc': 2.8.2
   ethers: 5.7.2
@@ -1684,8 +1684,8 @@ packages:
     dependencies:
       graphql: 15.8.0
 
-  /@grpc/grpc-js/1.8.10:
-    resolution: {integrity: sha512-x7QS+gJq8WaS1OJYFJkmeoX2PHhi3b5TR5TqR9a8NJv6VyedFecp3LgAUmuJSQZlwoAODpCKRtu4HzG1srNjiA==}
+  /@grpc/grpc-js/1.8.11:
+    resolution: {integrity: sha512-f/xC+6Z2QKsRJ+VSSFlt4hA5KSRm+PKvMWV8kMPkMgGlFidR6PeIkXrOasIY2roe+WROM6GFQLlgDKfeEZo2YQ==}
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.5
@@ -2660,12 +2660,12 @@ packages:
       webcrypto-core: 1.7.5
     dev: true
 
-  /@protobuf-ts/grpc-transport/2.8.2_@grpc+grpc-js@1.8.10:
+  /@protobuf-ts/grpc-transport/2.8.2_@grpc+grpc-js@1.8.11:
     resolution: {integrity: sha512-Kudcl2bkYwoACQE7RqOEbRFSqn9U00GK03fb3Eaa0VkwVlh9l8tte4IYUNNC75JSbjlsxblQ/Cs5Bv9OnIgIIg==}
     peerDependencies:
       '@grpc/grpc-js': ^1.6.0
     dependencies:
-      '@grpc/grpc-js': 1.8.10
+      '@grpc/grpc-js': 1.8.11
       '@protobuf-ts/runtime': 2.8.2
       '@protobuf-ts/runtime-rpc': 2.8.2
     dev: false

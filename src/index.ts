@@ -56,7 +56,7 @@ export default class DeepSquareClient {
 
     this.credit = new Contract(creditAddr, creditAbi, provider).connect(this.wallet) as Credit
 
-    this.grpcService = new GRPCService(loggerClient, provider);
+    this.grpcService = new GRPCService(loggerClient, provider, this.wallet);
   }
 
   /**

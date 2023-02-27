@@ -1,6 +1,6 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "graphql:gen": "graphql-codegen --config codegen.yml",
@@ -19,7 +19,7 @@
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
-    "@grpc/grpc-js": "^1.6.0",
+    "@grpc/grpc-js": "^1.8.11",
     "@protobuf-ts/grpc-transport": "^2.8.2",
     "@protobuf-ts/runtime": "^2.8.2",
     "@protobuf-ts/runtime-rpc": "^2.8.2",
