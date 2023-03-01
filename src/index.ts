@@ -100,7 +100,7 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
           },
-          parseUnits(1.6.toString(), "ether"),
+          parseUnits((1e3).toString(), "ether"),
           formatBytes32String(jobName),
           true
         )
