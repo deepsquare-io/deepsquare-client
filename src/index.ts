@@ -100,7 +100,7 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
           },
-          BigNumber.from(1e3).mul('1000000000000000000'),
+          parseUnits((1e3).toString(), "ether"),
           formatBytes32String(jobName),
           true
         )
