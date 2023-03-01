@@ -22,6 +22,31 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "bytes32",
+        name: "_jobId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_billingAmount",
+        type: "uint256",
+      },
+    ],
+    name: "BilledTooMuchEvent",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "customerAddr",
         type: "address",
@@ -278,6 +303,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "DEEPSQUARE_CUT",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "DEFAULT_ADMIN_ROLE",
     outputs: [
       {
@@ -402,14 +440,20 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
+        internalType: "address",
+        name: "walletAddr",
+        type: "address",
       },
     ],
-    name: "deposit",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "getJobs",
+    outputs: [
+      {
+        internalType: "bytes32[]",
+        name: "",
+        type: "bytes32[]",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -426,25 +470,6 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_addr",
-        type: "address",
-      },
-    ],
-    name: "getUnlockBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -803,7 +828,7 @@ const _abi = [
       },
       {
         internalType: "enum JobStatus",
-        name: "_jobStatus",
+        name: "_nextJobStatus",
         type: "uint8",
       },
       {
@@ -913,7 +938,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "_maxCost",
+        name: "_lockedCredits",
         type: "uint256",
       },
       {
@@ -1019,14 +1044,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "topUpJobSlice",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "updateJobsStatus",
+    name: "topUpJobObo",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1053,57 +1071,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "wallet2LockedBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "wallet2TotalBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "withdraw",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

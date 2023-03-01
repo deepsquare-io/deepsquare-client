@@ -37,8 +37,8 @@ export default class DeepSquareClient {
    */
   constructor(
     privateKey: string,
-    metaschedulerAddr = "0xc2a25432bBe7cf4b90c46aeB890414f83dD626F1",
-    creditAddr = '0x7EC55d280Be59e88b5c20695F9FEE1A4eE68d2e6',
+    metaschedulerAddr = "0x2EaC4593AC8B97Ff9589825947258Dc5d4c58139",
+    creditAddr = '0x6f33A243103ab964BCE63e9aC12e8875fE30be9E',
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql"
   ) {
     const provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
@@ -60,15 +60,11 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Deposit credit that will be used for future jobs.
+   * Allow DeepSquare Grid to use $amount of credits to pay for jobs.
    * @param amount The amount to deposit.
    */
   async deposit(amount: BigNumber) {
-    const missingAllowance = amount.sub(await this.credit.allowance(this.wallet.address, this.metaScheduler.address))
-    if (missingAllowance.gt(0)) {
-      await (await this.credit.approve(this.metaScheduler.address, missingAllowance)).wait()
-    }
-    await (await this.metaScheduler.deposit(amount)).wait();
+    await this.credit.approve(this.metaScheduler.address, parseUnits(amount.toString(), 'ether'))
   }
 
   /**

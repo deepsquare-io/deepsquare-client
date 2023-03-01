@@ -11,7 +11,34 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "_jobId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_providerAddr",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_billingAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "BilledTooMuchEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs":
+    [
       {
         "indexed": false,
         "internalType": "address",
@@ -37,7 +64,8 @@
         "type": "uint64"
       },
       {
-        "components": [
+        "components":
+        [
           {
             "internalType": "uint64",
             "name": "gpuPerTask",
@@ -80,7 +108,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": false,
         "internalType": "address",
@@ -105,7 +134,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": false,
         "internalType": "uint8",
@@ -118,7 +148,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": false,
         "internalType": "bytes32",
@@ -137,7 +168,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": false,
         "internalType": "bytes32",
@@ -156,7 +188,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": true,
         "internalType": "bytes32",
@@ -181,7 +214,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": true,
         "internalType": "bytes32",
@@ -206,7 +240,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
+    "inputs":
+    [
       {
         "indexed": true,
         "internalType": "bytes32",
@@ -232,7 +267,8 @@
   {
     "inputs": [],
     "name": "BILL_DURATION_DELTA_MINUTE",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -245,7 +281,8 @@
   {
     "inputs": [],
     "name": "BILL_TIME_CONTROL_DELTA_S",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -258,7 +295,22 @@
   {
     "inputs": [],
     "name": "CANCELLATION_FEE_MINUTE",
-    "outputs": [
+    "outputs":
+    [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEEPSQUARE_CUT",
+    "outputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -271,7 +323,8 @@
   {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -284,7 +337,8 @@
   {
     "inputs": [],
     "name": "METASCHEDULER_ROLE",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -297,7 +351,8 @@
   {
     "inputs": [],
     "name": "MINIMUM_AMOUNT",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -310,7 +365,8 @@
   {
     "inputs": [],
     "name": "TOP_UP_SLICE_DURATION_MIN",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint64",
         "name": "",
@@ -321,7 +377,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -334,7 +391,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -354,7 +412,8 @@
   {
     "inputs": [],
     "name": "claimJobTimeout",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint64",
         "name": "",
@@ -381,7 +440,8 @@
   {
     "inputs": [],
     "name": "credit",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "contract IERC20",
         "name": "",
@@ -392,20 +452,29 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "walletAddr",
+        "type": "address"
       }
     ],
-    "name": "deposit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "getJobs",
+    "outputs":
+    [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "role",
@@ -413,7 +482,8 @@
       }
     ],
     "name": "getRoleAdmin",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -424,26 +494,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_addr",
-        "type": "address"
-      }
-    ],
-    "name": "getUnlockBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "role",
@@ -461,7 +513,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "_providerAddr",
@@ -469,7 +522,8 @@
       }
     ],
     "name": "hasCancellingJob",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bool",
         "name": "",
@@ -480,7 +534,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "_providerAddr",
@@ -488,7 +543,8 @@
       }
     ],
     "name": "hasNextJob",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bool",
         "name": "",
@@ -499,7 +555,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "role",
@@ -512,7 +569,8 @@
       }
     ],
     "name": "hasRole",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bool",
         "name": "",
@@ -523,7 +581,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -531,7 +590,8 @@
       }
     ],
     "name": "hotJobList",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -542,7 +602,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "contract IERC20",
         "name": "_credit",
@@ -562,7 +623,8 @@
   {
     "inputs": [],
     "name": "jobIdCounter",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "uint256",
         "name": "",
@@ -573,7 +635,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -581,7 +644,8 @@
       }
     ],
     "name": "jobs",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "jobId",
@@ -603,7 +667,8 @@
         "type": "address"
       },
       {
-        "components": [
+        "components":
+        [
           {
             "internalType": "uint64",
             "name": "gpuPerTask",
@@ -645,7 +710,8 @@
         "type": "bool"
       },
       {
-        "components": [
+        "components":
+        [
           {
             "internalType": "uint256",
             "name": "maxCost",
@@ -667,7 +733,8 @@
         "type": "tuple"
       },
       {
-        "components": [
+        "components":
+        [
           {
             "internalType": "uint256",
             "name": "start",
@@ -708,7 +775,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -726,7 +794,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "",
@@ -734,7 +803,8 @@
       }
     ],
     "name": "providerCancellingJobsQueues",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "int128",
         "name": "_begin",
@@ -750,7 +820,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "",
@@ -758,7 +829,8 @@
       }
     ],
     "name": "providerClaimableJobsQueues",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "int128",
         "name": "_begin",
@@ -776,7 +848,8 @@
   {
     "inputs": [],
     "name": "providerManager",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "contract IProviderManager",
         "name": "",
@@ -787,7 +860,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -795,7 +869,7 @@
       },
       {
         "internalType": "enum JobStatus",
-        "name": "_jobStatus",
+        "name": "_nextJobStatus",
         "type": "uint8"
       },
       {
@@ -810,7 +884,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "",
@@ -818,7 +893,8 @@
       }
     ],
     "name": "providerTimeoutJobsQueues",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "int128",
         "name": "_begin",
@@ -834,7 +910,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -847,7 +924,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "role",
@@ -865,9 +943,11 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
-        "components": [
+        "components":
+        [
           {
             "internalType": "uint64",
             "name": "gpuPerTask",
@@ -905,7 +985,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_maxCost",
+        "name": "_lockedCredits",
         "type": "uint256"
       },
       {
@@ -920,7 +1000,8 @@
       }
     ],
     "name": "requestNewJob",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -931,7 +1012,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "role",
@@ -949,7 +1031,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -967,7 +1050,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes4",
         "name": "interfaceId",
@@ -975,7 +1059,8 @@
       }
     ],
     "name": "supportsInterface",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bool",
         "name": "",
@@ -986,7 +1071,8 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
@@ -1004,27 +1090,22 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "bytes32",
         "name": "_jobId",
         "type": "bytes32"
       }
     ],
-    "name": "topUpJobSlice",
+    "name": "topUpJobObo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "updateJobsStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "address",
         "name": "",
@@ -1037,7 +1118,8 @@
       }
     ],
     "name": "wallet2JobId",
-    "outputs": [
+    "outputs":
+    [
       {
         "internalType": "bytes32",
         "name": "",
@@ -1048,58 +1130,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "wallet2LockedBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "wallet2TotalBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "inputs":
+    [
       {
         "internalType": "uint256",
         "name": "_amount",
