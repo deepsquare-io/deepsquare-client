@@ -1,7 +1,6 @@
 [
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "_amountWei",
@@ -13,8 +12,7 @@
   },
   {
     "anonymous": false,
-    "inputs":
-    [
+    "inputs": [
       {
         "indexed": true,
         "internalType": "address",
@@ -39,8 +37,7 @@
   },
   {
     "anonymous": false,
-    "inputs":
-    [
+    "inputs": [
       {
         "indexed": true,
         "internalType": "address",
@@ -59,8 +56,7 @@
   },
   {
     "anonymous": false,
-    "inputs":
-    [
+    "inputs": [
       {
         "indexed": true,
         "internalType": "address",
@@ -84,8 +80,7 @@
     "type": "event"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "owner",
@@ -98,8 +93,7 @@
       }
     ],
     "name": "allowance",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "uint256",
         "name": "",
@@ -110,8 +104,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "spender",
@@ -124,8 +117,7 @@
       }
     ],
     "name": "approve",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "bool",
         "name": "",
@@ -136,8 +128,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "account",
@@ -145,8 +136,7 @@
       }
     ],
     "name": "balanceOf",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "uint256",
         "name": "",
@@ -159,8 +149,7 @@
   {
     "inputs": [],
     "name": "decimals",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "uint8",
         "name": "",
@@ -171,8 +160,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "spender",
@@ -185,8 +173,7 @@
       }
     ],
     "name": "decreaseAllowance",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "bool",
         "name": "",
@@ -197,8 +184,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "spender",
@@ -211,8 +197,7 @@
       }
     ],
     "name": "increaseAllowance",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "bool",
         "name": "",
@@ -223,8 +208,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "account",
@@ -244,8 +228,7 @@
   {
     "inputs": [],
     "name": "name",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "string",
         "name": "",
@@ -258,8 +241,7 @@
   {
     "inputs": [],
     "name": "owner",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "address",
         "name": "",
@@ -279,8 +261,7 @@
   {
     "inputs": [],
     "name": "symbol",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "string",
         "name": "",
@@ -293,8 +274,7 @@
   {
     "inputs": [],
     "name": "totalSupply",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "uint256",
         "name": "",
@@ -305,8 +285,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "to",
@@ -319,8 +298,7 @@
       }
     ],
     "name": "transfer",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "bool",
         "name": "",
@@ -331,8 +309,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "from",
@@ -350,8 +327,7 @@
       }
     ],
     "name": "transferFrom",
-    "outputs":
-    [
+    "outputs": [
       {
         "internalType": "bool",
         "name": "",
@@ -362,8 +338,7 @@
     "type": "function"
   },
   {
-    "inputs":
-    [
+    "inputs": [
       {
         "internalType": "address",
         "name": "newOwner",

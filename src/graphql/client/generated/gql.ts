@@ -1,5 +1,5 @@
 /* eslint-disable */
-import {JobDocument, SubmitDocument} from "./graphql";
+import * as types from "./graphql";
 import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 
 /**
@@ -14,8 +14,8 @@ import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-
  */
 const documents = {
   "query Job($batchLocationHash: String!) {\n  job(batchLocationHash: $batchLocationHash)\n}":
-    JobDocument,
-  "mutation Submit($job: Job!) {\n  submit(job: $job)\n}": SubmitDocument,
+    types.JobDocument,
+  "mutation Submit($job: Job!) {\n  submit(job: $job)\n}": types.SubmitDocument,
 };
 
 /**

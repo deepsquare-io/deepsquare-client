@@ -37,8 +37,8 @@ export default class DeepSquareClient {
    */
   constructor(
     privateKey: string,
-    metaschedulerAddr = "0x2EaC4593AC8B97Ff9589825947258Dc5d4c58139",
-    creditAddr = '0x6f33A243103ab964BCE63e9aC12e8875fE30be9E',
+    metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
+    creditAddr = '0x2FE7ED7941E569697fF856736a88467B8fd569f0',
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql"
   ) {
     const provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {

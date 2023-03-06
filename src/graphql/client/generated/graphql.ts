@@ -182,11 +182,6 @@ export type JobResources = {
 export type Mount = {
   containerDir: Scalars["String"];
   hostDir: Scalars["String"];
-  /**
-   * Options modifies the mount options.
-   *
-   * Accepted: ro, rw
-   */
   options: Scalars["String"];
 };
 
