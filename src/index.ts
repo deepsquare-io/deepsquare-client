@@ -77,7 +77,7 @@ export default class DeepSquareClient {
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.graphqlClient.request(SubmitDocument, { job });
 
-    return (
+    const job_output = (
       await (
         await this.metaScheduler.requestNewJob(
           {
@@ -89,10 +89,10 @@ export default class DeepSquareClient {
               ? job.output.s3
                 ? 2
                 : job.output.http
-                ? job.output.http.url === "https://transfer.deepsquare.run/"
-                  ? 0
-                  : 1
-                : 4
+                  ? job.output.http.url === "https://transfer.deepsquare.run/"
+                    ? 0
+                    : 1
+                  : 4
               : 4,
             batchLocationHash: hash.submit,
           },
@@ -101,7 +101,9 @@ export default class DeepSquareClient {
           true
         )
       ).wait()
-    ).events![1].args![0] as string;
+    )
+    const event = job_output.events!.filter(event => event.event === 'NewJobRequestEvent')![0];
+    return event.args![0] as string;
   }
 
   /**

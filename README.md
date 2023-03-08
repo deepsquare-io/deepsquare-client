@@ -20,6 +20,23 @@ import DeepSquareClient from "@deepsquare/deepsquare-client";
 const deepSquareClient = new DeepSquareClient("myWeb3PrivateKey");
 ```
 
+## Developing the client
+
+If you want to improve or update the deepsquare-client library using an existing toy example, you can
+do this in this repo 
+
+```
+pnpm build
+pnpm link --global
+```
+
+And then in the other repo using the development version you do 
+
+```
+pnpm link --global  @deepsquare/deepsquare-client       
+
+```
+
 ## Using the client
 
 Most of our methods are asynchronous methods, so make sure to await them to avoid race condition.
