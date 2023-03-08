@@ -101,7 +101,7 @@ export default class DeepSquareClient {
           true
         )
       ).wait()
-    ).events![0].args![0] as string;
+    ).events![1].args![0] as string;
   }
 
   /**
