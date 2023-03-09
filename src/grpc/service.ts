@@ -1,13 +1,16 @@
 import { arrayify } from '@ethersproject/bytes';
 import type { JsonRpcProvider } from '@ethersproject/providers';
-import { LoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
 import { ReadResponse } from "./generated/logger/v1alpha1/log";
+import { LoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
 import { Wallet } from '@ethersproject/wallet';
 
 export class GRPCService {
   private abortReadAndWatch: AbortController | null = null;
+  private loggerClient: LoggerAPIClient;
 
-  constructor(private loggerClient: LoggerAPIClient, private provider: JsonRpcProvider, private wallet: Wallet) { }
+  constructor(private loggerClientFactory: () => LoggerAPIClient, private provider: JsonRpcProvider, private wallet: Wallet) {
+    this.loggerClient = loggerClientFactory();
+  }
 
   async readAndWatch(address: string, logName: string): Promise<AsyncIterable<ReadResponse>> {
     this.abortReadAndWatch = new AbortController();

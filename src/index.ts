@@ -9,7 +9,7 @@ import { Contract } from "ethers";
 import creditAbi from "./abi/Credit.json";
 import metaSchedulerAbi from "./abi/MetaScheduler.json";
 import { GRPCService } from "./grpc/service";
-import loggerClient from "./grpc/client";
+import { createLoggerClient } from "./grpc/client";
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
@@ -27,7 +27,7 @@ export default class DeepSquareClient {
 
   private readonly credit: Credit;
 
-  private readonly grpcService: GRPCService;
+  private readonly provider: JsonRpcProvider;
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing
@@ -41,22 +41,21 @@ export default class DeepSquareClient {
     creditAddr = '0x2FE7ED7941E569697fF856736a88467B8fd569f0',
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql"
   ) {
-    const provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
+    this.provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
       name: "DeepSquare Testnet",
       chainId: 179188,
     });
 
-    this.wallet = new Wallet(privateKey, provider);
+    this.wallet = new Wallet(privateKey, this.provider);
 
     this.graphqlClient = new GraphQLClient(sbatchServiceEndpoint);
 
-    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, provider).connect(
+    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, this.provider).connect(
       this.wallet
     ) as MetaScheduler;
 
-    this.credit = new Contract(creditAddr, creditAbi, provider).connect(this.wallet) as Credit
+    this.credit = new Contract(creditAddr, creditAbi, this.provider).connect(this.wallet) as Credit
 
-    this.grpcService = new GRPCService(loggerClient, provider, this.wallet);
   }
 
   /**
@@ -102,6 +101,8 @@ export default class DeepSquareClient {
         )
       ).wait()
     )
+    //console.log(job_output.events as [])
+    //console.log(job_output.events![1] as {})
     const event = job_output.events!.filter(event => event.event === 'NewJobRequestEvent')![0];
     return event.args![0] as string;
   }
@@ -141,15 +142,18 @@ export default class DeepSquareClient {
     fetchLogs: () => Promise<AsyncIterable<ReadResponse>>;
     stopFetch: () => void;
   } {
+    const loggerClientFactory = () => createLoggerClient();
+    const service = new GRPCService(loggerClientFactory, this.provider, this.wallet);
     return {
+
       fetchLogs: async () => {
-        return await this.grpcService.readAndWatch(
+        return await service.readAndWatch(
           this.wallet.address.toLowerCase(),
           jobId
         );
       },
       stopFetch: () => {
-        this.grpcService.stopReadAndWatch();
+        service.stopReadAndWatch();
       },
     };
   }
