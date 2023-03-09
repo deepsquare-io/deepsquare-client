@@ -1,6 +1,6 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "graphql:gen": "graphql-codegen --config codegen.yml",
