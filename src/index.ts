@@ -10,6 +10,7 @@ import creditAbi from "./abi/Credit.json";
 import metaSchedulerAbi from "./abi/MetaScheduler.json";
 import { GRPCService } from "./grpc/service";
 import { createLoggerClient } from "./grpc/client";
+import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
@@ -39,7 +40,8 @@ export default class DeepSquareClient {
     privateKey: string,
     metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
     creditAddr = '0x2FE7ED7941E569697fF856736a88467B8fd569f0',
-    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql"
+    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
+    private loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ) {
     this.provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
       name: "DeepSquare Testnet",
@@ -139,21 +141,15 @@ export default class DeepSquareClient {
    * @param jobId {string} The job id from which getting the job
    */
   getLogsMethods(jobId: string): {
-    fetchLogs: () => Promise<AsyncIterable<ReadResponse>>;
-    stopFetch: () => void;
+    fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
-    const loggerClientFactory = () => createLoggerClient();
-    const service = new GRPCService(loggerClientFactory, this.provider, this.wallet);
     return {
-
-      fetchLogs: async () => {
-        return await service.readAndWatch(
+      fetchLogs: () => {
+        const service = new GRPCService(this.loggerClientFactory(), this.wallet);
+        return service.readAndWatch(
           this.wallet.address.toLowerCase(),
           jobId
         );
-      },
-      stopFetch: () => {
-        service.stopReadAndWatch();
       },
     };
   }
