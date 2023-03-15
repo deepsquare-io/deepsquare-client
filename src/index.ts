@@ -86,12 +86,6 @@ export default class DeepSquareClient {
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.graphqlClient.request(SubmitDocument, { job });
     return this.lock.acquire('submitJob', async () => {
-      if (this.nonce == -1) {
-        this.nonce = await this.wallet.getTransactionCount();
-      }
-      else {
-        this.nonce = this.nonce + 1;
-      }
       const job_output = (
         await (
           await this.metaScheduler.requestNewJob(
@@ -114,7 +108,6 @@ export default class DeepSquareClient {
             parseUnits((1e3).toString(), "ether"),
             formatBytes32String(jobName),
             true,
-            { nonce: this.nonce }
           )
         ).wait()
       )
