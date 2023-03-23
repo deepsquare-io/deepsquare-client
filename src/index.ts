@@ -70,9 +70,9 @@ export default class DeepSquareClient {
 
   /**
    * Allow DeepSquare Grid to use $amount of credits to pay for jobs.
-   * @param amount The amount to deposit.
+   * @param amount The amount to setAllowance.
    */
-  async deposit(amount: BigNumber) {
+  async setAllowance(amount: BigNumber) {
     await this.credit.approve(this.metaScheduler.address, parseUnits(amount.toString(), 'ether'))
   }
 
@@ -82,7 +82,7 @@ export default class DeepSquareClient {
    * @param jobName The name of the job, limited to 32 characters.
    * @returns {string} The id of the job on the Grid
    */
-  async submitJob(job: Job, jobName: string): Promise<string> {
+  async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.graphqlClient.request(SubmitDocument, { job });
     return this.lock.acquire('submitJob', async () => {
@@ -105,7 +105,7 @@ export default class DeepSquareClient {
                 : 4,
               batchLocationHash: hash.submit,
             },
-            parseUnits((1e3).toString(), "ether"),
+            parseUnits((maxAmount).toString(), "ether"),
             formatBytes32String(jobName),
             true,
           )
