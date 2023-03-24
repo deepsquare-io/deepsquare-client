@@ -33,8 +33,6 @@ export default class DeepSquareClient {
 
   private lock: AsyncLock;
 
-  private nonce: number;
-
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract
@@ -53,8 +51,6 @@ export default class DeepSquareClient {
       chainId: 179188,
     });
     this.lock = new AsyncLock();
-
-    this.nonce = -1;
 
     this.wallet = new Wallet(privateKey, this.provider);
 
