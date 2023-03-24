@@ -148,7 +148,9 @@ await deepSquareClient.cancel(jobId);
 
 Below a plain javascript fully working example launching a hello world job. 
 
-Don't forget to setup your env
+> Don't forget to setup your env
+
+
 ```javascript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 import { BigNumber } from 'ethers';
