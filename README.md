@@ -208,21 +208,6 @@ async function main() {
 main();
 ```
 
-In this modified code, the entire script is wrapped in an async function called main(). Inside the main() function, we use the await keyword to wait for the Promise returned by deepSquareClient.setAllowance(depositAmount) to resolve before continuing with the rest of the code.
-
-At the end of the script, we call main() to start the asynchronous execution of the script.
-
-
-
-
-Florin Dzeladini
-Will this wait for end of execution of main ? Or do I need to add a setTimeOut ? 
-Yes, the modified code I provided with the async function main() and main() function call at the end will wait for the end of the execution of main() before exiting the script.
-
-When you call main() at the end of the script, the async keyword indicates that it will return a Promise. However, since there is no code that explicitly awaits this Promise, Node.js will wait for the Promise to resolve or reject before exiting the script. Therefore, there is no need to add a setTimeout function.
-
-
-
 
 
 
