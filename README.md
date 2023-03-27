@@ -22,8 +22,10 @@ const deepSquareClient = new DeepSquareClient("myWeb3PrivateKey");
 
 ## Developing the client
 
-If you want to improve or update the deepsquare-client library using an existing toy example, you can
-do this in this repo 
+If you want to improve or update the deepsquare-client library do the following : 
+
+
+In the folder containing the deepsquare-client
 
 ```
 pnpm build
@@ -47,12 +49,14 @@ First of all, you will have to deposit credits that will be used to run jobs. No
 credits during their whole lifecycle, thus if you run out of credit, all your jobs will be cancelled.
 credits. We recommend to implement a side service that deposit regularly credit not to interrupt any of your jobs.
 
+The deposit of credits is technically an allowance (similar to what UniSwap does).
+
 To deposit credits, you can do so :
 
 ```typescript
 const depositAmount = BigNumber.from('10000000000000');
 
-await deepSquareClient.deposit(depositAmount);
+await deepSquareClient.setAllowance(depositAmount);
 ```
 
 Then, you can request a job (note that the job name is limited to 32 characters) :
@@ -63,6 +67,17 @@ const jobId = await deepSquareClient.submitJob(myJob, 'myJob');
 
 The jobId returned can then be used to retrieve information and eventually logs from this job.
 Check last section to see the full specification of a job.
+
+#### Control the cost of a job. 
+
+By default a job has 1000 credits (= 1$). If you want to reduce is you can use en extra parameter
+
+For example the following would run a 6 minutes job on a 1 GPU.
+```typescript
+const jobId = await deepSquareClient.submitJob(myJob, 'myJob', 1e2);
+```
+
+> Important note: The amount must be an integer.
 
 ### Retrieve job information
 
@@ -94,22 +109,28 @@ The returned object contains several properties including :
 
 ### Retrieve job logs
 
-In order to retrieve job logs you can use :
+Job logs can be retrieved using a gRPC streaming service. 
+Here is how to use it: 
+
+1. Get the log methods 
 
 ```typescript
-const {fetchLogs, stopFetch} = deepSquareClient.getJob(jobId);
+const logsMethods = deepSquareClient.getLogsMethods(_jobId);
+const [read, stopFetch] = await logsMethods.fetchLogs();
 ```
+
+2. Fetch the logs : 
 
 The ```fetchLogs``` opens a stream and returns an AsyncIterable you can read this way :
 
 ```typescript
-const stream = await fetchLogs();
-for await (const line of stream) {
-  console.log(line.data);
+for await (const log of read) {
+  const lineStr = decoder.decode(log.data);
+  console.log(lineStr)
 }
 ```
 
-Once you are done reading the logs, don't forget to close the stream with the second function :
+3. Once you are done, you should close the stream 
 
 ```typescript
 stopFetch();
@@ -123,6 +144,77 @@ In order to cancel a job you can use :
 await deepSquareClient.cancel(jobId);
 ```
 
+## Example 
+
+Below a plain javascript fully working example launching a hello world job. 
+
+> Don't forget to setup your env
+
+
+```javascript
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { BigNumber } from 'ethers';
+
+async function main() {
+  // Define the job
+  const helloWorldJob = {
+    "resources": {
+      "tasks": 1,
+      "gpusPerTask": 0,
+      "cpusPerTask": 1,
+      "memPerCpu": 1024
+    },
+    "enableLogging": true,
+    "steps": [
+      {
+        "name": "hello world",
+        "run": {
+          "command": "echo \"Hello World\""
+        }
+      }
+    ]
+  };
+
+  // Create the DeepSquareClient
+  const deepSquareClient = new DeepSquareClient(
+    process.env.PRIVATE_KEY as string,
+    process.env.METASCHEDULER_ADDR as string,
+    process.env.CREDIT_ADDR as string,
+    process.env.ENDPOINT as string
+  );
+
+  // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)
+  const depositAmount = BigNumber.from('10000000000000');
+  await deepSquareClient.setAllowance(depositAmount);
+
+  // Launch the job 
+  const randomString = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
+  const jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`);
+
+  // Print logs
+  console.log(`My job id ${jobId}`);
+  const logsMethods = deepSquareClient.getLogsMethods(jobId);
+  const [read, stopFetch] = await logsMethods.fetchLogs();
+  const decoder = new TextDecoder();
+
+  for await (const log of read) {
+    // Fetching job output here (e.g. anything printing to terminal, here Hello World)
+    console.log(decoder.decode(log.data));
+  }
+
+  stopFetch();
+}
+
+main();
+```
+
+
+
+
+
+
+
+```
 
 ## Job specification
 

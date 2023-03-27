@@ -3,7 +3,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { GraphQLClient } from "graphql-request";
 import type { Job } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import type { Credit, MetaScheduler } from "./contracts";
 import { Contract } from "ethers";
 import creditAbi from "./abi/Credit.json";
@@ -11,6 +11,7 @@ import metaSchedulerAbi from "./abi/MetaScheduler.json";
 import { GRPCService } from "./grpc/service";
 import { createLoggerClient } from "./grpc/client";
 import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
+import AsyncLock from 'async-lock';
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
@@ -30,6 +31,8 @@ export default class DeepSquareClient {
 
   private readonly provider: JsonRpcProvider;
 
+  private lock: AsyncLock;
+
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract
@@ -47,6 +50,7 @@ export default class DeepSquareClient {
       name: "DeepSquare Testnet",
       chainId: 179188,
     });
+    this.lock = new AsyncLock();
 
     this.wallet = new Wallet(privateKey, this.provider);
 
@@ -62,9 +66,9 @@ export default class DeepSquareClient {
 
   /**
    * Allow DeepSquare Grid to use $amount of credits to pay for jobs.
-   * @param amount The amount to deposit.
+   * @param amount The amount to setAllowance.
    */
-  async deposit(amount: BigNumber) {
+  async setAllowance(amount: BigNumber) {
     await this.credit.approve(this.metaScheduler.address, parseUnits(amount.toString(), 'ether'))
   }
 
@@ -74,39 +78,40 @@ export default class DeepSquareClient {
    * @param jobName The name of the job, limited to 32 characters.
    * @returns {string} The id of the job on the Grid
    */
-  async submitJob(job: Job, jobName: string): Promise<string> {
+  async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.graphqlClient.request(SubmitDocument, { job });
-
-    const job_output = (
-      await (
-        await this.metaScheduler.requestNewJob(
-          {
-            ntasks: job.resources.tasks,
-            gpuPerTask: job.resources.gpusPerTask,
-            cpuPerTask: job.resources.cpusPerTask,
-            memPerCpu: job.resources.memPerCpu,
-            storageType: job.output
-              ? job.output.s3
-                ? 2
-                : job.output.http
-                  ? job.output.http.url === "https://transfer.deepsquare.run/"
-                    ? 0
-                    : 1
-                  : 4
-              : 4,
-            batchLocationHash: hash.submit,
-          },
-          parseUnits((1e3).toString(), "ether"),
-          formatBytes32String(jobName),
-          true
-        )
-      ).wait()
-    )
-    //console.log(job_output.events as [])
-    //console.log(job_output.events![1] as {})
-    const event = job_output.events!.filter(event => event.event === 'NewJobRequestEvent')![0];
-    return event.args![0] as string;
+    return this.lock.acquire('submitJob', async () => {
+      const job_output = (
+        await (
+          await this.metaScheduler.requestNewJob(
+            {
+              ntasks: job.resources.tasks,
+              gpuPerTask: job.resources.gpusPerTask,
+              cpuPerTask: job.resources.cpusPerTask,
+              memPerCpu: job.resources.memPerCpu,
+              storageType: job.output
+                ? job.output.s3
+                  ? 2
+                  : job.output.http
+                    ? job.output.http.url === "https://transfer.deepsquare.run/"
+                      ? 0
+                      : 1
+                    : 4
+                : 4,
+              batchLocationHash: hash.submit,
+            },
+            parseUnits((maxAmount).toString(), "ether"),
+            formatBytes32String(jobName),
+            true,
+          )
+        ).wait()
+      )
+      //console.log(job_output.events as [])
+      //console.log(job_output.events![1] as {})
+      const event = job_output.events!.filter(event => event.event === 'NewJobRequestEvent')![0];
+      return event.args![0] as string;
+    })
   }
 
   /**
