@@ -20,8 +20,12 @@ import type {
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import { formatBytes32String, parseUnits } from "ethers/lib/utils";
 
+interface GetLogsMethodsReturnType {
+  fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
+}
+
 export default class DeepSquareClient {
-  private readonly wallet: Wallet;
+  private readonly wallet: Wallet | null;
 
   private readonly graphqlClient: GraphQLClient;
 
@@ -52,16 +56,23 @@ export default class DeepSquareClient {
     });
     this.lock = new AsyncLock();
 
-    this.wallet = new Wallet(privateKey, this.provider);
+    // Wallet is optional
+    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, this.provider) as MetaScheduler;
+    this.credit = new Contract(creditAddr, creditAbi, this.provider) as Credit;
+
+    try {
+      this.wallet = new Wallet(privateKey, this.provider);
+    } catch (e) {
+      console.error('Error creating wallet:', e);
+      this.wallet = null;
+    }
+
+    if (this.wallet) {
+      this.metaScheduler = this.metaScheduler.connect(this.wallet) as MetaScheduler;
+      this.credit = this.credit.connect(this.wallet) as Credit;
+    }
 
     this.graphqlClient = new GraphQLClient(sbatchServiceEndpoint);
-
-    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, this.provider).connect(
-      this.wallet
-    ) as MetaScheduler;
-
-    this.credit = new Contract(creditAddr, creditAbi, this.provider).connect(this.wallet) as Credit
-
   }
 
   /**
@@ -79,6 +90,7 @@ export default class DeepSquareClient {
    * @returns {string} The id of the job on the Grid
    */
   async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
+    if (this.wallet === null) throw new Error("This requires a valid private key");
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.graphqlClient.request(SubmitDocument, { job });
     return this.lock.acquire('submitJob', async () => {
@@ -138,6 +150,7 @@ export default class DeepSquareClient {
    * @param jobId {string} The job id to cancel.
    */
   async cancel(jobId: string) {
+    if (this.wallet === null) throw new Error("This requires a valid private key");
     return await this.metaScheduler.cancelJob(jobId)
   }
 
@@ -148,11 +161,12 @@ export default class DeepSquareClient {
   getLogsMethods(jobId: string): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
+    if (this.wallet === null) throw new Error("This requires a valid private key");
     return {
       fetchLogs: () => {
-        const service = new GRPCService(this.loggerClientFactory(), this.wallet);
+        const service = new GRPCService(this.loggerClientFactory(), this.wallet as Wallet);
         return service.readAndWatch(
-          this.wallet.address.toLowerCase(),
+          (this.wallet as Wallet).address.toLowerCase(),
           jobId
         );
       },
