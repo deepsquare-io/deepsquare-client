@@ -3,3 +3,4 @@
 /* eslint-disable */
 export { Credit__factory } from "./Credit__factory";
 export { MetaScheduler__factory } from "./MetaScheduler__factory";
+export { ProviderManager__factory } from "./ProviderManager__factory";

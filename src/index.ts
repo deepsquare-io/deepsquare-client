@@ -1,13 +1,16 @@
+import dayjs from 'dayjs';
+import { formatEther } from '@ethersproject/units';
 import { Wallet } from "@ethersproject/wallet";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { GraphQLClient } from "graphql-request";
 import type { Job } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import type { Credit, MetaScheduler } from "./contracts";
+import { BigNumber } from "@ethersproject/bignumber";
+import type { Credit, MetaScheduler, ProviderManager } from "./contracts";
 import { Contract } from "ethers";
 import creditAbi from "./abi/Credit.json";
 import metaSchedulerAbi from "./abi/MetaScheduler.json";
+import providerManagerAbi from "./abi/ProviderManager.json";
 import { GRPCService } from "./grpc/service";
 import { createLoggerClient } from "./grpc/client";
 import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
@@ -24,12 +27,25 @@ interface GetLogsMethodsReturnType {
   fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
 }
 
+const computeCost = (job: any, provider: any): number => {
+  const tasks = job.definition.ntasks.toNumber();
+  const gpuCost = job.definition.gpuPerTask.toNumber() * provider.definition.gpuPricePerMin.toNumber();
+  const cpuCost = job.definition.cpuPerTask.toNumber() * provider.definition.cpuPricePerMin.toNumber();
+  const memCost =
+    job.definition.memPerCpu.toNumber() *
+    job.definition.cpuPerTask.toNumber() *
+    provider.definition.memPricePerMin.toNumber();
+  return (tasks * (gpuCost + cpuCost + memCost)) / 1e6;
+};
+
 export default class DeepSquareClient {
   private readonly wallet: Wallet | null;
 
   private readonly graphqlClient: GraphQLClient;
 
   private readonly metaScheduler: MetaScheduler;
+
+  private readonly providerManager: ProviderManager;
 
   private readonly credit: Credit;
 
@@ -40,6 +56,7 @@ export default class DeepSquareClient {
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract
+   * @param providerManagerAddr {string} Address of the providerManager smart contract
    * @param creditAddr {string} Address of the credit smart contract
    * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service
    */
@@ -47,6 +64,7 @@ export default class DeepSquareClient {
     privateKey: string,
     metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
     creditAddr = '0x2FE7ED7941E569697fF856736a88467B8fd569f0',
+    providerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     private loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ) {
@@ -58,6 +76,7 @@ export default class DeepSquareClient {
 
     // Wallet is optional
     this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, this.provider) as MetaScheduler;
+    this.providerManager = new Contract(providerAddr, providerManagerAbi, this.provider) as ProviderManager;
     this.credit = new Contract(creditAddr, creditAbi, this.provider) as Credit;
 
     try {
@@ -69,6 +88,7 @@ export default class DeepSquareClient {
 
     if (this.wallet) {
       this.metaScheduler = this.metaScheduler.connect(this.wallet) as MetaScheduler;
+      //this.providerManager = this.providerManager.connect(this.wallet) as ProviderManager;
       this.credit = this.credit.connect(this.wallet) as Credit;
     }
 
@@ -141,8 +161,19 @@ export default class DeepSquareClient {
     time: JobTimeStructOutput;
     jobName: string;
     hasCancelRequest: boolean;
+    costPerMin: number;
+    timeLeft: number;
   }> {
-    return await this.metaScheduler.jobs(jobId);
+    let job = await this.metaScheduler.jobs(jobId);
+    let provider = await this.providerManager.getProvider(job.providerAddr);
+
+    let costPerMin = computeCost(job, provider);
+    let timeLeft = dayjs(
+      Math.round(
+        (parseFloat(formatEther(job.cost.maxCost)) * 60 * 1000) / computeCost(job, provider),
+      ),
+    ).diff(dayjs().diff(dayjs(job.time.start.toNumber() * 1000)), 'minutes')
+    return { ...job, costPerMin, timeLeft };
   }
 
   /**

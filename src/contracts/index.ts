@@ -3,5 +3,7 @@
 /* eslint-disable */
 export type { Credit } from "./Credit";
 export type { MetaScheduler } from "./MetaScheduler";
+export type { ProviderManager } from "./ProviderManager";
 export { Credit__factory } from "./factories/Credit__factory";
 export { MetaScheduler__factory } from "./factories/MetaScheduler__factory";
+export { ProviderManager__factory } from "./factories/ProviderManager__factory";
