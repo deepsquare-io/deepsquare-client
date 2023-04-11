@@ -22,12 +22,43 @@ import type {
 } from "./contracts/MetaScheduler";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import { formatBytes32String, parseUnits } from "ethers/lib/utils";
+import { time } from 'console';
+
+export enum JobStatus {
+  PENDING = 0,
+  META_SCHEDULED = 1,
+  SCHEDULED = 2,
+  RUNNING = 3,
+  CANCELLED = 4,
+  FINISHED = 5,
+  FAILED = 6,
+  OUT_OF_CREDITS = 7
+}
 
 interface GetLogsMethodsReturnType {
   fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
 }
 
+export function isJobTerminated(status: number): boolean {
+  return (
+    status === JobStatus.CANCELLED ||
+    status === JobStatus.FAILED ||
+    status === JobStatus.FINISHED ||
+    status === JobStatus.OUT_OF_CREDITS
+  );
+}
+
+// compute the job current cost (total if job finished)
 const computeCost = (job: any, provider: any): number => {
+  return isJobTerminated(job.start)
+    ? +formatEther(job.cost.finalCost)
+    : +`${(
+      dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') * computeCostPerMin(job, provider)
+    ).toFixed(0)}`
+}
+
+// compute the job costs per minute based on provider price
+const computeCostPerMin = (job: any, provider: any): number => {
   const tasks = job.definition.ntasks.toNumber();
   const gpuCost = job.definition.gpuPerTask.toNumber() * provider.definition.gpuPricePerMin.toNumber();
   const cpuCost = job.definition.cpuPerTask.toNumber() * provider.definition.cpuPricePerMin.toNumber();
@@ -161,19 +192,25 @@ export default class DeepSquareClient {
     time: JobTimeStructOutput;
     jobName: string;
     hasCancelRequest: boolean;
+    actualCost: number;
     costPerMin: number;
     timeLeft: number;
   }> {
     let job = await this.metaScheduler.jobs(jobId);
-    let provider = await this.providerManager.getProvider(job.providerAddr);
-
-    let costPerMin = computeCost(job, provider);
-    let timeLeft = dayjs(
-      Math.round(
-        (parseFloat(formatEther(job.cost.maxCost)) * 60 * 1000) / computeCost(job, provider),
-      ),
-    ).diff(dayjs().diff(dayjs(job.time.start.toNumber() * 1000)), 'minutes')
-    return { ...job, costPerMin, timeLeft };
+    let currentProvider = null;
+    let costPerMin = 0;
+    let actualCost = 0;
+    let timeLeft = 0;
+    try {
+      currentProvider = await this.providerManager.getProvider(job.providerAddr.toLowerCase());
+      actualCost = computeCost(job, currentProvider);
+      costPerMin = computeCostPerMin(job, currentProvider);
+      timeLeft = (parseFloat(formatEther(job.cost.maxCost)) - actualCost) / costPerMin
+    }
+    catch (e) {
+      console.log(e)
+    }
+    return { ...job, actualCost, costPerMin, timeLeft };
   }
 
   /**
