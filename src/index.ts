@@ -217,6 +217,15 @@ export default class DeepSquareClient {
    *  Cancel a job by id
    * @param jobId {string} The job id to cancel.
    */
+  async topUp(jobId: string, amount = 1e3) {
+    if (this.wallet === null) throw new Error("This requires a valid private key");
+    return await this.metaScheduler.topUpJob(jobId, parseUnits((amount).toString(), "ether"))
+  }
+
+  /**
+   *  Cancel a job by id
+   * @param jobId {string} The job id to cancel.
+   */
   async cancel(jobId: string) {
     if (this.wallet === null) throw new Error("This requires a valid private key");
     return await this.metaScheduler.cancelJob(jobId)
