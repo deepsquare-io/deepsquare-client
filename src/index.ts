@@ -45,15 +45,20 @@ export default class DeepSquareClient {
     privateKey: string,
     metaschedulerAddr = '0xB95a74d32Fa5C95984406Ca82653cBD6570cb523',
     sbatchServiceEndpoint = 'https://sbatch.deepsquare.run/graphql',
+    jsonRpcProvider: JsonRpcProvider = new JsonRpcProvider(
+      'https://testnet.deepsquare.run/rpc',
+      {
+        name: 'DeepSquare Testnet',
+        chainId: 179188,
+      }
+    ),
     loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ): Promise<DeepSquareClient> {
     var signerOrProvider: Signer | Provider;
-    const provider = new JsonRpcProvider('https://testnet.deepsquare.run/rpc', {
-      name: 'DeepSquare Testnet',
-      chainId: 179188,
-    });
     // Use a authenticated client if there is a key, else don't.
-    signerOrProvider = privateKey ? new Wallet(privateKey, provider) : provider;
+    signerOrProvider = privateKey
+      ? new Wallet(privateKey, jsonRpcProvider)
+      : jsonRpcProvider;
     const metaScheduler = MetaScheduler__factory.connect(
       metaschedulerAddr,
       signerOrProvider
