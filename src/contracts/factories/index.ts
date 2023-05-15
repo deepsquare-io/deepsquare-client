@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IERC20__factory } from "./IERC20__factory";
+export { IProviderManager__factory } from "./IProviderManager__factory";
 export { MetaScheduler__factory } from "./MetaScheduler__factory";
-export { ProviderManager__factory } from "./ProviderManager__factory";

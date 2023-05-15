@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  ProviderManager,
-  ProviderManagerInterface,
-} from "../ProviderManager";
+  IProviderManager,
+  IProviderManagerInterface,
+} from "../IProviderManager";
 
 const _abi = [
   {
@@ -754,15 +754,15 @@ const _abi = [
   },
 ] as const;
 
-export class ProviderManager__factory {
+export class IProviderManager__factory {
   static readonly abi = _abi;
-  static createInterface(): ProviderManagerInterface {
-    return new utils.Interface(_abi) as ProviderManagerInterface;
+  static createInterface(): IProviderManagerInterface {
+    return new utils.Interface(_abi) as IProviderManagerInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ProviderManager {
-    return new Contract(address, _abi, signerOrProvider) as ProviderManager;
+  ): IProviderManager {
+    return new Contract(address, _abi, signerOrProvider) as IProviderManager;
   }
 }

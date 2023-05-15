@@ -83,7 +83,7 @@ export type ProviderStructOutput = [
   pointNextNode: BigNumber;
 };
 
-export interface ProviderManagerInterface extends utils.Interface {
+export interface IProviderManagerInterface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "METASCHEDULER_CONTRACT_ROLE()": FunctionFragment;
@@ -386,12 +386,12 @@ export type ToBeApprovedEvent = TypedEvent<[string], ToBeApprovedEventObject>;
 
 export type ToBeApprovedEventFilter = TypedEventFilter<ToBeApprovedEvent>;
 
-export interface ProviderManager extends BaseContract {
+export interface IProviderManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ProviderManagerInterface;
+  interface: IProviderManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

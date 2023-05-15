@@ -9,10 +9,10 @@ import { formatBytes32String, parseUnits } from 'ethers/lib/utils';
 import { GraphQLClient } from 'graphql-request';
 import {
   IERC20,
+  IProviderManager,
+  IProviderManager__factory,
   MetaScheduler,
   MetaScheduler__factory,
-  ProviderManager,
-  ProviderManager__factory,
 } from './contracts';
 import type {
   JobCostStructOutput,
@@ -84,7 +84,7 @@ export default class DeepSquareClient {
     private readonly signerOrProvider: Signer | Provider,
     private readonly metaScheduler: MetaScheduler,
     private readonly credit: IERC20,
-    private readonly providerManager: ProviderManager,
+    private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
     private loggerClientFactory: () => ILoggerAPIClient
   ) {}
@@ -122,7 +122,7 @@ export default class DeepSquareClient {
     const credit = IERC20__factory.connect(creditAddr, signerOrProvider);
 
     const providerAddr = await metaScheduler.providerManager();
-    const providerManager = ProviderManager__factory.connect(
+    const providerManager = IProviderManager__factory.connect(
       providerAddr,
       signerOrProvider
     );
