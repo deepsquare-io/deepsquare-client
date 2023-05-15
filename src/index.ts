@@ -26,11 +26,6 @@ import { GRPCService } from './grpc/service';
 export default class DeepSquareClient {
   private lock: AsyncLock;
 
-  /**
-   * @param privateKey {string} Web3 wallet private that will be used for credit billing
-   * @param metaschedulerAddr {string} Address of the metascheduler smart contract
-   * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service
-   */
   private constructor(
     private readonly signerOrProvider: Signer | Provider,
     private readonly metaScheduler: MetaScheduler,
@@ -41,6 +36,13 @@ export default class DeepSquareClient {
     this.lock = new AsyncLock();
   }
 
+  /**
+   * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
+   * @param metaschedulerAddr {string} Address of the metascheduler smart contract.
+   * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service.
+   * @param jsonRpcProvider {JsonRpcProvider} JsonRpcProvider to a ethereum API.
+   * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
+   */
   static async build(
     privateKey: string,
     metaschedulerAddr = '0xB95a74d32Fa5C95984406Ca82653cBD6570cb523',
