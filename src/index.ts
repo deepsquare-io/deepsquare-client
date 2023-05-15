@@ -24,7 +24,7 @@ import { ILoggerAPIClient } from './grpc/generated/logger/v1alpha1/log.client';
 import { GRPCService } from './grpc/service';
 
 export default class DeepSquareClient {
-  private lock: AsyncLock;
+  private lock = new AsyncLock();
 
   private constructor(
     private readonly signerOrProvider: Signer | Provider,
@@ -32,9 +32,7 @@ export default class DeepSquareClient {
     private readonly credit: IERC20,
     private readonly sbatchServiceClient: GraphQLClient,
     private loggerClientFactory: () => ILoggerAPIClient
-  ) {
-    this.lock = new AsyncLock();
-  }
+  ) {}
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
