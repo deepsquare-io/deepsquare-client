@@ -3,10 +3,14 @@
   "version": "0.7.3",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
     "graphql:gen": "graphql-codegen --config codegen.yml",
     "typechain:gen": "typechain --target=ethers-v5 src/abis/*.abi --out-dir './src/contracts'",
     "build": "rm -Rf .parcel-cache && parcel build",
-    "test": "vitest"
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "lint": "eslint --ext .js,.ts,.tsx src/",
+    "lint:fix": "eslint --ext .js,.ts,.tsx src/ --fix"
   },
   "source": "src/index.ts",
   "main": "lib/index.cjs",
@@ -19,6 +23,7 @@
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
+    "@ethersproject/units": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "@grpc/grpc-js": "^1.8.11",
     "@protobuf-ts/grpc-transport": "^2.8.2",
@@ -52,6 +57,7 @@
     "eslint-config-next": "^12.1.5",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-deprecation": "^1.4.1",
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-prettier": "^4.0.0",
     "graphql-tag": "^2.12.6",
