@@ -20,6 +20,12 @@ import type {
   JobDefinitionStructOutput,
   JobTimeStructOutput,
 } from "./contracts/MetaScheduler";
+
+import type {
+  ProviderPricesStruct
+} from "./contracts/ProviderManager";
+
+
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import { formatBytes32String, parseUnits } from "ethers/lib/utils";
 import { time } from 'console';
@@ -49,23 +55,23 @@ export function isJobTerminated(status: number): boolean {
 }
 
 // compute the job current cost (total if job finished)
-const computeCost = (job: any, provider: any): number => {
+const computeCost = (job: any, providerPrice: any): number => {
   return isJobTerminated(job.start)
     ? +formatEther(job.cost.finalCost)
     : +`${(
-      dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') * computeCostPerMin(job, provider)
+      dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') * computeCostPerMin(job, providerPrice)
     ).toFixed(0)}`
 }
 
 // compute the job costs per minute based on provider price
-const computeCostPerMin = (job: any, provider: any): number => {
+const computeCostPerMin = (job: any, providerPrice: any): number => {
   const tasks = job.definition.ntasks.toNumber();
-  const gpuCost = job.definition.gpuPerTask.toNumber() * provider.definition.gpuPricePerMin.toNumber();
-  const cpuCost = job.definition.cpuPerTask.toNumber() * provider.definition.cpuPricePerMin.toNumber();
+  const gpuCost = job.definition.gpuPerTask.toNumber() * providerPrice.gpuPricePerMin.toNumber();
+  const cpuCost = job.definition.cpuPerTask.toNumber() * providerPrice.cpuPricePerMin.toNumber();
   const memCost =
     job.definition.memPerCpu.toNumber() *
     job.definition.cpuPerTask.toNumber() *
-    provider.definition.memPricePerMin.toNumber();
+    providerPrice.memPricePerMin.toNumber();
   return (tasks * (gpuCost + cpuCost + memCost)) / 1e6;
 };
 
@@ -163,6 +169,7 @@ export default class DeepSquareClient {
                     : 4
                 : 4,
               batchLocationHash: hash.submit,
+              uses: [{ key: 'os', value: 'linux' }]
             },
             parseUnits((maxAmount).toString(), "ether"),
             formatBytes32String(jobName),
@@ -197,14 +204,14 @@ export default class DeepSquareClient {
     timeLeft: number;
   }> {
     let job = await this.metaScheduler.jobs(jobId);
-    let currentProvider = null;
+    let providerPrices: ProviderPricesStruct;
     let costPerMin = 0;
     let actualCost = 0;
     let timeLeft = 0;
     try {
-      currentProvider = await this.providerManager.getProvider(job.providerAddr.toLowerCase());
-      actualCost = computeCost(job, currentProvider);
-      costPerMin = computeCostPerMin(job, currentProvider);
+      providerPrices = await this.providerManager.getProviderPrices(job.providerAddr.toLowerCase());
+      actualCost = computeCost(job, providerPrices);
+      costPerMin = computeCostPerMin(job, providerPrices);
       timeLeft = (parseFloat(formatEther(job.cost.maxCost)) - actualCost) / costPerMin
     }
     catch (e) {
