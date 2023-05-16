@@ -1,67 +1,78 @@
-import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { GraphQLClient } from "graphql-request";
-import type { Job } from "./graphql/client/generated/graphql";
-import { SubmitDocument } from "./graphql/client/generated/graphql";
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import type { Credit, MetaScheduler } from "./contracts";
-import { Contract } from "ethers";
-import creditAbi from "./abi/Credit.json";
-import metaSchedulerAbi from "./abi/MetaScheduler.json";
-import { GRPCService } from "./grpc/service";
-import { createLoggerClient } from "./grpc/client";
-import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
+import { BigNumber } from '@ethersproject/bignumber';
+import { JsonRpcProvider, Provider } from '@ethersproject/providers';
+import { Wallet } from '@ethersproject/wallet';
 import AsyncLock from 'async-lock';
+import { Signer } from 'ethers';
+import { formatBytes32String, parseUnits } from 'ethers/lib/utils';
+import { GraphQLClient } from 'graphql-request';
+import {
+  IERC20,
+  IERC20__factory,
+  MetaScheduler,
+  MetaScheduler__factory,
+} from './contracts';
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
   JobTimeStructOutput,
-} from "./contracts/MetaScheduler";
-import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
-import { formatBytes32String, parseUnits } from "ethers/lib/utils";
+} from './contracts/MetaScheduler';
+import type { Job } from './graphql/client/generated/graphql';
+import { SubmitDocument } from './graphql/client/generated/graphql';
+import { createLoggerClient } from './grpc/client';
+import type { ReadResponse } from './grpc/generated/logger/v1alpha1/log';
+import { ILoggerAPIClient } from './grpc/generated/logger/v1alpha1/log.client';
+import { GRPCService } from './grpc/service';
 
 export default class DeepSquareClient {
-  private readonly wallet: Wallet;
+  private lock = new AsyncLock();
 
-  private readonly graphqlClient: GraphQLClient;
-
-  private readonly metaScheduler: MetaScheduler;
-
-  private readonly credit: Credit;
-
-  private readonly provider: JsonRpcProvider;
-
-  private lock: AsyncLock;
+  private constructor(
+    private readonly signerOrProvider: Signer | Provider,
+    private readonly metaScheduler: MetaScheduler,
+    private readonly credit: IERC20,
+    private readonly sbatchServiceClient: GraphQLClient,
+    private loggerClientFactory: () => ILoggerAPIClient
+  ) {}
 
   /**
-   * @param privateKey {string} Web3 wallet private that will be used for credit billing
-   * @param metaschedulerAddr {string} Address of the metascheduler smart contract
-   * @param creditAddr {string} Address of the credit smart contract
-   * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service
+   * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
+   * @param metaschedulerAddr {string} Address of the metascheduler smart contract.
+   * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service.
+   * @param jsonRpcProvider {JsonRpcProvider} JsonRpcProvider to a ethereum API.
+   * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
-  constructor(
+  static async build(
     privateKey: string,
-    metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
-    creditAddr = '0x2FE7ED7941E569697fF856736a88467B8fd569f0',
-    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
-    private loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
-  ) {
-    this.provider = new JsonRpcProvider("https://testnet.deepsquare.run/rpc", {
-      name: "DeepSquare Testnet",
-      chainId: 179188,
-    });
-    this.lock = new AsyncLock();
+    metaschedulerAddr = '0xB95a74d32Fa5C95984406Ca82653cBD6570cb523',
+    sbatchServiceEndpoint = 'https://sbatch.deepsquare.run/graphql',
+    jsonRpcProvider: JsonRpcProvider = new JsonRpcProvider(
+      'https://testnet.deepsquare.run/rpc',
+      {
+        name: 'DeepSquare Testnet',
+        chainId: 179188,
+      }
+    ),
+    loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
+  ): Promise<DeepSquareClient> {
+    var signerOrProvider: Signer | Provider;
+    // Use a authenticated client if there is a key, else don't.
+    signerOrProvider = privateKey
+      ? new Wallet(privateKey, jsonRpcProvider)
+      : jsonRpcProvider;
+    const metaScheduler = MetaScheduler__factory.connect(
+      metaschedulerAddr,
+      signerOrProvider
+    );
+    const creditAddr = await metaScheduler.credit();
+    const credit = IERC20__factory.connect(creditAddr, signerOrProvider);
 
-    this.wallet = new Wallet(privateKey, this.provider);
-
-    this.graphqlClient = new GraphQLClient(sbatchServiceEndpoint);
-
-    this.metaScheduler = new Contract(metaschedulerAddr, metaSchedulerAbi, this.provider).connect(
-      this.wallet
-    ) as MetaScheduler;
-
-    this.credit = new Contract(creditAddr, creditAbi, this.provider).connect(this.wallet) as Credit
-
+    return new DeepSquareClient(
+      signerOrProvider,
+      metaScheduler,
+      credit,
+      new GraphQLClient(sbatchServiceEndpoint),
+      loggerClientFactory
+    );
   }
 
   /**
@@ -69,7 +80,10 @@ export default class DeepSquareClient {
    * @param amount The amount to setAllowance.
    */
   async setAllowance(amount: BigNumber) {
-    await this.credit.approve(this.metaScheduler.address, parseUnits(amount.toString(), 'ether'))
+    await this.credit.approve(
+      this.metaScheduler.address,
+      parseUnits(amount.toString(), 'ether')
+    );
   }
 
   /**
@@ -79,39 +93,41 @@ export default class DeepSquareClient {
    * @returns {string} The id of the job on the Grid
    */
   async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
-    if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
-    const hash = await this.graphqlClient.request(SubmitDocument, { job });
+    if (jobName.length > 32) throw new Error('Job name exceeds 32 characters');
+    const hash = await this.sbatchServiceClient.request(SubmitDocument, {
+      job,
+    });
     return this.lock.acquire('submitJob', async () => {
-      const job_output = (
-        await (
-          await this.metaScheduler.requestNewJob(
-            {
-              ntasks: job.resources.tasks,
-              gpuPerTask: job.resources.gpusPerTask,
-              cpuPerTask: job.resources.cpusPerTask,
-              memPerCpu: job.resources.memPerCpu,
-              storageType: job.output
-                ? job.output.s3
-                  ? 2
-                  : job.output.http
-                    ? job.output.http.url === "https://transfer.deepsquare.run/"
-                      ? 0
-                      : 1
-                    : 4
-                : 4,
-              batchLocationHash: hash.submit,
-            },
-            parseUnits((maxAmount).toString(), "ether"),
-            formatBytes32String(jobName),
-            true,
-          )
-        ).wait()
-      )
+      const job_output = await (
+        await this.metaScheduler.requestNewJob(
+          {
+            ntasks: job.resources.tasks,
+            gpuPerTask: job.resources.gpusPerTask,
+            cpuPerTask: job.resources.cpusPerTask,
+            memPerCpu: job.resources.memPerCpu,
+            storageType: job.output
+              ? job.output.s3
+                ? 2
+                : job.output.http
+                ? job.output.http.url === 'https://transfer.deepsquare.run/'
+                  ? 0
+                  : 1
+                : 4
+              : 4,
+            batchLocationHash: hash.submit,
+          },
+          parseUnits(maxAmount.toString(), 'ether'),
+          formatBytes32String(jobName),
+          true
+        )
+      ).wait();
       //console.log(job_output.events as [])
       //console.log(job_output.events![1] as {})
-      const event = job_output.events!.filter(event => event.event === 'NewJobRequestEvent')![0];
+      const event = job_output.events!.filter(
+        (event) => event.event === 'NewJobRequestEvent'
+      )![0];
       return event.args![0] as string;
-    })
+    });
   }
 
   /**
@@ -138,7 +154,7 @@ export default class DeepSquareClient {
    * @param jobId {string} The job id to cancel.
    */
   async cancel(jobId: string) {
-    return await this.metaScheduler.cancelJob(jobId)
+    return await this.metaScheduler.cancelJob(jobId);
   }
 
   /**
@@ -149,12 +165,16 @@ export default class DeepSquareClient {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
     return {
-      fetchLogs: () => {
-        const service = new GRPCService(this.loggerClientFactory(), this.wallet);
-        return service.readAndWatch(
-          this.wallet.address.toLowerCase(),
-          jobId
+      fetchLogs: async () => {
+        if (!(this.signerOrProvider instanceof Signer)) {
+          throw new Error('provider is not a signer');
+        }
+        const service = new GRPCService(
+          this.loggerClientFactory(),
+          this.signerOrProvider
         );
+        const address = await this.signerOrProvider.getAddress();
+        return service.readAndWatch(address, jobId);
       },
     };
   }
