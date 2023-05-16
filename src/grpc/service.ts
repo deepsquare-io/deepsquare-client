@@ -1,7 +1,7 @@
-import { arrayify } from '@ethersproject/bytes';
-import { Signer } from 'ethers';
-import { ReadResponse } from './generated/logger/v1alpha1/log';
-import { ILoggerAPIClient } from './generated/logger/v1alpha1/log.client';
+import { arrayify } from "@ethersproject/bytes";
+import type { Signer } from "ethers";
+import type { ReadResponse } from "./generated/logger/v1alpha1/log";
+import type { ILoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
 
 export class GRPCService {
   constructor(private loggerClient: ILoggerAPIClient, private signer: Signer) {}
