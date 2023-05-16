@@ -98,8 +98,8 @@ export default class DeepSquareClient {
     private readonly credit: IERC20,
     private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
-    private loggerClientFactory: () => ILoggerAPIClient
   ) {}
+    private loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
@@ -119,7 +119,7 @@ export default class DeepSquareClient {
         chainId: 179188,
       }
     ),
-    loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
+    loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient = createLoggerClient
   ): Promise<DeepSquareClient> {
     // Use a authenticated client if there is a key, else don't.
     const signerOrProvider = privateKey
@@ -267,7 +267,7 @@ export default class DeepSquareClient {
    * Get the iterable containing the live logs of given job. Make sure to close the stream with the second function returned once you're done with it.
    * @param jobId {string} The job id from which getting the job
    */
-  getLogsMethods(jobId: string): {
+  getLogsMethods(jobId: string, loggerEndpoint = "grid-logger.deepsquare.run:443"): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
     return {
@@ -276,7 +276,7 @@ export default class DeepSquareClient {
           throw new Error("provider is not a signer");
         }
         const service = new GRPCService(
-          this.loggerClientFactory(),
+          this.loggerClientFactory(loggerEndpoint),
           this.signerOrProvider
         );
         const address = await this.signerOrProvider.getAddress();
