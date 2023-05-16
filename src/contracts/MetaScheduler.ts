@@ -27,6 +27,16 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export type LabelStruct = {
+  key: PromiseOrValue<string>;
+  value: PromiseOrValue<string>;
+};
+
+export type LabelStructOutput = [string, string] & {
+  key: string;
+  value: string;
+};
+
 export type JobDefinitionStruct = {
   gpuPerTask: PromiseOrValue<BigNumberish>;
   memPerCpu: PromiseOrValue<BigNumberish>;
@@ -34,6 +44,7 @@ export type JobDefinitionStruct = {
   ntasks: PromiseOrValue<BigNumberish>;
   batchLocationHash: PromiseOrValue<string>;
   storageType: PromiseOrValue<BigNumberish>;
+  uses: LabelStruct[];
 };
 
 export type JobDefinitionStructOutput = [
@@ -42,7 +53,8 @@ export type JobDefinitionStructOutput = [
   BigNumber,
   BigNumber,
   string,
-  number
+  number,
+  LabelStructOutput[]
 ] & {
   gpuPerTask: BigNumber;
   memPerCpu: BigNumber;
@@ -50,18 +62,21 @@ export type JobDefinitionStructOutput = [
   ntasks: BigNumber;
   batchLocationHash: string;
   storageType: number;
+  uses: LabelStructOutput[];
 };
 
 export type JobCostStruct = {
   maxCost: PromiseOrValue<BigNumberish>;
   finalCost: PromiseOrValue<BigNumberish>;
-  autoTopUp: PromiseOrValue<boolean>;
+  pendingTopUp: PromiseOrValue<BigNumberish>;
+  delegateSpendingAuthority: PromiseOrValue<boolean>;
 };
 
-export type JobCostStructOutput = [BigNumber, BigNumber, boolean] & {
+export type JobCostStructOutput = [BigNumber, BigNumber, BigNumber, boolean] & {
   maxCost: BigNumber;
   finalCost: BigNumber;
-  autoTopUp: boolean;
+  pendingTopUp: BigNumber;
+  delegateSpendingAuthority: boolean;
 };
 
 export type JobTimeStruct = {
@@ -83,114 +98,111 @@ export type JobTimeStructOutput = [
   blockNumberStateChange: BigNumber;
 };
 
+export type JobStruct = {
+  jobId: PromiseOrValue<BytesLike>;
+  status: PromiseOrValue<BigNumberish>;
+  customerAddr: PromiseOrValue<string>;
+  providerAddr: PromiseOrValue<string>;
+  definition: JobDefinitionStruct;
+  valid: PromiseOrValue<boolean>;
+  cost: JobCostStruct;
+  time: JobTimeStruct;
+  jobName: PromiseOrValue<BytesLike>;
+  hasCancelRequest: PromiseOrValue<boolean>;
+};
+
+export type JobStructOutput = [
+  string,
+  number,
+  string,
+  string,
+  JobDefinitionStructOutput,
+  boolean,
+  JobCostStructOutput,
+  JobTimeStructOutput,
+  string,
+  boolean
+] & {
+  jobId: string;
+  status: number;
+  customerAddr: string;
+  providerAddr: string;
+  definition: JobDefinitionStructOutput;
+  valid: boolean;
+  cost: JobCostStructOutput;
+  time: JobTimeStructOutput;
+  jobName: string;
+  hasCancelRequest: boolean;
+};
+
 export interface MetaSchedulerInterface extends utils.Interface {
   functions: {
-    "BILL_DURATION_DELTA_MINUTE()": FunctionFragment;
-    "BILL_TIME_CONTROL_DELTA_S()": FunctionFragment;
-    "CANCELLATION_FEE_MINUTE()": FunctionFragment;
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "METASCHEDULER_ROLE()": FunctionFragment;
-    "MINIMUM_AMOUNT()": FunctionFragment;
-    "TOP_UP_SLICE_DURATION_MIN()": FunctionFragment;
     "cancelJob(bytes32)": FunctionFragment;
-    "claimJob(bytes32,address)": FunctionFragment;
     "claimJobTimeout()": FunctionFragment;
     "claimNextCancellingJob()": FunctionFragment;
     "claimNextJob()": FunctionFragment;
+    "claimNextTopUpJob()": FunctionFragment;
     "credit()": FunctionFragment;
-    "deposit(uint256)": FunctionFragment;
+    "getJob(bytes32)": FunctionFragment;
+    "getJobs(address)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
-    "getUnlockBalance(address)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
-    "hasCancellingJob(address)": FunctionFragment;
-    "hasNextJob(address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "hotJobList(uint256)": FunctionFragment;
-    "initialize(address,address)": FunctionFragment;
     "jobIdCounter()": FunctionFragment;
     "jobs(bytes32)": FunctionFragment;
     "metaSchedule(bytes32,address)": FunctionFragment;
-    "providerCancellingJobsQueues(address)": FunctionFragment;
-    "providerClaimableJobsQueues(address)": FunctionFragment;
+    "providerJobQueues()": FunctionFragment;
     "providerManager()": FunctionFragment;
     "providerSetJobStatus(bytes32,uint8,uint64)": FunctionFragment;
-    "providerTimeoutJobsQueues(address)": FunctionFragment;
     "refuseJob(bytes32)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
-    "requestNewJob((uint64,uint64,uint64,uint64,string,uint8),uint256,bytes32,bool)": FunctionFragment;
+    "requestNewJob((uint64,uint64,uint64,uint64,string,uint8,(string,string)[]),uint256,bytes32,bool)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "setAutoTopUpJob(bytes32,bool)": FunctionFragment;
+    "setDelegateSpendingAuthority(bytes32,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "topUpJob(bytes32,uint256)": FunctionFragment;
-    "topUpJobSlice(bytes32)": FunctionFragment;
-    "updateJobsStatus()": FunctionFragment;
+    "topUpJobDelegate(bytes32)": FunctionFragment;
     "wallet2JobId(address,uint256)": FunctionFragment;
-    "wallet2LockedBalance(address)": FunctionFragment;
-    "wallet2TotalBalance(address)": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
     "withdrawAdmin(uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "BILL_DURATION_DELTA_MINUTE"
-      | "BILL_TIME_CONTROL_DELTA_S"
-      | "CANCELLATION_FEE_MINUTE"
       | "DEFAULT_ADMIN_ROLE"
       | "METASCHEDULER_ROLE"
-      | "MINIMUM_AMOUNT"
-      | "TOP_UP_SLICE_DURATION_MIN"
       | "cancelJob"
-      | "claimJob"
       | "claimJobTimeout"
       | "claimNextCancellingJob"
       | "claimNextJob"
+      | "claimNextTopUpJob"
       | "credit"
-      | "deposit"
+      | "getJob"
+      | "getJobs"
       | "getRoleAdmin"
-      | "getUnlockBalance"
       | "grantRole"
-      | "hasCancellingJob"
-      | "hasNextJob"
       | "hasRole"
       | "hotJobList"
-      | "initialize"
       | "jobIdCounter"
       | "jobs"
       | "metaSchedule"
-      | "providerCancellingJobsQueues"
-      | "providerClaimableJobsQueues"
+      | "providerJobQueues"
       | "providerManager"
       | "providerSetJobStatus"
-      | "providerTimeoutJobsQueues"
       | "refuseJob"
       | "renounceRole"
       | "requestNewJob"
       | "revokeRole"
-      | "setAutoTopUpJob"
+      | "setDelegateSpendingAuthority"
       | "supportsInterface"
       | "topUpJob"
-      | "topUpJobSlice"
-      | "updateJobsStatus"
+      | "topUpJobDelegate"
       | "wallet2JobId"
-      | "wallet2LockedBalance"
-      | "wallet2TotalBalance"
-      | "withdraw"
       | "withdrawAdmin"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "BILL_DURATION_DELTA_MINUTE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "BILL_TIME_CONTROL_DELTA_S",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "CANCELLATION_FEE_MINUTE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "DEFAULT_ADMIN_ROLE",
     values?: undefined
@@ -200,20 +212,8 @@ export interface MetaSchedulerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MINIMUM_AMOUNT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "TOP_UP_SLICE_DURATION_MIN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "cancelJob",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimJob",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "claimJobTimeout",
@@ -227,30 +227,26 @@ export interface MetaSchedulerInterface extends utils.Interface {
     functionFragment: "claimNextJob",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "claimNextTopUpJob",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "credit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "deposit",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "getJob",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getJobs",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getUnlockBalance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "grantRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasCancellingJob",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasNextJob",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRole",
@@ -259,10 +255,6 @@ export interface MetaSchedulerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "hotJobList",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "jobIdCounter",
@@ -277,12 +269,8 @@ export interface MetaSchedulerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "providerCancellingJobsQueues",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "providerClaimableJobsQueues",
-    values: [PromiseOrValue<string>]
+    functionFragment: "providerJobQueues",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "providerManager",
@@ -295,10 +283,6 @@ export interface MetaSchedulerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "providerTimeoutJobsQueues",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "refuseJob",
@@ -322,7 +306,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAutoTopUpJob",
+    functionFragment: "setDelegateSpendingAuthority",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -334,46 +318,18 @@ export interface MetaSchedulerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "topUpJobSlice",
+    functionFragment: "topUpJobDelegate",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateJobsStatus",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "wallet2JobId",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "wallet2LockedBalance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "wallet2TotalBalance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdrawAdmin",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "BILL_DURATION_DELTA_MINUTE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "BILL_TIME_CONTROL_DELTA_S",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "CANCELLATION_FEE_MINUTE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "DEFAULT_ADMIN_ROLE",
     data: BytesLike
@@ -382,16 +338,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
     functionFragment: "METASCHEDULER_ROLE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "MINIMUM_AMOUNT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "TOP_UP_SLICE_DURATION_MIN",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "cancelJob", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "claimJob", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimJobTimeout",
     data: BytesLike
@@ -404,25 +351,20 @@ export interface MetaSchedulerInterface extends utils.Interface {
     functionFragment: "claimNextJob",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimNextTopUpJob",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "credit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getJob", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getJobs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUnlockBalance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "hasCancellingJob",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "hasNextJob", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hotJobList", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "jobIdCounter",
     data: BytesLike
@@ -433,11 +375,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "providerCancellingJobsQueues",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "providerClaimableJobsQueues",
+    functionFragment: "providerJobQueues",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -446,10 +384,6 @@ export interface MetaSchedulerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "providerSetJobStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "providerTimeoutJobsQueues",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "refuseJob", data: BytesLike): Result;
@@ -463,7 +397,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAutoTopUpJob",
+    functionFragment: "setDelegateSpendingAuthority",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -472,11 +406,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "topUpJob", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "topUpJobSlice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateJobsStatus",
+    functionFragment: "topUpJobDelegate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -484,41 +414,51 @@ export interface MetaSchedulerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "wallet2LockedBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "wallet2TotalBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(
     functionFragment: "withdrawAdmin",
     data: BytesLike
   ): Result;
 
   events: {
+    "BilledTooMuchEvent(bytes32,address,uint256)": EventFragment;
     "ClaimJobEvent(address,address,bytes32,uint64,tuple)": EventFragment;
     "ClaimNextCancellingJobEvent(address,address,bytes32)": EventFragment;
+    "ClaimNextTopUpJobEvent(bytes32,address,uint64)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "JobRefusedEvent(bytes32,address)": EventFragment;
+    "JobRefusedEvent(bytes32,address,address)": EventFragment;
+    "JobTransitionEvent(bytes32,uint8,uint8)": EventFragment;
     "NewJobRequestEvent(bytes32,address)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "BilledTooMuchEvent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ClaimJobEvent"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ClaimNextCancellingJobEvent"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ClaimNextTopUpJobEvent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JobRefusedEvent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "JobTransitionEvent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewJobRequestEvent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
+
+export interface BilledTooMuchEventEventObject {
+  _jobId: string;
+  _providerAddr: string;
+  _billingAmount: BigNumber;
+}
+export type BilledTooMuchEventEvent = TypedEvent<
+  [string, string, BigNumber],
+  BilledTooMuchEventEventObject
+>;
+
+export type BilledTooMuchEventEventFilter =
+  TypedEventFilter<BilledTooMuchEventEvent>;
 
 export interface ClaimJobEventEventObject {
   customerAddr: string;
@@ -547,6 +487,19 @@ export type ClaimNextCancellingJobEventEvent = TypedEvent<
 export type ClaimNextCancellingJobEventEventFilter =
   TypedEventFilter<ClaimNextCancellingJobEventEvent>;
 
+export interface ClaimNextTopUpJobEventEventObject {
+  _jobId: string;
+  _providerAddr: string;
+  maxDurationMinute: BigNumber;
+}
+export type ClaimNextTopUpJobEventEvent = TypedEvent<
+  [string, string, BigNumber],
+  ClaimNextTopUpJobEventEventObject
+>;
+
+export type ClaimNextTopUpJobEventEventFilter =
+  TypedEventFilter<ClaimNextTopUpJobEventEvent>;
+
 export interface InitializedEventObject {
   version: number;
 }
@@ -557,13 +510,27 @@ export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 export interface JobRefusedEventEventObject {
   _jobId: string;
   _providerAddr: string;
+  _customerAddr: string;
 }
 export type JobRefusedEventEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   JobRefusedEventEventObject
 >;
 
 export type JobRefusedEventEventFilter = TypedEventFilter<JobRefusedEventEvent>;
+
+export interface JobTransitionEventEventObject {
+  _jobId: string;
+  _from: number;
+  _to: number;
+}
+export type JobTransitionEventEvent = TypedEvent<
+  [string, number, number],
+  JobTransitionEventEventObject
+>;
+
+export type JobTransitionEventEventFilter =
+  TypedEventFilter<JobTransitionEventEvent>;
 
 export interface NewJobRequestEventEventObject {
   _jobId: string;
@@ -641,28 +608,12 @@ export interface MetaScheduler extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    BILL_DURATION_DELTA_MINUTE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    BILL_TIME_CONTROL_DELTA_S(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    CANCELLATION_FEE_MINUTE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    MINIMUM_AMOUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    TOP_UP_SLICE_DURATION_MIN(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     cancelJob(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    claimJob(
-      _jobId: PromiseOrValue<BytesLike>,
-      _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -676,38 +627,32 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    credit(overrides?: CallOverrides): Promise<[string]>;
-
-    deposit(
-      _amount: PromiseOrValue<BigNumberish>,
+    claimNextTopUpJob(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    credit(overrides?: CallOverrides): Promise<[string]>;
+
+    getJob(
+      _jobId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[JobStructOutput]>;
+
+    getJobs(
+      walletAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    getUnlockBalance(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    hasCancellingJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    hasNextJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
 
     hasRole(
       role: PromiseOrValue<BytesLike>,
@@ -719,12 +664,6 @@ export interface MetaScheduler extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    initialize(
-      _credit: PromiseOrValue<string>,
-      _providerManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     jobIdCounter(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -763,29 +702,16 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    providerCancellingJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
-
-    providerClaimableJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
+    providerJobQueues(overrides?: CallOverrides): Promise<[string]>;
 
     providerManager(overrides?: CallOverrides): Promise<[string]>;
 
     providerSetJobStatus(
       _jobId: PromiseOrValue<BytesLike>,
-      _jobStatus: PromiseOrValue<BigNumberish>,
+      _nextJobStatus: PromiseOrValue<BigNumberish>,
       _jobDurationMinute: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    providerTimeoutJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
 
     refuseJob(
       _jobId: PromiseOrValue<BytesLike>,
@@ -800,9 +726,9 @@ export interface MetaScheduler extends BaseContract {
 
     requestNewJob(
       _definition: JobDefinitionStruct,
-      _maxCost: PromiseOrValue<BigNumberish>,
+      _lockedCredits: PromiseOrValue<BigNumberish>,
       _jobName: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -812,9 +738,9 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setAutoTopUpJob(
+    setDelegateSpendingAuthority(
       _jobId: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -829,12 +755,8 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    topUpJobSlice(
+    topUpJobDelegate(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    updateJobsStatus(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -844,49 +766,18 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    wallet2LockedBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    wallet2TotalBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    withdraw(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     withdrawAdmin(
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  BILL_DURATION_DELTA_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
-  BILL_TIME_CONTROL_DELTA_S(overrides?: CallOverrides): Promise<BigNumber>;
-
-  CANCELLATION_FEE_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  MINIMUM_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-  TOP_UP_SLICE_DURATION_MIN(overrides?: CallOverrides): Promise<BigNumber>;
-
   cancelJob(
     _jobId: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  claimJob(
-    _jobId: PromiseOrValue<BytesLike>,
-    _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -900,38 +791,32 @@ export interface MetaScheduler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  credit(overrides?: CallOverrides): Promise<string>;
-
-  deposit(
-    _amount: PromiseOrValue<BigNumberish>,
+  claimNextTopUpJob(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  credit(overrides?: CallOverrides): Promise<string>;
+
+  getJob(
+    _jobId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<JobStructOutput>;
+
+  getJobs(
+    walletAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
 
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getUnlockBalance(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   grantRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  hasCancellingJob(
-    _providerAddr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  hasNextJob(
-    _providerAddr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   hasRole(
     role: PromiseOrValue<BytesLike>,
@@ -943,12 +828,6 @@ export interface MetaScheduler extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  initialize(
-    _credit: PromiseOrValue<string>,
-    _providerManager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   jobIdCounter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -987,29 +866,16 @@ export interface MetaScheduler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  providerCancellingJobsQueues(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
-
-  providerClaimableJobsQueues(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
+  providerJobQueues(overrides?: CallOverrides): Promise<string>;
 
   providerManager(overrides?: CallOverrides): Promise<string>;
 
   providerSetJobStatus(
     _jobId: PromiseOrValue<BytesLike>,
-    _jobStatus: PromiseOrValue<BigNumberish>,
+    _nextJobStatus: PromiseOrValue<BigNumberish>,
     _jobDurationMinute: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  providerTimeoutJobsQueues(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
 
   refuseJob(
     _jobId: PromiseOrValue<BytesLike>,
@@ -1024,9 +890,9 @@ export interface MetaScheduler extends BaseContract {
 
   requestNewJob(
     _definition: JobDefinitionStruct,
-    _maxCost: PromiseOrValue<BigNumberish>,
+    _lockedCredits: PromiseOrValue<BigNumberish>,
     _jobName: PromiseOrValue<BytesLike>,
-    _autoTopUp: PromiseOrValue<boolean>,
+    _delegateSpendingAuthority: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1036,9 +902,9 @@ export interface MetaScheduler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setAutoTopUpJob(
+  setDelegateSpendingAuthority(
     _jobId: PromiseOrValue<BytesLike>,
-    _autoTopUp: PromiseOrValue<boolean>,
+    _delegateSpendingAuthority: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1053,12 +919,8 @@ export interface MetaScheduler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  topUpJobSlice(
+  topUpJobDelegate(
     _jobId: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  updateJobsStatus(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1068,49 +930,18 @@ export interface MetaScheduler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  wallet2LockedBalance(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  wallet2TotalBalance(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  withdraw(
-    _amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   withdrawAdmin(
     _amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    BILL_DURATION_DELTA_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    BILL_TIME_CONTROL_DELTA_S(overrides?: CallOverrides): Promise<BigNumber>;
-
-    CANCELLATION_FEE_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    MINIMUM_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    TOP_UP_SLICE_DURATION_MIN(overrides?: CallOverrides): Promise<BigNumber>;
-
     cancelJob(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    claimJob(
-      _jobId: PromiseOrValue<BytesLike>,
-      _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1120,38 +951,30 @@ export interface MetaScheduler extends BaseContract {
 
     claimNextJob(overrides?: CallOverrides): Promise<void>;
 
+    claimNextTopUpJob(overrides?: CallOverrides): Promise<void>;
+
     credit(overrides?: CallOverrides): Promise<string>;
 
-    deposit(
-      _amount: PromiseOrValue<BigNumberish>,
+    getJob(
+      _jobId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<JobStructOutput>;
+
+    getJobs(
+      walletAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getUnlockBalance(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    hasCancellingJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    hasNextJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     hasRole(
       role: PromiseOrValue<BytesLike>,
@@ -1163,12 +986,6 @@ export interface MetaScheduler extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    initialize(
-      _credit: PromiseOrValue<string>,
-      _providerManager: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     jobIdCounter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1207,29 +1024,16 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    providerCancellingJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
-
-    providerClaimableJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
+    providerJobQueues(overrides?: CallOverrides): Promise<string>;
 
     providerManager(overrides?: CallOverrides): Promise<string>;
 
     providerSetJobStatus(
       _jobId: PromiseOrValue<BytesLike>,
-      _jobStatus: PromiseOrValue<BigNumberish>,
+      _nextJobStatus: PromiseOrValue<BigNumberish>,
       _jobDurationMinute: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    providerTimeoutJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { _begin: BigNumber; _end: BigNumber }>;
 
     refuseJob(
       _jobId: PromiseOrValue<BytesLike>,
@@ -1244,9 +1048,9 @@ export interface MetaScheduler extends BaseContract {
 
     requestNewJob(
       _definition: JobDefinitionStruct,
-      _maxCost: PromiseOrValue<BigNumberish>,
+      _lockedCredits: PromiseOrValue<BigNumberish>,
       _jobName: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -1256,9 +1060,9 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setAutoTopUpJob(
+    setDelegateSpendingAuthority(
       _jobId: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1273,33 +1077,16 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    topUpJobSlice(
+    topUpJobDelegate(
       _jobId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    updateJobsStatus(overrides?: CallOverrides): Promise<void>;
 
     wallet2JobId(
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    wallet2LockedBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    wallet2TotalBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    withdraw(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     withdrawAdmin(
       _amount: PromiseOrValue<BigNumberish>,
@@ -1308,6 +1095,17 @@ export interface MetaScheduler extends BaseContract {
   };
 
   filters: {
+    "BilledTooMuchEvent(bytes32,address,uint256)"(
+      _jobId?: null,
+      _providerAddr?: null,
+      _billingAmount?: null
+    ): BilledTooMuchEventEventFilter;
+    BilledTooMuchEvent(
+      _jobId?: null,
+      _providerAddr?: null,
+      _billingAmount?: null
+    ): BilledTooMuchEventEventFilter;
+
     "ClaimJobEvent(address,address,bytes32,uint64,tuple)"(
       customerAddr?: null,
       providerAddr?: null,
@@ -1334,17 +1132,41 @@ export interface MetaScheduler extends BaseContract {
       jobId?: null
     ): ClaimNextCancellingJobEventEventFilter;
 
+    "ClaimNextTopUpJobEvent(bytes32,address,uint64)"(
+      _jobId?: null,
+      _providerAddr?: null,
+      maxDurationMinute?: null
+    ): ClaimNextTopUpJobEventEventFilter;
+    ClaimNextTopUpJobEvent(
+      _jobId?: null,
+      _providerAddr?: null,
+      maxDurationMinute?: null
+    ): ClaimNextTopUpJobEventEventFilter;
+
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "JobRefusedEvent(bytes32,address)"(
+    "JobRefusedEvent(bytes32,address,address)"(
       _jobId?: null,
-      _providerAddr?: null
+      _providerAddr?: null,
+      _customerAddr?: null
     ): JobRefusedEventEventFilter;
     JobRefusedEvent(
       _jobId?: null,
-      _providerAddr?: null
+      _providerAddr?: null,
+      _customerAddr?: null
     ): JobRefusedEventEventFilter;
+
+    "JobTransitionEvent(bytes32,uint8,uint8)"(
+      _jobId?: null,
+      _from?: null,
+      _to?: null
+    ): JobTransitionEventEventFilter;
+    JobTransitionEvent(
+      _jobId?: null,
+      _from?: null,
+      _to?: null
+    ): JobTransitionEventEventFilter;
 
     "NewJobRequestEvent(bytes32,address)"(
       _jobId?: null,
@@ -1390,28 +1212,12 @@ export interface MetaScheduler extends BaseContract {
   };
 
   estimateGas: {
-    BILL_DURATION_DELTA_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    BILL_TIME_CONTROL_DELTA_S(overrides?: CallOverrides): Promise<BigNumber>;
-
-    CANCELLATION_FEE_MINUTE(overrides?: CallOverrides): Promise<BigNumber>;
-
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MINIMUM_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    TOP_UP_SLICE_DURATION_MIN(overrides?: CallOverrides): Promise<BigNumber>;
-
     cancelJob(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    claimJob(
-      _jobId: PromiseOrValue<BytesLike>,
-      _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1425,11 +1231,20 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimNextTopUpJob(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     credit(overrides?: CallOverrides): Promise<BigNumber>;
 
-    deposit(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    getJob(
+      _jobId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getJobs(
+      walletAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getRoleAdmin(
@@ -1437,25 +1252,10 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getUnlockBalance(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    hasCancellingJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hasNextJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     hasRole(
@@ -1467,12 +1267,6 @@ export interface MetaScheduler extends BaseContract {
     hotJobList(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initialize(
-      _credit: PromiseOrValue<string>,
-      _providerManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     jobIdCounter(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1488,28 +1282,15 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    providerCancellingJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    providerClaimableJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    providerJobQueues(overrides?: CallOverrides): Promise<BigNumber>;
 
     providerManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     providerSetJobStatus(
       _jobId: PromiseOrValue<BytesLike>,
-      _jobStatus: PromiseOrValue<BigNumberish>,
+      _nextJobStatus: PromiseOrValue<BigNumberish>,
       _jobDurationMinute: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    providerTimeoutJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     refuseJob(
@@ -1525,9 +1306,9 @@ export interface MetaScheduler extends BaseContract {
 
     requestNewJob(
       _definition: JobDefinitionStruct,
-      _maxCost: PromiseOrValue<BigNumberish>,
+      _lockedCredits: PromiseOrValue<BigNumberish>,
       _jobName: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1537,9 +1318,9 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setAutoTopUpJob(
+    setDelegateSpendingAuthority(
       _jobId: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1554,12 +1335,8 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    topUpJobSlice(
+    topUpJobDelegate(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    updateJobsStatus(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1569,21 +1346,6 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    wallet2LockedBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    wallet2TotalBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    withdraw(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     withdrawAdmin(
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1591,18 +1353,6 @@ export interface MetaScheduler extends BaseContract {
   };
 
   populateTransaction: {
-    BILL_DURATION_DELTA_MINUTE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    BILL_TIME_CONTROL_DELTA_S(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    CANCELLATION_FEE_MINUTE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     DEFAULT_ADMIN_ROLE(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1611,20 +1361,8 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    MINIMUM_AMOUNT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    TOP_UP_SLICE_DURATION_MIN(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     cancelJob(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    claimJob(
-      _jobId: PromiseOrValue<BytesLike>,
-      _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1638,11 +1376,20 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    claimNextTopUpJob(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     credit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    deposit(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    getJob(
+      _jobId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getJobs(
+      walletAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
@@ -1650,25 +1397,10 @@ export interface MetaScheduler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getUnlockBalance(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    hasCancellingJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hasNextJob(
-      _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     hasRole(
@@ -1680,12 +1412,6 @@ export interface MetaScheduler extends BaseContract {
     hotJobList(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      _credit: PromiseOrValue<string>,
-      _providerManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     jobIdCounter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1701,28 +1427,15 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    providerCancellingJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    providerClaimableJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    providerJobQueues(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     providerManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     providerSetJobStatus(
       _jobId: PromiseOrValue<BytesLike>,
-      _jobStatus: PromiseOrValue<BigNumberish>,
+      _nextJobStatus: PromiseOrValue<BigNumberish>,
       _jobDurationMinute: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    providerTimeoutJobsQueues(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     refuseJob(
@@ -1738,9 +1451,9 @@ export interface MetaScheduler extends BaseContract {
 
     requestNewJob(
       _definition: JobDefinitionStruct,
-      _maxCost: PromiseOrValue<BigNumberish>,
+      _lockedCredits: PromiseOrValue<BigNumberish>,
       _jobName: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1750,9 +1463,9 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setAutoTopUpJob(
+    setDelegateSpendingAuthority(
       _jobId: PromiseOrValue<BytesLike>,
-      _autoTopUp: PromiseOrValue<boolean>,
+      _delegateSpendingAuthority: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1767,12 +1480,8 @@ export interface MetaScheduler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    topUpJobSlice(
+    topUpJobDelegate(
       _jobId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateJobsStatus(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1780,21 +1489,6 @@ export interface MetaScheduler extends BaseContract {
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    wallet2LockedBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    wallet2TotalBalance(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     withdrawAdmin(

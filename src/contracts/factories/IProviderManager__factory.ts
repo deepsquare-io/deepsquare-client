@@ -11,6 +11,59 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "Banned",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "current",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNCpu",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "current",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNMem",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "current",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNNodes",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NoProvider",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "WaitingApprovalOnly",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -28,12 +81,76 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
       },
     ],
-    name: "Initialized",
+    name: "NewHead",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+    ],
+    name: "NewTail",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "data",
+        type: "bytes32",
+      },
+    ],
+    name: "ObjectCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+    ],
+    name: "ObjectRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "prev",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "next",
+        type: "uint256",
+      },
+    ],
+    name: "ObjectsLinked",
     type: "event",
   },
   {
@@ -179,6 +296,32 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_data",
+        type: "bytes32",
+      },
+    ],
+    name: "addHead",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_data",
+        type: "bytes32",
+      },
+    ],
+    name: "addTail",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_providerAddr",
         type: "address",
@@ -190,8 +333,21 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "ban",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
-    name: "count",
+    name: "elementCount",
     outputs: [
       {
         internalType: "uint256",
@@ -205,91 +361,255 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "cursor",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "howMany",
+        type: "uint256",
+      },
+    ],
+    name: "fetchPage",
+    outputs: [
+      {
+        internalType: "bytes32[]",
+        name: "data",
+        type: "bytes32[]",
+      },
+      {
+        internalType: "uint256",
+        name: "actualLength",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "newCursor",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_hash",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_from",
+        type: "uint256",
+      },
+    ],
+    name: "findIdForDataFrom",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_id",
+        type: "uint256",
+      },
+    ],
+    name: "get",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_providerAddr",
         type: "address",
       },
     ],
-    name: "getProvider",
+    name: "getAllTag",
     outputs: [
       {
         components: [
           {
-            internalType: "address",
-            name: "addr",
-            type: "address",
+            internalType: "string",
+            name: "key",
+            type: "string",
           },
           {
-            components: [
-              {
-                internalType: "uint64",
-                name: "nodes",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "gpus",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "gpuPricePerMin",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "cpus",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "cpuPricePerMin",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "mem",
-                type: "uint64",
-              },
-              {
-                internalType: "uint64",
-                name: "memPricePerMin",
-                type: "uint64",
-              },
-            ],
-            internalType: "struct ProviderDefinition",
-            name: "definition",
-            type: "tuple",
+            internalType: "string",
+            name: "value",
+            type: "string",
           },
-          {
-            internalType: "enum ProviderStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "valid",
-            type: "bool",
-          },
+        ],
+        internalType: "struct Label[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getJobCount",
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getProviderHardware",
+    outputs: [
+      {
+        components: [
           {
             internalType: "uint64",
-            name: "jobCount",
+            name: "nodes",
             type: "uint64",
           },
           {
+            internalType: "uint64",
+            name: "gpus",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "cpus",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "mem",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct ProviderHardware",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getProviderPrices",
+    outputs: [
+      {
+        components: [
+          {
             internalType: "uint256",
-            name: "pointPrevNode",
+            name: "gpuPricePerMin",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "pointNextNode",
+            name: "cpuPricePerMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "memPricePerMin",
             type: "uint256",
           },
         ],
-        internalType: "struct Provider",
+        internalType: "struct ProviderPrices",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getProviderStatus",
+    outputs: [
+      {
+        internalType: "enum ProviderStatus",
+        name: "status",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getProviderWalletAddr",
+    outputs: [
+      {
+        internalType: "address",
+        name: "_walletAddr",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -309,6 +629,30 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "tagKey",
+        type: "string",
+      },
+    ],
+    name: "getTag",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -376,6 +720,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "head",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "idCounter",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -389,8 +759,37 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "initialize",
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_prevId",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "_data",
+        type: "bytes32",
+      },
+    ],
+    name: "insertAfter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_nextId",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "_data",
+        type: "bytes32",
+      },
+    ],
+    name: "insertBefore",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -409,8 +808,42 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "objects",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "next",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "prev",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "data",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
-    name: "providerNumber",
+    name: "providerCount",
     outputs: [
       {
         internalType: "uint256",
@@ -433,7 +866,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "addr",
+        name: "walletAddr",
         type: "address",
       },
       {
@@ -450,17 +883,7 @@ const _abi = [
           },
           {
             internalType: "uint64",
-            name: "gpuPricePerMin",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
             name: "cpus",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
-            name: "cpuPricePerMin",
             type: "uint64",
           },
           {
@@ -468,100 +891,31 @@ const _abi = [
             name: "mem",
             type: "uint64",
           },
-          {
-            internalType: "uint64",
-            name: "memPricePerMin",
-            type: "uint64",
-          },
         ],
-        internalType: "struct ProviderDefinition",
-        name: "definition",
+        internalType: "struct ProviderHardware",
+        name: "providerHardware",
         type: "tuple",
-      },
-      {
-        internalType: "enum ProviderStatus",
-        name: "status",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "valid",
-        type: "bool",
-      },
-      {
-        internalType: "uint64",
-        name: "jobCount",
-        type: "uint64",
-      },
-      {
-        internalType: "uint256",
-        name: "pointPrevNode",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "pointNextNode",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "providersLinkedList",
-    outputs: [
-      {
-        internalType: "address",
-        name: "addr",
-        type: "address",
       },
       {
         components: [
           {
-            internalType: "uint64",
-            name: "nodes",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
-            name: "gpus",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
+            internalType: "uint256",
             name: "gpuPricePerMin",
-            type: "uint64",
+            type: "uint256",
           },
           {
-            internalType: "uint64",
-            name: "cpus",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
+            internalType: "uint256",
             name: "cpuPricePerMin",
-            type: "uint64",
+            type: "uint256",
           },
           {
-            internalType: "uint64",
-            name: "mem",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64",
+            internalType: "uint256",
             name: "memPricePerMin",
-            type: "uint64",
+            type: "uint256",
           },
         ],
-        internalType: "struct ProviderDefinition",
-        name: "definition",
+        internalType: "struct ProviderPrices",
+        name: "providerPrices",
         type: "tuple",
       },
       {
@@ -570,24 +924,14 @@ const _abi = [
         type: "uint8",
       },
       {
-        internalType: "bool",
-        name: "valid",
-        type: "bool",
-      },
-      {
         internalType: "uint64",
         name: "jobCount",
         type: "uint64",
       },
       {
-        internalType: "uint256",
-        name: "pointPrevNode",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "pointNextNode",
-        type: "uint256",
+        internalType: "bool",
+        name: "valid",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -616,19 +960,36 @@ const _abi = [
         type: "uint64",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_gpuPricePerMin",
-        type: "uint64",
+        type: "uint256",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_cpuPricePerMin",
-        type: "uint64",
+        type: "uint256",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_memPricePerMin",
-        type: "uint64",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "key",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "value",
+            type: "string",
+          },
+        ],
+        internalType: "struct Label[]",
+        name: "_tags",
+        type: "tuple[]",
       },
     ],
     name: "register",
@@ -664,22 +1025,78 @@ const _abi = [
         type: "uint64",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_gpuPricePerMin",
-        type: "uint64",
+        type: "uint256",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_cpuPricePerMin",
-        type: "uint64",
+        type: "uint256",
       },
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "_memPricePerMin",
-        type: "uint64",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "key",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "value",
+            type: "string",
+          },
+        ],
+        internalType: "struct Label[]",
+        name: "_tags",
+        type: "tuple[]",
       },
     ],
     name: "registerProvider",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "reinstated",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "remove",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_id",
+        type: "uint256",
+      },
+    ],
+    name: "remove",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -734,6 +1151,19 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tail",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

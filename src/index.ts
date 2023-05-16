@@ -27,6 +27,10 @@ import type { ReadResponse } from './grpc/generated/logger/v1alpha1/log';
 import { ILoggerAPIClient } from './grpc/generated/logger/v1alpha1/log.client';
 import { GRPCService } from './grpc/service';
 
+import type {
+  ProviderPricesStruct
+} from "./contracts/IProviderManager";
+
 export enum JobStatus {
   PENDING = 0,
   META_SCHEDULED = 1,
@@ -52,28 +56,28 @@ export function isJobTerminated(status: number): boolean {
 }
 
 // compute the job current cost (total if job finished)
-const computeCost = (job: any, provider: any): number => {
+const computeCost = (job: any, providerPrice: any): number => {
   return isJobTerminated(job.start)
     ? +formatEther(job.cost.finalCost)
     : +`${(
-        dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') *
-        computeCostPerMin(job, provider)
-      ).toFixed(0)}`;
-};
+      dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') *
+      computeCostPerMin(job, providerPrice)
+    ).toFixed(0)}`
+}
 
 // compute the job costs per minute based on provider price
-const computeCostPerMin = (job: any, provider: any): number => {
+const computeCostPerMin = (job: any, providerPrice: any): number => {
   const tasks = job.definition.ntasks.toNumber();
   const gpuCost =
     job.definition.gpuPerTask.toNumber() *
-    provider.definition.gpuPricePerMin.toNumber();
+    providerPrice.gpuPricePerMin.toNumber();
   const cpuCost =
     job.definition.cpuPerTask.toNumber() *
-    provider.definition.cpuPricePerMin.toNumber();
+    providerPrice.cpuPricePerMin.toNumber();
   const memCost =
     job.definition.memPerCpu.toNumber() *
     job.definition.cpuPerTask.toNumber() *
-    provider.definition.memPricePerMin.toNumber();
+    providerPrice.memPricePerMin.toNumber();
   return (tasks * (gpuCost + cpuCost + memCost)) / 1e6;
 };
 
@@ -87,7 +91,7 @@ export default class DeepSquareClient {
     private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
     private loggerClientFactory: () => ILoggerAPIClient
-  ) {}
+  ) { }
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
@@ -163,29 +167,32 @@ export default class DeepSquareClient {
       job,
     });
     return this.lock.acquire('submitJob', async () => {
-      const job_output = await (
-        await this.metaScheduler.requestNewJob(
-          {
-            ntasks: job.resources.tasks,
-            gpuPerTask: job.resources.gpusPerTask,
-            cpuPerTask: job.resources.cpusPerTask,
-            memPerCpu: job.resources.memPerCpu,
-            storageType: job.output
-              ? job.output.s3
-                ? 2
-                : job.output.http
-                ? job.output.http.url === 'https://transfer.deepsquare.run/'
-                  ? 0
-                  : 1
-                : 4
-              : 4,
-            batchLocationHash: hash.submit,
-          },
-          parseUnits(maxAmount.toString(), 'ether'),
-          formatBytes32String(jobName),
-          true
-        )
-      ).wait();
+      const job_output = (
+        await (
+          await this.metaScheduler.requestNewJob(
+            {
+              ntasks: job.resources.tasks,
+              gpuPerTask: job.resources.gpusPerTask,
+              cpuPerTask: job.resources.cpusPerTask,
+              memPerCpu: job.resources.memPerCpu,
+              storageType: job.output
+                ? job.output.s3
+                  ? 2
+                  : job.output.http
+                    ? job.output.http.url === "https://transfer.deepsquare.run/"
+                      ? 0
+                      : 1
+                    : 4
+                : 4,
+              batchLocationHash: hash.submit,
+              uses: [{ key: 'os', value: 'linux' }]
+            },
+            parseUnits((maxAmount).toString(), "ether"),
+            formatBytes32String(jobName),
+            true,
+          )
+        ).wait()
+      )
       //console.log(job_output.events as [])
       //console.log(job_output.events![1] as {})
       const event = job_output.events!.filter(
@@ -215,20 +222,21 @@ export default class DeepSquareClient {
     timeLeft: number;
   }> {
     let job = await this.metaScheduler.jobs(jobId);
-    let currentProvider = null;
+    let providerPrices: ProviderPricesStruct;
     let costPerMin = 0;
     let actualCost = 0;
     let timeLeft = 0;
     try {
-      currentProvider = await this.providerManager.getProvider(
+      providerPrices = await this.providerManager.getProviderPrices(
         job.providerAddr.toLowerCase()
       );
-      actualCost = computeCost(job, currentProvider);
-      costPerMin = computeCostPerMin(job, currentProvider);
+      actualCost = computeCost(job, providerPrices);
+      costPerMin = computeCostPerMin(job, providerPrices);
       timeLeft =
-        (parseFloat(formatEther(job.cost.maxCost)) - actualCost) / costPerMin;
-    } catch (e) {
-      console.log(e);
+        (parseFloat(formatEther(job.cost.maxCost)) - actualCost) / costPerMin
+    }
+    catch (e) {
+      console.log(e)
     }
     return { ...job, actualCost, costPerMin, timeLeft };
   }
