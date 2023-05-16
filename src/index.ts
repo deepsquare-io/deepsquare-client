@@ -1,32 +1,45 @@
-import { BigNumber } from "@ethersproject/bignumber";
-import { JsonRpcProvider, Provider } from "@ethersproject/providers";
-import { formatEther } from "@ethersproject/units";
-import { Wallet } from "@ethersproject/wallet";
+import type { Provider } from "@ethersproject/providers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import AsyncLock from "async-lock";
-import dayjs from "dayjs";
-import { Signer } from "ethers";
+import type { BigNumber } from "ethers";
+import { Signer, Wallet } from "ethers";
 import { formatBytes32String, parseUnits } from "ethers/lib/utils";
 import { GraphQLClient } from "graphql-request";
+import type { IERC20 } from "./contracts";
 import {
-  IERC20,
   IERC20__factory,
-  IProviderManager,
   IProviderManager__factory,
-  MetaScheduler,
   MetaScheduler__factory,
 } from "./contracts";
-import type { ProviderPricesStruct } from "./contracts/IProviderManager";
+import type {
+  IProviderManager,
+  ProviderPricesStruct,
+} from "./contracts/IProviderManager";
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
   JobTimeStructOutput,
+  MetaScheduler,
 } from "./contracts/MetaScheduler";
-import type { Job } from "./graphql/client/generated/graphql";
+import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
 import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
-import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
+import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
+
+export type Job = {
+  jobId: string;
+  status: number;
+  customerAddr: string;
+  providerAddr: string;
+  definition: JobDefinitionStructOutput;
+  valid: boolean;
+  cost: JobCostStructOutput;
+  time: JobTimeStructOutput;
+  jobName: string;
+  hasCancelRequest: boolean;
+};
 
 export enum JobStatus {
   PENDING = 0,
@@ -49,30 +62,32 @@ export function isJobTerminated(status: number): boolean {
 }
 
 // compute the job current cost (total if job finished)
-const computeCost = (job: any, providerPrice: any): number => {
-  return isJobTerminated(job.start)
-    ? +formatEther(job.cost.finalCost)
-    : +`${(
-        dayjs().diff(dayjs(job.time.start.toNumber() * 1000), "minutes") *
-        computeCostPerMin(job, providerPrice)
-      ).toFixed(0)}`;
-};
+function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
+  return isJobTerminated(job.status)
+    ? job.cost.finalCost.toBigInt()
+    : (BigInt(Math.floor(Date.now() / (1000 * 60))) -
+        job.time.start.toBigInt() * 1000n) *
+        computeCostPerMin(job, providerPrice);
+}
 
 // compute the job costs per minute based on provider price
-const computeCostPerMin = (job: any, providerPrice: any): number => {
-  const tasks = job.definition.ntasks.toNumber();
+function computeCostPerMin(
+  job: Job,
+  providerPrice: ProviderPricesStruct
+): bigint {
+  const tasks = job.definition.ntasks.toBigInt();
   const gpuCost =
-    job.definition.gpuPerTask.toNumber() *
-    providerPrice.gpuPricePerMin.toNumber();
+    job.definition.gpuPerTask.toBigInt() *
+    (providerPrice.gpuPricePerMin as BigNumber).toBigInt();
   const cpuCost =
-    job.definition.cpuPerTask.toNumber() *
-    providerPrice.cpuPricePerMin.toNumber();
+    job.definition.cpuPerTask.toBigInt() *
+    (providerPrice.cpuPricePerMin as BigNumber).toBigInt();
   const memCost =
-    job.definition.memPerCpu.toNumber() *
-    job.definition.cpuPerTask.toNumber() *
-    providerPrice.memPricePerMin.toNumber();
-  return (tasks * (gpuCost + cpuCost + memCost)) / 1e6;
-};
+    job.definition.memPerCpu.toBigInt() *
+    job.definition.cpuPerTask.toBigInt() *
+    (providerPrice.memPricePerMin as BigNumber).toBigInt();
+  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
+}
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();
@@ -106,9 +121,8 @@ export default class DeepSquareClient {
     ),
     loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ): Promise<DeepSquareClient> {
-    var signerOrProvider: Signer | Provider;
     // Use a authenticated client if there is a key, else don't.
-    signerOrProvider = privateKey
+    const signerOrProvider = privateKey
       ? new Wallet(privateKey, jsonRpcProvider)
       : jsonRpcProvider;
     const metaScheduler = MetaScheduler__factory.connect(
@@ -151,7 +165,11 @@ export default class DeepSquareClient {
    * @param jobName The name of the job, limited to 32 characters.
    * @returns {string} The id of the job on the Grid
    */
-  async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
+  async submitJob(
+    job: GQLJob,
+    jobName: string,
+    maxAmount = 1e3
+  ): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
       throw new Error("provider is not a signer");
     }
@@ -184,8 +202,6 @@ export default class DeepSquareClient {
           true
         )
       ).wait();
-      //console.log(job_output.events as [])
-      //console.log(job_output.events![1] as {})
       const event = job_output.events!.filter(
         (event) => event.event === "NewJobRequestEvent"
       )![0];
@@ -197,36 +213,27 @@ export default class DeepSquareClient {
    *  Get the job information from smarts contracts by id
    * @param jobId {string} The job id to fetch.
    */
-  async getJob(jobId: string): Promise<{
-    jobId: string;
-    status: number;
-    customerAddr: string;
-    providerAddr: string;
-    definition: JobDefinitionStructOutput;
-    valid: boolean;
-    cost: JobCostStructOutput;
-    time: JobTimeStructOutput;
-    jobName: string;
-    hasCancelRequest: boolean;
-    actualCost: number;
-    costPerMin: number;
-    timeLeft: number;
-  }> {
-    let job = await this.metaScheduler.jobs(jobId);
+  async getJob(jobId: string): Promise<
+    Job & {
+      actualCost: bigint;
+      costPerMin: bigint;
+      timeLeft: bigint;
+    }
+  > {
+    const job = await this.metaScheduler.jobs(jobId);
     let providerPrices: ProviderPricesStruct;
-    let costPerMin = 0;
-    let actualCost = 0;
-    let timeLeft = 0;
+    let costPerMin = 0n;
+    let actualCost = 0n;
+    let timeLeft = 0n;
     try {
       providerPrices = await this.providerManager.getProviderPrices(
         job.providerAddr.toLowerCase()
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft =
-        (parseFloat(formatEther(job.cost.maxCost)) - actualCost) / costPerMin;
+      timeLeft = (job.cost.maxCost.toBigInt() - actualCost) / costPerMin;
     } catch (e) {
-      console.log(e);
+      console.warn(e);
     }
     return { ...job, actualCost, costPerMin, timeLeft };
   }
