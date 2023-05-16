@@ -17,7 +17,7 @@ package is interacting with, but remember only the default values are guaranteed
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 
-const deepSquareClient = DeepSquareClient.build("myWeb3PrivateKey");
+const deepSquareClient = await DeepSquareClient.build("myWeb3PrivateKey");
 ```
 
 ## Developing the client
