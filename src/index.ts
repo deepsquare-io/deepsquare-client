@@ -1,12 +1,12 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import { JsonRpcProvider, Provider } from '@ethersproject/providers';
-import { formatEther } from '@ethersproject/units';
-import { Wallet } from '@ethersproject/wallet';
-import AsyncLock from 'async-lock';
-import dayjs from 'dayjs';
-import { Signer } from 'ethers';
-import { formatBytes32String, parseUnits } from 'ethers/lib/utils';
-import { GraphQLClient } from 'graphql-request';
+import { BigNumber } from "@ethersproject/bignumber";
+import { JsonRpcProvider, Provider } from "@ethersproject/providers";
+import { formatEther } from "@ethersproject/units";
+import { Wallet } from "@ethersproject/wallet";
+import AsyncLock from "async-lock";
+import dayjs from "dayjs";
+import { Signer } from "ethers";
+import { formatBytes32String, parseUnits } from "ethers/lib/utils";
+import { GraphQLClient } from "graphql-request";
 import {
   IERC20,
   IERC20__factory,
@@ -14,19 +14,19 @@ import {
   IProviderManager__factory,
   MetaScheduler,
   MetaScheduler__factory,
-} from './contracts';
-import type { ProviderPricesStruct } from './contracts/IProviderManager';
+} from "./contracts";
+import type { ProviderPricesStruct } from "./contracts/IProviderManager";
 import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
   JobTimeStructOutput,
-} from './contracts/MetaScheduler';
-import type { Job } from './graphql/client/generated/graphql';
-import { SubmitDocument } from './graphql/client/generated/graphql';
-import { createLoggerClient } from './grpc/client';
-import type { ReadResponse } from './grpc/generated/logger/v1alpha1/log';
-import { ILoggerAPIClient } from './grpc/generated/logger/v1alpha1/log.client';
-import { GRPCService } from './grpc/service';
+} from "./contracts/MetaScheduler";
+import type { Job } from "./graphql/client/generated/graphql";
+import { SubmitDocument } from "./graphql/client/generated/graphql";
+import { createLoggerClient } from "./grpc/client";
+import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
+import { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
+import { GRPCService } from "./grpc/service";
 
 export enum JobStatus {
   PENDING = 0,
@@ -37,10 +37,6 @@ export enum JobStatus {
   FINISHED = 5,
   FAILED = 6,
   OUT_OF_CREDITS = 7,
-}
-
-interface GetLogsMethodsReturnType {
-  fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
 }
 
 export function isJobTerminated(status: number): boolean {
@@ -57,7 +53,7 @@ const computeCost = (job: any, providerPrice: any): number => {
   return isJobTerminated(job.start)
     ? +formatEther(job.cost.finalCost)
     : +`${(
-        dayjs().diff(dayjs(job.time.start.toNumber() * 1000), 'minutes') *
+        dayjs().diff(dayjs(job.time.start.toNumber() * 1000), "minutes") *
         computeCostPerMin(job, providerPrice)
       ).toFixed(0)}`;
 };
@@ -99,12 +95,12 @@ export default class DeepSquareClient {
    */
   static async build(
     privateKey: string,
-    metaschedulerAddr = '0xB95a74d32Fa5C95984406Ca82653cBD6570cb523',
-    sbatchServiceEndpoint = 'https://sbatch.deepsquare.run/graphql',
+    metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
+    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     jsonRpcProvider: JsonRpcProvider = new JsonRpcProvider(
-      'https://testnet.deepsquare.run/rpc',
+      "https://testnet.deepsquare.run/rpc",
       {
-        name: 'DeepSquare Testnet',
+        name: "DeepSquare Testnet",
         chainId: 179188,
       }
     ),
@@ -145,7 +141,7 @@ export default class DeepSquareClient {
   async setAllowance(amount: BigNumber) {
     await this.credit.approve(
       this.metaScheduler.address,
-      parseUnits(amount.toString(), 'ether')
+      parseUnits(amount.toString(), "ether")
     );
   }
 
@@ -157,13 +153,13 @@ export default class DeepSquareClient {
    */
   async submitJob(job: Job, jobName: string, maxAmount = 1e3): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error('provider is not a signer');
+      throw new Error("provider is not a signer");
     }
-    if (jobName.length > 32) throw new Error('Job name exceeds 32 characters');
+    if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
     const hash = await this.sbatchServiceClient.request(SubmitDocument, {
       job,
     });
-    return this.lock.acquire('submitJob', async () => {
+    return this.lock.acquire("submitJob", async () => {
       const job_output = await (
         await this.metaScheduler.requestNewJob(
           {
@@ -175,15 +171,15 @@ export default class DeepSquareClient {
               ? job.output.s3
                 ? 2
                 : job.output.http
-                ? job.output.http.url === 'https://transfer.deepsquare.run/'
+                ? job.output.http.url === "https://transfer.deepsquare.run/"
                   ? 0
                   : 1
                 : 4
               : 4,
             batchLocationHash: hash.submit,
-            uses: [{ key: 'os', value: 'linux' }],
+            uses: [{ key: "os", value: "linux" }],
           },
-          parseUnits(maxAmount.toString(), 'ether'),
+          parseUnits(maxAmount.toString(), "ether"),
           formatBytes32String(jobName),
           true
         )
@@ -191,7 +187,7 @@ export default class DeepSquareClient {
       //console.log(job_output.events as [])
       //console.log(job_output.events![1] as {})
       const event = job_output.events!.filter(
-        (event) => event.event === 'NewJobRequestEvent'
+        (event) => event.event === "NewJobRequestEvent"
       )![0];
       return event.args![0] as string;
     });
@@ -241,11 +237,11 @@ export default class DeepSquareClient {
    */
   async topUp(jobId: string, amount = 1e3) {
     if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error('provider is not a signer');
+      throw new Error("provider is not a signer");
     }
     return await this.metaScheduler.topUpJob(
       jobId,
-      parseUnits(amount.toString(), 'ether')
+      parseUnits(amount.toString(), "ether")
     );
   }
 
@@ -255,7 +251,7 @@ export default class DeepSquareClient {
    */
   async cancel(jobId: string) {
     if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error('provider is not a signer');
+      throw new Error("provider is not a signer");
     }
     return await this.metaScheduler.cancelJob(jobId);
   }
@@ -270,7 +266,7 @@ export default class DeepSquareClient {
     return {
       fetchLogs: async () => {
         if (!(this.signerOrProvider instanceof Signer)) {
-          throw new Error('provider is not a signer');
+          throw new Error("provider is not a signer");
         }
         const service = new GRPCService(
           this.loggerClientFactory(),
