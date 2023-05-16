@@ -63,122 +63,46 @@ export type ProviderPricesStructOutput = [BigNumber, BigNumber, BigNumber] & {
   memPricePerMin: BigNumber;
 };
 
-export interface ProviderManagerInterface extends utils.Interface {
+export interface IProviderManagerInterface extends utils.Interface {
   functions: {
-    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "METASCHEDULER_CONTRACT_ROLE()": FunctionFragment;
-    "METASCHEDULER_ROLE()": FunctionFragment;
-    "PROVIDER_REGISTRATION_TAX()": FunctionFragment;
-    "addHead(bytes32)": FunctionFragment;
-    "addTail(bytes32)": FunctionFragment;
     "approve(address)": FunctionFragment;
     "ban(address)": FunctionFragment;
-    "elementCount()": FunctionFragment;
-    "fetchPage(uint256,uint256)": FunctionFragment;
-    "findIdForDataFrom(bytes32,uint256)": FunctionFragment;
-    "get(uint256)": FunctionFragment;
     "getAllTag(address)": FunctionFragment;
     "getJobCount(address)": FunctionFragment;
     "getProviderHardware(address)": FunctionFragment;
     "getProviderPrices(address)": FunctionFragment;
     "getProviderStatus(address)": FunctionFragment;
     "getProviderWalletAddr(address)": FunctionFragment;
-    "getRoleAdmin(bytes32)": FunctionFragment;
     "getTag(address,string)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
     "hasJoined(address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "head()": FunctionFragment;
-    "idCounter()": FunctionFragment;
     "incJobCount(address)": FunctionFragment;
-    "insertAfter(uint256,bytes32)": FunctionFragment;
-    "insertBefore(uint256,bytes32)": FunctionFragment;
     "kick(address)": FunctionFragment;
-    "objects(uint256)": FunctionFragment;
-    "providerCount()": FunctionFragment;
-    "providers(address)": FunctionFragment;
     "register(uint64,uint64,uint64,uint64,uint256,uint256,uint256,(string,string)[])": FunctionFragment;
     "registerProvider(address,uint64,uint64,uint64,uint64,uint256,uint256,uint256,(string,string)[])": FunctionFragment;
     "reinstated(address)": FunctionFragment;
     "remove(address)": FunctionFragment;
-    "remove(uint256)": FunctionFragment;
-    "renounceRole(bytes32,address)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "tail()": FunctionFragment;
-    "totalJobCount()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "DEFAULT_ADMIN_ROLE"
-      | "METASCHEDULER_CONTRACT_ROLE"
-      | "METASCHEDULER_ROLE"
-      | "PROVIDER_REGISTRATION_TAX"
-      | "addHead"
-      | "addTail"
       | "approve"
       | "ban"
-      | "elementCount"
-      | "fetchPage"
-      | "findIdForDataFrom"
-      | "get"
       | "getAllTag"
       | "getJobCount"
       | "getProviderHardware"
       | "getProviderPrices"
       | "getProviderStatus"
       | "getProviderWalletAddr"
-      | "getRoleAdmin"
       | "getTag"
-      | "grantRole"
       | "hasJoined"
-      | "hasRole"
-      | "head"
-      | "idCounter"
       | "incJobCount"
-      | "insertAfter"
-      | "insertBefore"
       | "kick"
-      | "objects"
-      | "providerCount"
-      | "providers"
       | "register"
       | "registerProvider"
       | "reinstated"
-      | "remove(address)"
-      | "remove(uint256)"
-      | "renounceRole"
-      | "revokeRole"
-      | "supportsInterface"
-      | "tail"
-      | "totalJobCount"
+      | "remove"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "METASCHEDULER_CONTRACT_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "METASCHEDULER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PROVIDER_REGISTRATION_TAX",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addHead",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addTail",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [PromiseOrValue<string>]
@@ -186,22 +110,6 @@ export interface ProviderManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "ban",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "elementCount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fetchPage",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "findIdForDataFrom",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "get",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllTag",
@@ -228,53 +136,19 @@ export interface ProviderManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getTag",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "hasJoined",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "head", values?: undefined): string;
-  encodeFunctionData(functionFragment: "idCounter", values?: undefined): string;
-  encodeFunctionData(
     functionFragment: "incJobCount",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "insertAfter",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "insertBefore",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "kick",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "objects",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "providerCount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "providers",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -309,61 +183,12 @@ export interface ProviderManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "remove(address)",
+    functionFragment: "remove",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "remove(uint256)",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(functionFragment: "tail", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalJobCount",
-    values?: undefined
-  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "METASCHEDULER_CONTRACT_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "METASCHEDULER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PROVIDER_REGISTRATION_TAX",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "addHead", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addTail", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ban", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "elementCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "fetchPage", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "findIdForDataFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getAllTag", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getJobCount",
@@ -385,86 +210,27 @@ export interface ProviderManagerInterface extends utils.Interface {
     functionFragment: "getProviderWalletAddr",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getTag", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasJoined", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "head", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "idCounter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "incJobCount",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "insertAfter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "insertBefore",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "kick", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "objects", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "providerCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "providers", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "registerProvider",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "reinstated", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "remove(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "remove(uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "tail", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalJobCount",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "remove", data: BytesLike): Result;
 
   events: {
     "HardwareUpdatedEvent(address)": EventFragment;
-    "NewHead(uint256)": EventFragment;
-    "NewTail(uint256)": EventFragment;
-    "ObjectCreated(uint256,bytes32)": EventFragment;
-    "ObjectRemoved(uint256)": EventFragment;
-    "ObjectsLinked(uint256,uint256)": EventFragment;
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
-    "RoleGranted(bytes32,address,address)": EventFragment;
-    "RoleRevoked(bytes32,address,address)": EventFragment;
     "ToBeApproved(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "HardwareUpdatedEvent"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewHead"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewTail"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ObjectCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ObjectRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ObjectsLinked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ToBeApproved"): EventFragment;
 }
 
@@ -478,89 +244,6 @@ export type HardwareUpdatedEventEvent = TypedEvent<
 
 export type HardwareUpdatedEventEventFilter =
   TypedEventFilter<HardwareUpdatedEventEvent>;
-
-export interface NewHeadEventObject {
-  id: BigNumber;
-}
-export type NewHeadEvent = TypedEvent<[BigNumber], NewHeadEventObject>;
-
-export type NewHeadEventFilter = TypedEventFilter<NewHeadEvent>;
-
-export interface NewTailEventObject {
-  id: BigNumber;
-}
-export type NewTailEvent = TypedEvent<[BigNumber], NewTailEventObject>;
-
-export type NewTailEventFilter = TypedEventFilter<NewTailEvent>;
-
-export interface ObjectCreatedEventObject {
-  id: BigNumber;
-  data: string;
-}
-export type ObjectCreatedEvent = TypedEvent<
-  [BigNumber, string],
-  ObjectCreatedEventObject
->;
-
-export type ObjectCreatedEventFilter = TypedEventFilter<ObjectCreatedEvent>;
-
-export interface ObjectRemovedEventObject {
-  id: BigNumber;
-}
-export type ObjectRemovedEvent = TypedEvent<
-  [BigNumber],
-  ObjectRemovedEventObject
->;
-
-export type ObjectRemovedEventFilter = TypedEventFilter<ObjectRemovedEvent>;
-
-export interface ObjectsLinkedEventObject {
-  prev: BigNumber;
-  next: BigNumber;
-}
-export type ObjectsLinkedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  ObjectsLinkedEventObject
->;
-
-export type ObjectsLinkedEventFilter = TypedEventFilter<ObjectsLinkedEvent>;
-
-export interface RoleAdminChangedEventObject {
-  role: string;
-  previousAdminRole: string;
-  newAdminRole: string;
-}
-export type RoleAdminChangedEvent = TypedEvent<
-  [string, string, string],
-  RoleAdminChangedEventObject
->;
-
-export type RoleAdminChangedEventFilter =
-  TypedEventFilter<RoleAdminChangedEvent>;
-
-export interface RoleGrantedEventObject {
-  role: string;
-  account: string;
-  sender: string;
-}
-export type RoleGrantedEvent = TypedEvent<
-  [string, string, string],
-  RoleGrantedEventObject
->;
-
-export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>;
-
-export interface RoleRevokedEventObject {
-  role: string;
-  account: string;
-  sender: string;
-}
-export type RoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  RoleRevokedEventObject
->;
-
-export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
 
 export interface ToBeApprovedEventObject {
   _providerAddr: string;
@@ -596,24 +279,6 @@ export interface IProviderManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    METASCHEDULER_CONTRACT_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    PROVIDER_REGISTRATION_TAX(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    addHead(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    addTail(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     approve(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -623,31 +288,6 @@ export interface IProviderManager extends BaseContract {
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    elementCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    fetchPage(
-      cursor: PromiseOrValue<BigNumberish>,
-      howMany: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string[], BigNumber, BigNumber] & {
-        data: string[];
-        actualLength: BigNumber;
-        newCursor: BigNumber;
-      }
-    >;
-
-    findIdForDataFrom(
-      _hash: PromiseOrValue<BytesLike>,
-      _from: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    get(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, string]>;
 
     getAllTag(
       _providerAddr: PromiseOrValue<string>,
@@ -672,17 +312,12 @@ export interface IProviderManager extends BaseContract {
     getProviderStatus(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[number] & { status: number }>;
+    ): Promise<[number] & { _status: number }>;
 
     getProviderWalletAddr(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string] & { _walletAddr: string }>;
-
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     getTag(
       _providerAddr: PromiseOrValue<string>,
@@ -690,41 +325,13 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     hasJoined(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    head(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    idCounter(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     incJobCount(
       _providerAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    insertAfter(
-      _prevId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    insertBefore(
-      _nextId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -732,41 +339,6 @@ export interface IProviderManager extends BaseContract {
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    objects(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, string] & {
-        id: BigNumber;
-        next: BigNumber;
-        prev: BigNumber;
-        data: string;
-      }
-    >;
-
-    providerCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    providers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        string,
-        ProviderHardwareStructOutput,
-        ProviderPricesStructOutput,
-        number,
-        BigNumber,
-        boolean
-      ] & {
-        walletAddr: string;
-        providerHardware: ProviderHardwareStructOutput;
-        providerPrices: ProviderPricesStructOutput;
-        status: number;
-        jobCount: BigNumber;
-        valid: boolean;
-      }
-    >;
 
     register(
       _nNodes: PromiseOrValue<BigNumberish>,
@@ -776,7 +348,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -789,7 +361,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -798,55 +370,11 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "remove(address)"(
+    remove(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    "remove(uint256)"(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    tail(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    totalJobCount(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
-
-  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  METASCHEDULER_CONTRACT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  PROVIDER_REGISTRATION_TAX(overrides?: CallOverrides): Promise<BigNumber>;
-
-  addHead(
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  addTail(
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   approve(
     _providerAddr: PromiseOrValue<string>,
@@ -857,31 +385,6 @@ export interface IProviderManager extends BaseContract {
     _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  elementCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  fetchPage(
-    cursor: PromiseOrValue<BigNumberish>,
-    howMany: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [string[], BigNumber, BigNumber] & {
-      data: string[];
-      actualLength: BigNumber;
-      newCursor: BigNumber;
-    }
-  >;
-
-  findIdForDataFrom(
-    _hash: PromiseOrValue<BytesLike>,
-    _from: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  get(
-    _id: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, BigNumber, string]>;
 
   getAllTag(
     _providerAddr: PromiseOrValue<string>,
@@ -913,52 +416,19 @@ export interface IProviderManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getRoleAdmin(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   getTag(
     _providerAddr: PromiseOrValue<string>,
     tagKey: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  grantRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   hasJoined(
     _providerAddr: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  hasRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  head(overrides?: CallOverrides): Promise<BigNumber>;
-
-  idCounter(overrides?: CallOverrides): Promise<BigNumber>;
-
   incJobCount(
     _providerAddr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  insertAfter(
-    _prevId: PromiseOrValue<BigNumberish>,
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  insertBefore(
-    _nextId: PromiseOrValue<BigNumberish>,
-    _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -966,41 +436,6 @@ export interface IProviderManager extends BaseContract {
     _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  objects(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, string] & {
-      id: BigNumber;
-      next: BigNumber;
-      prev: BigNumber;
-      data: string;
-    }
-  >;
-
-  providerCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  providers(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      string,
-      ProviderHardwareStructOutput,
-      ProviderPricesStructOutput,
-      number,
-      BigNumber,
-      boolean
-    ] & {
-      walletAddr: string;
-      providerHardware: ProviderHardwareStructOutput;
-      providerPrices: ProviderPricesStructOutput;
-      status: number;
-      jobCount: BigNumber;
-      valid: boolean;
-    }
-  >;
 
   register(
     _nNodes: PromiseOrValue<BigNumberish>,
@@ -1010,7 +445,7 @@ export interface IProviderManager extends BaseContract {
     _gpuPricePerMin: PromiseOrValue<BigNumberish>,
     _cpuPricePerMin: PromiseOrValue<BigNumberish>,
     _memPricePerMin: PromiseOrValue<BigNumberish>,
-    _tags: LabelStruct[],
+    _labels: LabelStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1023,7 +458,7 @@ export interface IProviderManager extends BaseContract {
     _gpuPricePerMin: PromiseOrValue<BigNumberish>,
     _cpuPricePerMin: PromiseOrValue<BigNumberish>,
     _memPricePerMin: PromiseOrValue<BigNumberish>,
-    _tags: LabelStruct[],
+    _labels: LabelStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1032,56 +467,12 @@ export interface IProviderManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "remove(address)"(
+  remove(
     _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "remove(uint256)"(
-    _id: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  revokeRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(
-    interfaceId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  tail(overrides?: CallOverrides): Promise<BigNumber>;
-
-  totalJobCount(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    METASCHEDULER_CONTRACT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    PROVIDER_REGISTRATION_TAX(overrides?: CallOverrides): Promise<BigNumber>;
-
-    addHead(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addTail(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     approve(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1091,31 +482,6 @@ export interface IProviderManager extends BaseContract {
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    elementCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    fetchPage(
-      cursor: PromiseOrValue<BigNumberish>,
-      howMany: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string[], BigNumber, BigNumber] & {
-        data: string[];
-        actualLength: BigNumber;
-        newCursor: BigNumber;
-      }
-    >;
-
-    findIdForDataFrom(
-      _hash: PromiseOrValue<BytesLike>,
-      _from: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    get(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, string]>;
 
     getAllTag(
       _providerAddr: PromiseOrValue<string>,
@@ -1147,52 +513,19 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     getTag(
       _providerAddr: PromiseOrValue<string>,
       tagKey: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     hasJoined(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    head(overrides?: CallOverrides): Promise<BigNumber>;
-
-    idCounter(overrides?: CallOverrides): Promise<BigNumber>;
-
     incJobCount(
       _providerAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    insertAfter(
-      _prevId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    insertBefore(
-      _nextId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1200,41 +533,6 @@ export interface IProviderManager extends BaseContract {
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    objects(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, string] & {
-        id: BigNumber;
-        next: BigNumber;
-        prev: BigNumber;
-        data: string;
-      }
-    >;
-
-    providerCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    providers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        string,
-        ProviderHardwareStructOutput,
-        ProviderPricesStructOutput,
-        number,
-        BigNumber,
-        boolean
-      ] & {
-        walletAddr: string;
-        providerHardware: ProviderHardwareStructOutput;
-        providerPrices: ProviderPricesStructOutput;
-        status: number;
-        jobCount: BigNumber;
-        valid: boolean;
-      }
-    >;
 
     register(
       _nNodes: PromiseOrValue<BigNumberish>,
@@ -1244,7 +542,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1257,7 +555,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1266,36 +564,10 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "remove(address)"(
+    remove(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    "remove(uint256)"(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tail(overrides?: CallOverrides): Promise<BigNumber>;
-
-    totalJobCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -1304,83 +576,11 @@ export interface IProviderManager extends BaseContract {
     ): HardwareUpdatedEventEventFilter;
     HardwareUpdatedEvent(_providerAddr?: null): HardwareUpdatedEventEventFilter;
 
-    "NewHead(uint256)"(id?: null): NewHeadEventFilter;
-    NewHead(id?: null): NewHeadEventFilter;
-
-    "NewTail(uint256)"(id?: null): NewTailEventFilter;
-    NewTail(id?: null): NewTailEventFilter;
-
-    "ObjectCreated(uint256,bytes32)"(
-      id?: null,
-      data?: null
-    ): ObjectCreatedEventFilter;
-    ObjectCreated(id?: null, data?: null): ObjectCreatedEventFilter;
-
-    "ObjectRemoved(uint256)"(id?: null): ObjectRemovedEventFilter;
-    ObjectRemoved(id?: null): ObjectRemovedEventFilter;
-
-    "ObjectsLinked(uint256,uint256)"(
-      prev?: null,
-      next?: null
-    ): ObjectsLinkedEventFilter;
-    ObjectsLinked(prev?: null, next?: null): ObjectsLinkedEventFilter;
-
-    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null
-    ): RoleAdminChangedEventFilter;
-    RoleAdminChanged(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null
-    ): RoleAdminChangedEventFilter;
-
-    "RoleGranted(bytes32,address,address)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleGrantedEventFilter;
-    RoleGranted(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleGrantedEventFilter;
-
-    "RoleRevoked(bytes32,address,address)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleRevokedEventFilter;
-    RoleRevoked(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleRevokedEventFilter;
-
     "ToBeApproved(address)"(_providerAddr?: null): ToBeApprovedEventFilter;
     ToBeApproved(_providerAddr?: null): ToBeApprovedEventFilter;
   };
 
   estimateGas: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    METASCHEDULER_CONTRACT_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    METASCHEDULER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PROVIDER_REGISTRATION_TAX(overrides?: CallOverrides): Promise<BigNumber>;
-
-    addHead(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    addTail(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     approve(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1389,25 +589,6 @@ export interface IProviderManager extends BaseContract {
     ban(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    elementCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    fetchPage(
-      cursor: PromiseOrValue<BigNumberish>,
-      howMany: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    findIdForDataFrom(
-      _hash: PromiseOrValue<BytesLike>,
-      _from: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    get(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getAllTag(
@@ -1440,21 +621,10 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getTag(
       _providerAddr: PromiseOrValue<string>,
       tagKey: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     hasJoined(
@@ -1462,48 +632,14 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    head(overrides?: CallOverrides): Promise<BigNumber>;
-
-    idCounter(overrides?: CallOverrides): Promise<BigNumber>;
-
     incJobCount(
       _providerAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    insertAfter(
-      _prevId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    insertBefore(
-      _nextId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     kick(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    objects(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    providerCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    providers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     register(
@@ -1514,7 +650,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1527,7 +663,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1536,65 +672,13 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "remove(address)"(
+    remove(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    "remove(uint256)"(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tail(overrides?: CallOverrides): Promise<BigNumber>;
-
-    totalJobCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    DEFAULT_ADMIN_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    METASCHEDULER_CONTRACT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    METASCHEDULER_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    PROVIDER_REGISTRATION_TAX(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    addHead(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addTail(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     approve(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1603,25 +687,6 @@ export interface IProviderManager extends BaseContract {
     ban(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    elementCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    fetchPage(
-      cursor: PromiseOrValue<BigNumberish>,
-      howMany: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    findIdForDataFrom(
-      _hash: PromiseOrValue<BytesLike>,
-      _from: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    get(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getAllTag(
@@ -1654,21 +719,10 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getTag(
       _providerAddr: PromiseOrValue<string>,
       tagKey: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     hasJoined(
@@ -1676,48 +730,14 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    head(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    idCounter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     incJobCount(
       _providerAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    insertAfter(
-      _prevId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    insertBefore(
-      _nextId: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     kick(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    objects(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    providerCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    providers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     register(
@@ -1728,7 +748,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1741,7 +761,7 @@ export interface IProviderManager extends BaseContract {
       _gpuPricePerMin: PromiseOrValue<BigNumberish>,
       _cpuPricePerMin: PromiseOrValue<BigNumberish>,
       _memPricePerMin: PromiseOrValue<BigNumberish>,
-      _tags: LabelStruct[],
+      _labels: LabelStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1750,35 +770,9 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "remove(address)"(
+    remove(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    "remove(uint256)"(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tail(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    totalJobCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
