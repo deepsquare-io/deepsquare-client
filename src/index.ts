@@ -168,7 +168,8 @@ export default class DeepSquareClient {
   async submitJob(
     job: GQLJob,
     jobName: string,
-    maxAmount = 1e3
+    maxAmount = 1e3,
+    uses = []
   ): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
       throw new Error("provider is not a signer");
@@ -195,7 +196,7 @@ export default class DeepSquareClient {
                 : 4
               : 4,
             batchLocationHash: hash.submit,
-            uses: [{ key: "os", value: "linux" }],
+            uses: uses,
           },
           parseUnits(maxAmount.toString(), "ether"),
           formatBytes32String(jobName),
