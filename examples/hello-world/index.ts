@@ -1,45 +1,62 @@
 import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { BigNumber } from '@ethersproject/bignumber';
-import dotenv from 'dotenv'
-dotenv.config()
-
+import { BigNumber } from "@ethersproject/bignumber";
+import dotenv from "dotenv";
+dotenv.config();
 
 async function main() {
-  // Define the job
-  const helloWorldJob = {
-    "resources": {
-      "tasks": 1,
-      "gpusPerTask": 0,
-      "cpusPerTask": 1,
-      "memPerCpu": 1024
-    },
-    "enableLogging": true,
-    "steps": [
-      {
-        "name": "hello world",
-        "run": {
-          "command": "echo \"Hello World\""
-        }
-      }
-    ]
-  };
-
+  const uses = [{ key: "os", value: "linux" }] as never;
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
     process.env.METASCHEDULER_ADDR as string,
     process.env.ENDPOINT as string
   );
+  const args = process.argv.slice(2);
+  let jobId = undefined;
+  if (args.length == 1) {
+    jobId = args[0];
+    console.log(`Checking logs for existing job ${jobId}`);
+  } else {
+    // Define the job
+    const helloWorldJob = {
+      resources: {
+        tasks: 1,
+        gpusPerTask: 0,
+        cpusPerTask: 1,
+        memPerCpu: 1024,
+      },
+      enableLogging: true,
+      steps: [
+        {
+          name: "hello world",
+          run: {
+            command: 'echo "Hello World"',
+          },
+        },
+      ],
+    };
 
-  const depositAmount = BigNumber.from('10000000000000');
-  await deepSquareClient.setAllowance(depositAmount);
+    const depositAmount = BigNumber.from("10000000000000");
+    await deepSquareClient.setAllowance(depositAmount);
 
-  // Launch the job 
-  const randomString = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
-  const jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2);
-
+    // Launch the job
+    const randomString = Array.from({ length: 4 }, () =>
+      String.fromCharCode(65 + Math.floor(Math.random() * 26))
+    ).join("");
+    //jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2);
+    jobId = await deepSquareClient.submitJob(
+      helloWorldJob,
+      `hello_world_${randomString}`,
+      1e2,
+      uses
+    );
+    //jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2, [] as never);
+    console.log(`New job id ${jobId}, getting logs...`);
+  }
   // Print logs
-  console.log(`My job id ${jobId}`);
-  const logsMethods = deepSquareClient.getLogsMethods(jobId);
+  const logsMethods = deepSquareClient.getLogsMethods(
+    jobId,
+    "grid-logger.dev.deepsquare.run:443"
+  );
   const [read, stopFetch] = await logsMethods.fetchLogs();
   const decoder = new TextDecoder();
 
