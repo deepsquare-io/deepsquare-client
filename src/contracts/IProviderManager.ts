@@ -79,8 +79,8 @@ export interface IProviderManagerInterface extends utils.Interface {
     "kick(address)": FunctionFragment;
     "register(uint64,uint64,uint64,uint64,uint256,uint256,uint256,(string,string)[])": FunctionFragment;
     "registerProvider(address,uint64,uint64,uint64,uint64,uint256,uint256,uint256,(string,string)[])": FunctionFragment;
-    "reinstated(address)": FunctionFragment;
-    "remove(address)": FunctionFragment;
+    "reinstate(address)": FunctionFragment;
+    "removeProvider(address)": FunctionFragment;
   };
 
   getFunction(
@@ -99,8 +99,8 @@ export interface IProviderManagerInterface extends utils.Interface {
       | "kick"
       | "register"
       | "registerProvider"
-      | "reinstated"
-      | "remove"
+      | "reinstate"
+      | "removeProvider"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -179,11 +179,11 @@ export interface IProviderManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "reinstated",
+    functionFragment: "reinstate",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "remove",
+    functionFragment: "removeProvider",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -222,8 +222,11 @@ export interface IProviderManagerInterface extends utils.Interface {
     functionFragment: "registerProvider",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "reinstated", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "remove", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "reinstate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "removeProvider",
+    data: BytesLike
+  ): Result;
 
   events: {
     "HardwareUpdatedEvent(address)": EventFragment;
@@ -365,12 +368,12 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    reinstated(
+    reinstate(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    remove(
+    removeProvider(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -462,12 +465,12 @@ export interface IProviderManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  reinstated(
+  reinstate(
     _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  remove(
+  removeProvider(
     _providerAddr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -559,12 +562,12 @@ export interface IProviderManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    reinstated(
+    reinstate(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    remove(
+    removeProvider(
       _providerAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -667,12 +670,12 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    reinstated(
+    reinstate(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    remove(
+    removeProvider(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -765,12 +768,12 @@ export interface IProviderManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    reinstated(
+    reinstate(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    remove(
+    removeProvider(
       _providerAddr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
