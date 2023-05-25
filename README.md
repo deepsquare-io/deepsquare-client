@@ -171,11 +171,9 @@ async function main() {
   };
 
   // Create the DeepSquareClient
-  const deepSquareClient = new DeepSquareClient(
+  const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string,
-    process.env.CREDIT_ADDR as string,
-    process.env.ENDPOINT as string
+    process.env.METASCHEDULER_ADDR as string
   );
 
   // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)
