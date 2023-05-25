@@ -66,8 +66,8 @@ function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
   return isJobTerminated(job.status)
     ? job.cost.finalCost.toBigInt()
     : (BigInt(Math.floor(Date.now() / (1000 * 60))) -
-        job.time.start.toBigInt() * 1000n) *
-        computeCostPerMin(job, providerPrice);
+      job.time.start.toBigInt() * 1000n) *
+    computeCostPerMin(job, providerPrice);
 }
 
 // compute the job costs per minute based on provider price
@@ -98,8 +98,8 @@ export default class DeepSquareClient {
     private readonly credit: IERC20,
     private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
-  ) {}
     private loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient
+  ) { }
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
@@ -190,10 +190,10 @@ export default class DeepSquareClient {
               ? job.output.s3
                 ? 2
                 : job.output.http
-                ? job.output.http.url === "https://transfer.deepsquare.run/"
-                  ? 0
-                  : 1
-                : 4
+                  ? job.output.http.url === "https://transfer.deepsquare.run/"
+                    ? 0
+                    : 1
+                  : 4
               : 4,
             batchLocationHash: hash.submit,
             uses: uses,
