@@ -61,20 +61,26 @@ export function isJobTerminated(status: number): boolean {
   );
 }
 
+function jobDurationInMinutes(job: Job): number {
+  return Number(BigInt(Math.floor(Date.now() / (1000))) - BigInt(job.time.start.toBigInt())) / 60
+}
+
 // compute the job current cost (total if job finished)
-function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
+function computeCost(job: Job, providerPrice: ProviderPricesStruct): number {
   return isJobTerminated(job.status)
-    ? job.cost.finalCost.toBigInt()
-    : (BigInt(Math.floor(Date.now() / (1000 * 60))) -
-      job.time.start.toBigInt() * 1000n) *
-    computeCostPerMin(job, providerPrice);
+    ? Number(job.cost.finalCost.toBigInt() / (1000000000000000000n * 1000n)) / 1000
+    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
+}
+
+function bigIntToNumber(bint: bigint, decimals = 4) {
+  return Number(bint / (1000000000000000000n / BigInt(Math.pow(10, decimals)))) / Math.pow(10, decimals)
 }
 
 // compute the job costs per minute based on provider price
 function computeCostPerMin(
   job: Job,
   providerPrice: ProviderPricesStruct
-): bigint {
+): number {
   const tasks = job.definition.ntasks.toBigInt();
   const gpuCost =
     job.definition.gpuPerTask.toBigInt() *
@@ -86,7 +92,8 @@ function computeCostPerMin(
     job.definition.memPerCpu.toBigInt() *
     job.definition.cpuPerTask.toBigInt() *
     (providerPrice.memPricePerMin as BigNumber).toBigInt();
-  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
+  const total = bigIntToNumber(tasks * (gpuCost + cpuCost + memCost));
+  return total;
 }
 
 export default class DeepSquareClient {
@@ -216,27 +223,29 @@ export default class DeepSquareClient {
    */
   async getJob(jobId: string): Promise<
     Job & {
-      actualCost: bigint;
-      costPerMin: bigint;
-      timeLeft: bigint;
+      actualCost: number;
+      costPerMin: number;
+      timeLeft: number;
+      duration: number;
     }
   > {
     const job = await this.metaScheduler.jobs(jobId);
     let providerPrices: ProviderPricesStruct;
-    let costPerMin = 0n;
-    let actualCost = 0n;
-    let timeLeft = 0n;
+    let costPerMin = 0;
+    let actualCost = 0;
+    let timeLeft = 0;
+    let duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
         job.providerAddr.toLowerCase()
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft = (job.cost.maxCost.toBigInt() - actualCost) / costPerMin;
+      timeLeft = (bigIntToNumber(job.cost.maxCost.toBigInt()) - actualCost) / costPerMin;
     } catch (e) {
       console.warn(e);
     }
-    return { ...job, actualCost, costPerMin, timeLeft };
+    return { ...job, actualCost, costPerMin, timeLeft, duration };
   }
 
   /**
