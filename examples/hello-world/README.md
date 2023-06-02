@@ -1,51 +1,38 @@
-## Example Readme
+# DeepSquare Job Submission and Log Retrieval Example
 
-### Description
-This example demonstrates the usage of the DeepSquareClient library to submit and retrieve logs from a job using the DeepSquare platform. The code provided showcases how to submit a "Hello World" job, retrieve the logs, and print the job output to the console.
+This example demonstrates the usage of the DeepSquareClient library to submit and retrieve logs from a job using the DeepSquare platform. The code showcases how to submit a "Hello World" job, retrieve the logs, and print the job output to the console.
 
-### Prerequisites
-Before running the example, make sure you have the following requirements met:
+## Prerequisites
 
 - Node.js installed on your machine
 - [pnpm](https://pnpm.io/) package manager installed globally
 
-### Installation
-To install the required dependencies, follow these steps:
+## Installation
 
 1. Open a terminal or command prompt.
 2. Navigate to the directory where the example code is located.
-3. Run the following command to install the dependencies:
+3. Run `pnpm install` to install the required dependencies.
 
-```
-pnpm install
-```
+## Configuration
 
-### Configuration
-Before running the example, you need to configure the environment variables. Follow these steps:
+Before running the example, you need to configure the environment variables:
 
 1. Create a `.env` file in the same directory as the example code.
-2. Open the `.env` file and add the following lines:
+2. Add the following lines to the `.env` file:
+    ```markdown
+    PRIVATE_KEY=<Your_Private_Key>
+    METASCHEDULER_ADDR=<MetaScheduler_Address>
+    ENDPOINT=<Endpoint_URL>
+    ```
+    Replace `<Your_Private_Key>`, `<MetaScheduler_Address>`, and `<Endpoint_URL>` with the corresponding values provided by the DeepSquare platform.
 
-```
-PRIVATE_KEY=<Your_Private_Key>
-METASCHEDULER_ADDR=<MetaScheduler_Address>
-ENDPOINT=<Endpoint_URL>
-```
-
-Replace `<Your_Private_Key>`, `<MetaScheduler_Address>`, and `<Endpoint_URL>` with the corresponding values provided by the DeepSquare platform.
-
-### Running the Example
-To run the example, follow these steps:
+## Usage
 
 1. Open a terminal or command prompt.
 2. Navigate to the directory where the example code is located.
-3. Run the following command:
+3. Run `pnpm start` to execute the script.
 
-```
-pnpm start
-```
-
-The code will execute and perform the following steps:
+The code will:
 
 1. Define a "Hello World" job configuration.
 2. Build an instance of the DeepSquareClient using the provided environment variables.
@@ -56,16 +43,8 @@ The code will execute and perform the following steps:
 
 If everything is set up correctly, you should see the job ID and the "Hello World" message printed to the console.
 
-### Notes
-- Make sure to replace the environment variables (`<Your_Private_Key>`, `<MetaScheduler_Address>`, `<Endpoint_URL>`) in the `.env` file with the actual values provided by the DeepSquare platform.
-- The example assumes that you have an account and access to the DeepSquare platform.
+## Notes
+
+- Make sure to replace the placeholders in the `.env` file with the actual values provided by the DeepSquare platform.
+- This example assumes that you have an account and access to the DeepSquare platform.
 - For further customization and utilization of the DeepSquareClient library, refer to the library's documentation and additional code samples.
-
-### Troubleshooting
-If you encounter any issues or errors while running the example, please ensure the following:
-
-- Double-check that the environment variables in the `.env` file are correctly set.
-- Confirm that you have a stable internet connection and access to the DeepSquare platform.
-- Ensure that you have the necessary permissions and resources available on the platform to submit jobs.
-
-If the problem persists, please contact the DeepSquare support team for further assistance.
