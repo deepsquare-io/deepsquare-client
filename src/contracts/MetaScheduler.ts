@@ -145,6 +145,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
     "claimNextJob()": FunctionFragment;
     "claimNextTopUpJob()": FunctionFragment;
     "credit()": FunctionFragment;
+    "deepSquareBalance()": FunctionFragment;
     "getJob(bytes32)": FunctionFragment;
     "getJobs(address)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -179,6 +180,7 @@ export interface MetaSchedulerInterface extends utils.Interface {
       | "claimNextJob"
       | "claimNextTopUpJob"
       | "credit"
+      | "deepSquareBalance"
       | "getJob"
       | "getJobs"
       | "getRoleAdmin"
@@ -232,6 +234,10 @@ export interface MetaSchedulerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "credit", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deepSquareBalance",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getJob",
     values: [PromiseOrValue<BytesLike>]
@@ -356,6 +362,10 @@ export interface MetaSchedulerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "credit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deepSquareBalance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getJob", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getJobs", data: BytesLike): Result;
   decodeFunctionResult(
@@ -633,6 +643,8 @@ export interface MetaScheduler extends BaseContract {
 
     credit(overrides?: CallOverrides): Promise<[string]>;
 
+    deepSquareBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getJob(
       _jobId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -797,6 +809,8 @@ export interface MetaScheduler extends BaseContract {
 
   credit(overrides?: CallOverrides): Promise<string>;
 
+  deepSquareBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
   getJob(
     _jobId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -954,6 +968,8 @@ export interface MetaScheduler extends BaseContract {
     claimNextTopUpJob(overrides?: CallOverrides): Promise<void>;
 
     credit(overrides?: CallOverrides): Promise<string>;
+
+    deepSquareBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getJob(
       _jobId: PromiseOrValue<BytesLike>,
@@ -1237,6 +1253,8 @@ export interface MetaScheduler extends BaseContract {
 
     credit(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deepSquareBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     getJob(
       _jobId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1381,6 +1399,8 @@ export interface MetaScheduler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     credit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deepSquareBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getJob(
       _jobId: PromiseOrValue<BytesLike>,

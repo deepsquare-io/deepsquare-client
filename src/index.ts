@@ -52,6 +52,11 @@ export enum JobStatus {
   OUT_OF_CREDITS = 7,
 }
 
+/**
+ * Checks if the job status indicates it has terminated.
+ * @param {number} status - The status of the job.
+ * @return {boolean} - True if job has terminated, False otherwise.
+ */
 export function isJobTerminated(status: number): boolean {
   return (
     status === JobStatus.CANCELLED ||
@@ -65,7 +70,19 @@ function jobDurationInMinutes(job: Job): number {
   return Number(BigInt(Math.floor(Date.now() / (1000))) - BigInt(job.time.start.toBigInt())) / 60
 }
 
-// compute the job current cost (total if job finished)
+/**
+ * Computes the current cost of a job.
+ *
+ * If the job has already been terminated, it returns the final cost of the job. Otherwise, it calculates
+ * the current cost based on the time elapsed since the start of the job and the cost per minute.
+ *
+ * @param {Job} job - The job object. It includes properties such as the status and the cost of the job.
+ * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It contains
+ *   the pricing details needed to compute the cost per minute of the job.
+ *
+ * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
+ *   (like wei for Ethereum), and is always an integer.
+ */
 function computeCost(job: Job, providerPrice: ProviderPricesStruct): number {
   return isJobTerminated(job.status)
     ? Number(job.cost.finalCost.toBigInt() / (1000000000000000000n * 1000n)) / 1000
@@ -76,7 +93,19 @@ function bigIntToNumber(bint: bigint, decimals = 4) {
   return Number(bint / (1000000000000000000n / BigInt(Math.pow(10, decimals)))) / Math.pow(10, decimals)
 }
 
-// compute the job costs per minute based on provider price
+/**
+ * Computes the cost per minute for a given job.
+ *
+ * The cost per minute is calculated based on the provider's price and the resources required by the job,
+ * which include the number of tasks, GPU per task, CPU per task, and memory per CPU.
+ *
+ * @param {Job} job - The job object, which contains the resource requirements per task.
+ * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It includes the
+ *   prices for GPU, CPU, and memory per minute.
+ *
+ * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
+ *   (like wei for Ethereum), and is always an integer.
+ */
 function computeCostPerMin(
   job: Job,
   providerPrice: ProviderPricesStruct
@@ -99,6 +128,15 @@ function computeCostPerMin(
 export default class DeepSquareClient {
   private lock = new AsyncLock();
 
+  /**
+   * Creates an instance of DeepSquareClient.
+   * @param signerOrProvider - The signer or provider that will sign the transactions.
+   * @param metaScheduler - The MetaScheduler contract.
+   * @param credit - The credit contract.
+   * @param providerManager - The ProviderManager contract.
+   * @param sbatchServiceClient - The SBatch Service GraphQL client.
+   * @param loggerClientFactory - The logger client factory.
+   */
   private constructor(
     private readonly signerOrProvider: Signer | Provider,
     private readonly metaScheduler: MetaScheduler,
@@ -156,8 +194,15 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Allow DeepSquare Grid to use $amount of credits to pay for jobs.
-   * @param amount The amount to setAllowance.
+   * This method allows the DeepSquare Grid to consume a specific amount of credits from the client's
+   * account for running jobs. The credits act as the payment medium for the computational resources used.
+   *
+   * @param {BigNumber} amount - The amount of credits the client approves to be used for job execution.
+   *   This amount is represented as a BigNumber, which helps handle very large numbers safely in JavaScript.
+   *
+   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
+   *
+   * The approval is given to the MetaScheduler smart contract, which manages the job execution on the Grid.
    */
   async setAllowance(amount: BigNumber) {
     await this.credit.approve(
@@ -167,10 +212,13 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Submit a job to the DeepSquare Grid
-   * @param job The definition of job to send, including storage, environment variables, resources and computing steps. Check the package documentation for further details on the Job type
-   * @param jobName The name of the job, limited to 32 characters.
-   * @returns {string} The id of the job on the Grid
+   * This method is used to submit a job to the DeepSquare Grid. It requires job details, job name and maximum amount for execution.
+   *
+   * @param {GQLJob} job - The job object containing details like storage, environment variables, resources and computing steps.
+   * @param {string} jobName - The name of the job. It must be a maximum of 32 characters long.
+   * @param {number} maxAmount - The maximum cost that can be incurred for the execution of the job. Default is 1000.
+   *
+   * @returns {Promise<string>} Returns a Promise that resolves to the Job ID on the grid.
    */
   async submitJob(
     job: GQLJob,
@@ -218,8 +266,11 @@ export default class DeepSquareClient {
   }
 
   /**
-   *  Get the job information from smarts contracts by id
-   * @param jobId {string} The job id to fetch.
+   * Fetches the details of a job from smart contracts based on the job ID. The details include actual cost, cost per minute and time left.
+   *
+   * @param jobId - The ID of the job that needs to be fetched.
+   *
+   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters.
    */
   async getJob(jobId: string): Promise<
     Job & {
@@ -249,8 +300,10 @@ export default class DeepSquareClient {
   }
 
   /**
-   *  Cancel a job by id
-   * @param jobId {string} The job id to cancel.
+   * Add additional credits to a running job. This can be helpful when a job is close to consuming its maximum allocated credits.
+   *
+   * @param jobId - The ID of the job to which credits are being added.
+   * @param amount - The amount of credits to be added. Default is 1000.
    */
   async topUp(jobId: string, amount = 1e3) {
     if (!(this.signerOrProvider instanceof Signer)) {
@@ -263,8 +316,9 @@ export default class DeepSquareClient {
   }
 
   /**
-   *  Cancel a job by id
-   * @param jobId {string} The job id to cancel.
+   * Cancels an ongoing job by its ID.
+   *
+   * @param jobId - The ID of the job to be cancelled.
    */
   async cancel(jobId: string) {
     if (!(this.signerOrProvider instanceof Signer)) {
@@ -274,8 +328,13 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Get the iterable containing the live logs of given job. Make sure to close the stream with the second function returned once you're done with it.
-   * @param jobId {string} The job id from which getting the job
+   * Provides a method to fetch live logs of a given job. This method returns an object which contains the 'fetchLogs' function.
+   * The 'fetchLogs' function, when invoked, returns an async iterable to read logs and a function to close the stream. It is important
+   * to invoke the function to close the stream once you're done using it.
+   *
+   * @param jobId - The ID of the job for which logs are to be fetched.
+   *
+   * @returns Returns an object with a 'fetchLogs' method for accessing job logs. The 'fetchLogs' function returns a Promise that resolves to an async iterable for log access and a function to close the stream.
    */
   getLogsMethods(jobId: string, loggerEndpoint = "grid-logger.deepsquare.run:443"): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
