@@ -67,7 +67,11 @@ export function isJobTerminated(status: number): boolean {
 }
 
 function jobDurationInMinutes(job: Job): number {
-  return Number(BigInt(Math.floor(Date.now() / (1000))) - BigInt(job.time.start.toBigInt())) / 60
+  return (
+    Number(
+      BigInt(Math.floor(Date.now() / 1000)) - BigInt(job.time.start.toBigInt())
+    ) / 60
+  );
 }
 
 /**
@@ -85,12 +89,16 @@ function jobDurationInMinutes(job: Job): number {
  */
 function computeCost(job: Job, providerPrice: ProviderPricesStruct): number {
   return isJobTerminated(job.status)
-    ? Number(job.cost.finalCost.toBigInt() / (1000000000000000000n * 1000n)) / 1000
+    ? Number(job.cost.finalCost.toBigInt() / (1000000000000000000n * 1000n)) /
+        1000
     : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
 }
 
 function bigIntToNumber(bint: bigint, decimals = 4) {
-  return Number(bint / (1000000000000000000n / BigInt(Math.pow(10, decimals)))) / Math.pow(10, decimals)
+  return (
+    Number(bint / (1000000000000000000n / BigInt(Math.pow(10, decimals)))) /
+    Math.pow(10, decimals)
+  );
 }
 
 /**
@@ -144,7 +152,7 @@ export default class DeepSquareClient {
     private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
     private loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient
-  ) { }
+  ) {}
 
   /**
    * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
@@ -164,7 +172,9 @@ export default class DeepSquareClient {
         chainId: 179188,
       }
     ),
-    loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient = createLoggerClient
+    loggerClientFactory: (
+      loggerEndpoint: string
+    ) => ILoggerAPIClient = createLoggerClient
   ): Promise<DeepSquareClient> {
     // Use a authenticated client if there is a key, else don't.
     const signerOrProvider = privateKey
@@ -245,10 +255,10 @@ export default class DeepSquareClient {
               ? job.output.s3
                 ? 2
                 : job.output.http
-                  ? job.output.http.url === "https://transfer.deepsquare.run/"
-                    ? 0
-                    : 1
-                  : 4
+                ? job.output.http.url === "https://transfer.deepsquare.run/"
+                  ? 0
+                  : 1
+                : 4
               : 4,
             batchLocationHash: hash.submit,
             uses: uses,
@@ -285,14 +295,15 @@ export default class DeepSquareClient {
     let costPerMin = 0;
     let actualCost = 0;
     let timeLeft = 0;
-    let duration = jobDurationInMinutes(job);
+    const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
         job.providerAddr.toLowerCase()
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft = (bigIntToNumber(job.cost.maxCost.toBigInt()) - actualCost) / costPerMin;
+      timeLeft =
+        (bigIntToNumber(job.cost.maxCost.toBigInt()) - actualCost) / costPerMin;
     } catch (e) {
       console.warn(e);
     }
@@ -336,7 +347,10 @@ export default class DeepSquareClient {
    *
    * @returns Returns an object with a 'fetchLogs' method for accessing job logs. The 'fetchLogs' function returns a Promise that resolves to an async iterable for log access and a function to close the stream.
    */
-  getLogsMethods(jobId: string, loggerEndpoint = "grid-logger.deepsquare.run:443"): {
+  getLogsMethods(
+    jobId: string,
+    loggerEndpoint = "grid-logger.deepsquare.run:443"
+  ): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
     return {
