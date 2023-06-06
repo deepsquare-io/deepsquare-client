@@ -49,7 +49,7 @@ pnpm link --global  @deepsquare/deepsquare-client
 
 Detailed instructions on using the client are available in the [examples](./examples) directory. The examples cover various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job.
 
-Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/docs/deploy-deepsquare/workflow-api-reference/job). for a detailed API reference and job specification.
+Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job). for a detailed API reference and job specification.
 
 
 
