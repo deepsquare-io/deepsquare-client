@@ -205,4 +205,4 @@ main();
 
 A Job is a finite sequence of instructions.
 
-The API reference can be read [in the official DeepSquare documentation](https://docs.deepsquare.run/docs/deploy-deepsquare/workflow-api-reference/job).
+The API reference can be read [in the official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job).
