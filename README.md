@@ -3,7 +3,7 @@
 This package aims to provide a simple and abstracted from web3 interface to the DeepSquare Grid. With this SDK, you will
 be able to send jobs to the Grid using your credits and retrieve them afterwards to track their status and cost.
 
-## Introduction 
+## Introduction
 
 The power of the DeepSquare Grid lies in the workflows. The workflows define the sequences of operations that are to be executed on the Grid. We highly recommend exploring our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog) to see the different types of jobs you can run on the DeepSquare Grid.
 
@@ -51,8 +51,6 @@ Detailed instructions on using the client are available in the [examples](./exam
 
 Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job). for a detailed API reference and job specification.
 
-
-
 ## Troubleshooting
 
 If you encounter any issues:
@@ -67,5 +65,3 @@ If the problem persists:
 - Join the DeepSquare [Discord community](https://discord.gg/vZGcf7kx) for direct support and discussion.
 
 The DeepSquare team is committed to providing assistance and making your experience as smooth as possible.
-
-
