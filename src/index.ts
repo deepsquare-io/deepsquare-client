@@ -28,6 +28,8 @@ import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
 
+export { createDevLoggerClient } from "./grpc/client";
+
 export type Job = {
   jobId: string;
   status: number;
@@ -87,18 +89,10 @@ function jobDurationInMinutes(job: Job): number {
  * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
  */
-function computeCost(job: Job, providerPrice: ProviderPricesStruct): number {
+function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
   return isJobTerminated(job.status)
-    ? Number(job.cost.finalCost.toBigInt() / (1000000000000000000n * 1000n)) /
-        1000
-    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
-}
-
-function bigIntToNumber(bint: bigint, decimals = 4) {
-  return (
-    Number(bint / (1000000000000000000n / BigInt(Math.pow(10, decimals)))) /
-    Math.pow(10, decimals)
-  );
+    ? job.cost.finalCost.toBigInt()
+    : BigInt(jobDurationInMinutes(job)) * computeCostPerMin(job, providerPrice);
 }
 
 /**
@@ -117,7 +111,7 @@ function bigIntToNumber(bint: bigint, decimals = 4) {
 function computeCostPerMin(
   job: Job,
   providerPrice: ProviderPricesStruct
-): number {
+): bigint {
   const tasks = job.definition.ntasks.toBigInt();
   const gpuCost =
     job.definition.gpuPerTask.toBigInt() *
@@ -129,7 +123,7 @@ function computeCostPerMin(
     job.definition.memPerCpu.toBigInt() *
     job.definition.cpuPerTask.toBigInt() *
     (providerPrice.memPricePerMin as BigNumber).toBigInt();
-  const total = bigIntToNumber(tasks * (gpuCost + cpuCost + memCost));
+  const total = tasks * (gpuCost + cpuCost + memCost);
   return total;
 }
 
@@ -151,7 +145,7 @@ export default class DeepSquareClient {
     private readonly credit: IERC20,
     private readonly providerManager: IProviderManager,
     private readonly sbatchServiceClient: GraphQLClient,
-    private loggerClientFactory: (loggerEndpoint: string) => ILoggerAPIClient
+    private loggerClientFactory: () => ILoggerAPIClient
   ) {}
 
   /**
@@ -172,9 +166,7 @@ export default class DeepSquareClient {
         chainId: 179188,
       }
     ),
-    loggerClientFactory: (
-      loggerEndpoint: string
-    ) => ILoggerAPIClient = createLoggerClient
+    loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ): Promise<DeepSquareClient> {
     // Use a authenticated client if there is a key, else don't.
     const signerOrProvider = privateKey
@@ -284,17 +276,17 @@ export default class DeepSquareClient {
    */
   async getJob(jobId: string): Promise<
     Job & {
-      actualCost: number;
-      costPerMin: number;
-      timeLeft: number;
+      actualCost: bigint;
+      costPerMin: bigint;
+      timeLeft: bigint;
       duration: number;
     }
   > {
     const job = await this.metaScheduler.jobs(jobId);
     let providerPrices: ProviderPricesStruct;
-    let costPerMin = 0;
-    let actualCost = 0;
-    let timeLeft = 0;
+    let costPerMin = BigInt(0);
+    let actualCost = BigInt(0);
+    let timeLeft = BigInt(0);
     const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
@@ -302,8 +294,7 @@ export default class DeepSquareClient {
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft =
-        (bigIntToNumber(job.cost.maxCost.toBigInt()) - actualCost) / costPerMin;
+      timeLeft = (job.cost.maxCost.toBigInt() - actualCost) / costPerMin;
     } catch (e) {
       console.warn(e);
     }
@@ -347,10 +338,7 @@ export default class DeepSquareClient {
    *
    * @returns Returns an object with a 'fetchLogs' method for accessing job logs. The 'fetchLogs' function returns a Promise that resolves to an async iterable for log access and a function to close the stream.
    */
-  getLogsMethods(
-    jobId: string,
-    loggerEndpoint = "grid-logger.deepsquare.run:443"
-  ): {
+  getLogsMethods(jobId: string): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
   } {
     return {
@@ -359,7 +347,7 @@ export default class DeepSquareClient {
           throw new Error("provider is not a signer");
         }
         const service = new GRPCService(
-          this.loggerClientFactory(loggerEndpoint),
+          this.loggerClientFactory(),
           this.signerOrProvider
         );
         const address = await this.signerOrProvider.getAddress();
