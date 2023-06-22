@@ -68,11 +68,9 @@ export function isJobTerminated(status: number): boolean {
   );
 }
 
-function jobDurationInMinutes(job: Job): number {
+function jobDurationInMinutes(job: Job): bigint {
   return (
-    Number(
-      BigInt(Math.floor(Date.now() / 1000)) - BigInt(job.time.start.toBigInt())
-    ) / 60
+    BigInt(Math.floor(Date.now() / 1000)) - job.time.start.toBigInt() / 60n
   );
 }
 
@@ -92,7 +90,7 @@ function jobDurationInMinutes(job: Job): number {
 function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
   return isJobTerminated(job.status)
     ? job.cost.finalCost.toBigInt()
-    : BigInt(jobDurationInMinutes(job)) * computeCostPerMin(job, providerPrice);
+    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
 }
 
 /**
@@ -279,14 +277,14 @@ export default class DeepSquareClient {
       actualCost: bigint;
       costPerMin: bigint;
       timeLeft: bigint;
-      duration: number;
+      duration: bigint;
     }
   > {
     const job = await this.metaScheduler.jobs(jobId);
     let providerPrices: ProviderPricesStruct;
-    let costPerMin = BigInt(0);
-    let actualCost = BigInt(0);
-    let timeLeft = BigInt(0);
+    let costPerMin = 0n;
+    let actualCost = 0n;
+    let timeLeft = 0n;
     const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
