@@ -1,17 +1,17 @@
 {
-	"name": "your-package-name",
-	"version": "1.0.0",
-	"scripts": {
-		"start": "tsc && node index.js"
-	},
-	"dependencies": {
-		"@deepsquare/deepsquare-client": "^0.7.3",
-		"@ethersproject/bignumber": "^5.7.0",
-		"dotenv": "^16.0.3",
-		"ethers": "^6.3.0"
-	},
-	"devDependencies": {
-		"ts-node": "^10.9.1",
-		"typescript": "^5.0.4"
-	}
+  "name": "your-package-name",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "tsc && node index.js"
+  },
+  "dependencies": {
+    "@deepsquare/deepsquare-client": "^0.7.3",
+    "@ethersproject/bignumber": "^5.7.0",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.3.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
 }
