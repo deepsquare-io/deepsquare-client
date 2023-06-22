@@ -9,11 +9,3 @@ export function createLoggerClient(): LoggerAPIClient {
   });
   return new LoggerAPIClient(transport);
 }
-
-export function createDevLoggerClient(): LoggerAPIClient {
-  const transport = new GrpcTransport({
-    host: "grid-logger.dev.deepsquare.run:443",
-    channelCredentials: ChannelCredentials.createSsl(),
-  });
-  return new LoggerAPIClient(transport);
-}
