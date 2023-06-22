@@ -26,13 +26,13 @@ Kick-start your journey by exploring our [Getting Started Guide](examples\hello-
 
 - A crypto wallet, the private key of which you possess, carrying sufficient credit tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
 
-yamlCopy code
+```yaml
+Network name: DeepSquare Testnet C-Chain
+RPC URL: https://testnet.deepsquare.run/rpc
+Chain ID: 179188`
+```
 
-`Network name: DeepSquare Testnet C-Chain
-  RPC URL: https://testnet.deepsquare.run/rpc
-  Chain ID: 179188`
-
-You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/). A pop-up will prompt you to install the DeepSquare network.
+You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
 
 - We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
 
@@ -42,9 +42,9 @@ If you haven't yet, we recommend following our [Getting Started Guide](examples\
 
 To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
 
-typescriptCopy code
-
-`import DeepSquareClient from "@deepsquare/deepsquare-client";
+```typescript
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+```
 
 const deepSquareClient = await DeepSquareClient.build("myWeb3PrivateKey");`
 
@@ -54,24 +54,22 @@ If you wish to enhance or update the deepsquare-client library, perform the foll
 
 In the folder containing the deepsquare-client,
 
-bashCopy code
-
-`pnpm build
-pnpm link --global`
+```bash
+pnpm build
+pnpm link --global
+```
 
 Then, in the other repo using the development version, do
 
-bashCopy code
-
-`pnpm link --global  @deepsquare/deepsquare-client`
+```bash
+pnpm link --global  @deepsquare/deepsquare-client
+```
 
 ## Documentation
 
-For a detailed API reference and job specification, please refer to the [official DeepSquare documentation](<https://docs.deepsquare.run/workflow/work>
+For a detailed API reference and job specification, please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/introduction/overview)
 
 ## Troubleshooting
-
-If you run into any issues:
 
 If you run into any issues:
 
