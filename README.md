@@ -26,7 +26,8 @@ Ensure you have:
 
 - Install BigNumber with 
 
-```pnpm install @ethersproject/bignumber
+```
+pnpm install @ethersproject/bignumber
 ```
 
 - Install the library
