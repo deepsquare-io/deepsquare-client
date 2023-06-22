@@ -6,7 +6,7 @@ This package provides a straightforward interface to the DeepSquare Grid. With t
 
 The essence of the DeepSquare Grid lies in its **workflows**. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
 
-Begin your journey with our platform by following our [Getting Started Guide](examples/hello-world/README.md), the link to which will be provided shortly.
+Begin your journey with our platform by following the Get Started guide below 
 
 For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
 
@@ -16,10 +16,33 @@ We can't wait to see what you'll build next!
 
 ## Get Started
 
+## Set up the library 
 
-### Requirements
+### Prerequisites
 
-- A crypto wallet, the private key of which you possess, carrying sufficient credit tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
+Ensure you have:
+
+- Node.js installed on your system
+
+- Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
+
+- Install BigNumber with `pnpm install @ethersproject/bignumber`.
+
+### Installation 
+
+```
+  pnpm install @deepsquare/deepsquare-client
+```
+
+## Set up the wallet
+
+### Prerequisites 
+
+Ensure you have:
+
+- A crypto wallet and your associated private key. You can use wallets like Metamask or Core Wallet and/or cli like avalache-cli
+
+- [Carrying sufficient credit](#obtaining-credits) tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
 
 ```yaml
 Network name: DeepSquare Testnet C-Chain
@@ -29,7 +52,31 @@ Chain ID: 179188`
 
 You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
 
-- We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
+
+### Obtaining Credits
+
+Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
+
+
+## Client Instantiation
+
+If you haven't yet, we recommend following our [Getting Started Guide](examples/hello-world/README.md) where you'll be directed through running a workload on the DeepSquare grid.
+
+To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
+
+In the example below we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
+
+
+```typescript
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+
+// Create the DeepSquareClient
+const deepSquareClient = await DeepSquareClient.build(
+  process.env.PRIVATE_KEY as string,
+  process.env.METASCHEDULER_ADDR as string
+);
+```
+
 
 ### Compatibility Matrix
 
@@ -43,97 +90,6 @@ You can add this network automatically if you have a wallet extension like `Meta
 
 
 
-### Obtaining Credits
-
-Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://share-eu1.hsforms.com/18lhtQBNNTVWVRXCm7t-83Aev6gi).
-
-
-## Requirements
-
-- A crypto wallet, the private key of which you possess, carrying sufficient credit tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
-
-```yaml
-Network name: DeepSquare Testnet C-Chain
-RPC URL: https://testnet.deepsquare.run/rpc
-Chain ID: 179188`
-```
-
-You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
-
-- We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
-
-## Compatibility Matrix
-
-- These are the supported smart-contracts:
-
-| SDK Version         | Meta-scheduler Smart-contract address      |
-| ------------------- | ------------------------------------------ |
-| main                | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
-| v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
-| v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
-
-
-
-
-### Prerequisites
-
-Ensure you have:
-
-- Node.js installed on your system
-
-- Cloned the [DeepSquare repository](https://github.com/deepsquare-io/deepsquare-client) that houses the prepared examples
-
-- Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
-
-### Installation
-
-Follow these steps:
-
-1\. Open your terminal or command prompt.
-
-2\. Navigate to the directory containing the example code: `examples/hello-world`
-
-3\. Run `pnpm install` to install the necessary dependencies.
-
-### Configuration
-
-Before executing the example, set up your environment variables:
-
-1\. Create a `.env` file in the same directory as the example code.
-
-2\. Insert the following lines into the `.env` file:
-
-```markdown
-PRIVATE_KEY=<Your_Private_Key>
-
-METASCHEDULER_ADDR=<MetaScheduler_Address>
-```
-
-Replace `<Your_Private_Key>` with the private key from your crypto wallet. Note: Use a wallet that's dedicated for development on DeepSquare and does not contain valuable assets. If you're using MetaMask, here's a guide on [how to extract a private key](https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key#:~:text=On%20the%20account%20page%2C%20click,click%20%E2%80%9CConfirm%E2%80%9D%20to%20proceed.).
-
-Replace `<MetaScheduler_Address>` with the Metascheduler contract address. You can find this in our [compatibility matrix](../..//README.md#compatibility-matrix).
-
-
-Kick-start your journey by exploring our [Getting Started Guide](examples/hello-world/README.md). This guide provides a walkthrough on running workflows on the DeepSquare grid. It covers steps like submitting a "Hello World" job, accessing job logs, and displaying the job output in the console.
-
-
-## Client Instantiation
-
-If you haven't yet, we recommend following our [Getting Started Guide](examples/hello-world/README.md) where you'll be directed through running a workload on the DeepSquare grid.
-
-To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
-
-In the example below we assume you have a `PRIVATE_KEY` and a `METASCHEDULER_ADDR` as environment variables.
-
-```typescript
-import DeepSquareClient from "@deepsquare/deepsquare-client";
-
-// Create the DeepSquareClient
-const deepSquareClient = await DeepSquareClient.build(
-  process.env.PRIVATE_KEY as string,
-  process.env.METASCHEDULER_ADDR as string
-);
-```
 
 ## Using the client
 

@@ -1,8 +1,48 @@
-# Getting Started: A Step-by-Step Guide
+# Getting Started
 
 This guide shows you how to use the DeepSquareClient library to submit a job, manage your job's credit allocation, retrieve job information and logs, and cancel a job on the DeepSquare platform. Specifically, you'll learn how to submit a "Hello World" job, fetch its logs, and display the job's output in your console.
 
-If you did not install the library yet follow [these instructions](../../README.md#installation)
+Ensure you have a [wallet set up with credits](../../README.md#obtaining-credits) and that you meet [the requirements](../../README.md#prerequisites)
+
+## Installation
+
+Follow these steps:
+
+1\. Open your terminal or command prompt.
+
+2\. Clone the [DeepSquare repository](https://github.com/deepsquare-io/deepsquare-client) that houses the prepared examples
+
+3\. Navigate to the directory containing the example code: `examples/hello-world`
+
+4\. Run `pnpm install` to install the necessary dependencies.
+
+## Configuration
+
+Before executing the example, set up your environment variables:
+
+1\. Create a `.env` file in the same directory as the example code.
+
+2\. Insert the following lines into the `.env` file:
+
+```markdown
+PRIVATE_KEY=<Your_Private_Key>
+
+METASCHEDULER_ADDR=<MetaScheduler_Address>
+```
+
+Replace `<Your_Private_Key>` with the private key from your crypto wallet. Note: Use a wallet that's dedicated for development on DeepSquare and does not contain valuable assets. If you're using MetaMask, here's a guide on [how to extract a private key](https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key#:~:text=On%20the%20account%20page%2C%20click,click%20%E2%80%9CConfirm%E2%80%9D%20to%20proceed.).
+
+Replace `<MetaScheduler_Address>` with the Metascheduler contract address. You can find this in our [compatibility matrix](../..//README.md#compatibility-matrix).
+
+## Run the Example 
+
+To simply the run the example use : 
+
+```
+pnpm start
+```
+
+## Step-by-Step Guide
 
 Let's break down `deepsquare-client/examples/hello-world/index.ts`
 
