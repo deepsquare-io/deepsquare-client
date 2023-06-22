@@ -14,11 +14,9 @@ Stay informed about the latest updates and enhancements by following [this repos
 
 We can't wait to see what you'll build next!
 
-## Get Started
-
 ## Set up the library 
 
-### Prerequisites
+### Installation
 
 Ensure you have:
 
@@ -26,21 +24,24 @@ Ensure you have:
 
 - Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
 
-- Install BigNumber with `pnpm install @ethersproject/bignumber`.
+- Install BigNumber with 
 
-### Installation 
+```pnpm install @ethersproject/bignumber
+```
+
+- Install the library
 
 ```
   pnpm install @deepsquare/deepsquare-client
 ```
 
-## Set up the wallet
+## Set up a wallet and get credits
 
 ### Prerequisites 
 
 Ensure you have:
 
-- A crypto wallet and your associated private key. You can use wallets like Metamask or Core Wallet and/or cli like avalache-cli
+- A crypto wallet and your associated private key. You can use wallets like `MetaMask` or `Core Wallet` and/or cli like avalache-cli
 
 - [Carrying sufficient credit](#obtaining-credits) tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
 
@@ -55,27 +56,8 @@ You can add this network automatically if you have a wallet extension like `Meta
 
 ### Obtaining Credits
 
+
 Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
-
-
-## Client Instantiation
-
-If you haven't yet, we recommend following our [Getting Started Guide](examples/hello-world/README.md) where you'll be directed through running a workload on the DeepSquare grid.
-
-To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
-
-In the example below we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
-
-
-```typescript
-import DeepSquareClient from "@deepsquare/deepsquare-client";
-
-// Create the DeepSquareClient
-const deepSquareClient = await DeepSquareClient.build(
-  process.env.PRIVATE_KEY as string,
-  process.env.METASCHEDULER_ADDR as string
-);
-```
 
 
 ### Compatibility Matrix
@@ -93,17 +75,51 @@ const deepSquareClient = await DeepSquareClient.build(
 
 ## Using the client
 
-Detailed instructions on using the client are available in the [examples](./examples) directory. The examples cover various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job.
+We show below a high level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
 
-Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job). for a detailed API reference and job specification.
+Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
+
+
+### Client Instantiation
+
+In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
+
+
+```typescript
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+
+// Create the DeepSquareClient
+const deepSquareClient = await DeepSquareClient.build(
+  process.env.PRIVATE_KEY as string,
+  process.env.METASCHEDULER_ADDR as string
+);
+```
+
 
 For example, the following would run a 6 minutes job on a 1 GPU.
 
 ```typescript
+const myJob = {
+    "resources": {
+      "tasks": 1,
+      "gpusPerTask": 0,
+      "cpusPerTask": 1,
+      "memPerCpu": 1024
+    },
+    "enableLogging": true,
+    "steps": [
+      {
+        "name": "hello world",
+        "run": {
+          "command": "echo \"Hello World\""
+        }
+      }
+    ]
+  };
 const jobId = await deepSquareClient.submitJob(myJob, "myJob", 1e2);
 ```
 
-> Important note: The amount must be an integer.
+> Important note: The amount must be an integer and amount are given in credits (1000 credits = 1$).
 
 ### Retrieve job information
 
@@ -170,9 +186,9 @@ To cancel a job you can use :
 await deepSquareClient.cancel(jobId);
 ```
 
-## Example
+### Full example
 
-Below is a plain javascript fully working example that launches a "hello world" job. 
+Below is a plain javascript fully working example that launches the "hello world" job. 
 For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
 
 > Don't forget to setup your env

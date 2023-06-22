@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide shows you how to use the DeepSquareClient library to submit a job, manage your job's credit allocation, retrieve job information and logs, and cancel a job on the DeepSquare platform. Specifically, you'll learn how to submit a "Hello World" job, fetch its logs, and display the job's output in your console.
+This guide shows you how to use the DeepSquareClient library to submit a job, manage your job's credit allocation, retrieve job information and logs on the DeepSquare platform. Specifically, you'll learn how to submit a "Hello World" job, fetch its logs, and display the job's output in your console.
 
 Ensure you have a [wallet set up with credits](../../README.md#obtaining-credits) and that you meet [the requirements](../../README.md#prerequisites)
 
