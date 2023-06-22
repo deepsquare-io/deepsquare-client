@@ -225,7 +225,7 @@ export default class DeepSquareClient {
   async submitJob(
     job: GQLJob,
     jobName: string,
-    maxAmount = 1e3,
+    maxAmount = parseUnits("1e3", "ether"),
     uses = []
   ): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
@@ -255,7 +255,7 @@ export default class DeepSquareClient {
             batchLocationHash: hash.submit,
             uses: uses,
           },
-          parseUnits(maxAmount.toString(), "ether"),
+          maxAmount,
           formatBytes32String(jobName),
           true
         )
