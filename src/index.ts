@@ -20,6 +20,7 @@ import type {
   JobDefinitionStructOutput,
   JobTimeStructOutput,
   MetaScheduler,
+  LabelStruct,
 } from "./contracts/MetaScheduler";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
@@ -28,7 +29,7 @@ import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
 
-export { createDevLoggerClient } from "./grpc/client";
+export { LoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 
 export type Job = {
   jobId: string;
@@ -226,7 +227,7 @@ export default class DeepSquareClient {
     job: GQLJob,
     jobName: string,
     maxAmount = parseUnits("1e3", "ether"),
-    uses = []
+    uses: LabelStruct[] = []
   ): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
       throw new Error("provider is not a signer");
@@ -284,9 +285,9 @@ export default class DeepSquareClient {
   > {
     const job = await this.metaScheduler.jobs(jobId);
     let providerPrices: ProviderPricesStruct;
-    let costPerMin = BigInt(0);
-    let actualCost = BigInt(0);
-    let timeLeft = BigInt(0);
+    let costPerMin = 0n;
+    let actualCost = 0n;
+    let timeLeft = 0n;
     const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
