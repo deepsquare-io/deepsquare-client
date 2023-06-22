@@ -5,7 +5,15 @@ be able to send jobs to the Grid using your credits and retrieve them afterwards
 
 ## Requirements
 
-We use BigNumber from @ethersproject/bignumber across this package and especially for arguments of methods. Please make
+These are the supported smart-contracts:
+
+| SDK Version         | Smart-contract address                     |
+| ------------------- | ------------------------------------------ |
+| main                | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
+| v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
+
+We use BigNumber from `@ethersproject/bignumber` across this package and especially for arguments of methods. Please make
 sure to install this package to communicate properly with the client.
 
 ## Instanciating the client
