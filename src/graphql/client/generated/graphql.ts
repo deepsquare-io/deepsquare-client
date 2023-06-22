@@ -20,11 +20,27 @@ export type Scalars = {
   Float: number;
 };
 
+/**
+ * jkuri/bore tunnel Transport for StepRun.
+ *
+ * Bore is a proxy to expose TCP sockets.
+ */
+export type Bore = {
+  /** Bore server IP/Address. */
+  address: Scalars["String"];
+  /** The bore server port. */
+  port: Scalars["Int"];
+  /** Target port. */
+  targetPort: Scalars["Int"];
+};
+
 export type ContainerRun = {
   /**
-   * Run with Apptainer as Container runtime instead of Pyxis.
+   * Run with Apptainer as Container runtime instead of Enroot.
    *
    * By running with apptainer, you get access Deepsquare-hosted images.
+   *
+   * When running Apptainer, the container file system is read-only.
    *
    * Defaults to false.
    */
@@ -36,7 +52,7 @@ export type ContainerRun = {
    */
   deepsquareHosted?: InputMaybe<Scalars["Boolean"]>;
   /**
-   * Run the command inside a container with Pyxis.
+   * Run the command inside a container with Enroot.
    *
    * Format: image:tag. Registry and authentication is not allowed on this field.
    *
@@ -90,7 +106,7 @@ export type ForRange = {
   increment?: InputMaybe<Scalars["Int"]>;
 };
 
-/** S3Data describes the necessary variables to connect to a HTTP storage. */
+/** HTTPData describes the necessary variables to connect to a HTTP storage. */
 export type HttpData = {
   url: Scalars["String"];
 };
@@ -205,6 +221,8 @@ export type MutationSubmitArgs = {
  * The network interface is connected via slirp4netns.
  */
 export type NetworkInterface = {
+  /** Use the bore transport. */
+  bore?: InputMaybe<Bore>;
   /** Use the wireguard transport. */
   wireguard?: InputMaybe<Wireguard>;
 };
@@ -251,19 +269,79 @@ export type S3Data = {
 /** Step is one instruction. */
 export type Step = {
   /**
+   * Depends on wait for async tasks to end before launching this step.
+   *
+   * DependsOn uses the `handleName` property of a `StepAsyncLaunch`.
+   *
+   * Only steps at the same level can be awaited.
+   *
+   * BE WARNED: Uncontrolled `dependsOn` may results in dead locks.
+   */
+  dependsOn?: InputMaybe<Array<Scalars["String"]>>;
+  /**
    * Run a for loop if not null.
    *
-   * Is exclusive with "run".
+   * Is exclusive with "run", "launch".
    */
   for?: InputMaybe<StepFor>;
-  /** Name of the instruction. */
-  name: Scalars["String"];
+  /**
+   * Launch a background process to run a group of commands if not null.
+   *
+   * Is exclusive with "run", "for".
+   */
+  launch?: InputMaybe<StepAsyncLaunch>;
+  /**
+   * Name of the instruction.
+   *
+   * Is used for debugging.
+   */
+  name?: InputMaybe<Scalars["String"]>;
   /**
    * Run a command if not null.
    *
-   * Is exclusive with "for".
+   * Is exclusive with "for", "launch".
    */
   run?: InputMaybe<StepRun>;
+};
+
+/**
+ * StepAsyncLaunch describes launching a background process.
+ *
+ * StepAsyncLaunch will be awaited at the end of the job.
+ */
+export type StepAsyncLaunch = {
+  /**
+   * HandleName is the name used to await (dependsOn field of the Step).
+   *
+   * Naming style is snake_case. Case is insensitive. No symbol allowed.
+   */
+  handleName?: InputMaybe<Scalars["String"]>;
+  /**
+   * SignalOnParentStepExit sends a signal to the step and sub-steps when the parent step ends.
+   *
+   * This function can be used as a cleanup function to avoid a zombie process.
+   *
+   * Zombie processes will continue to run after the main process dies and therefore will not stop the job.
+   *
+   * If null, SIGTERM will be sent. If 0, no signal will be sent.
+   *
+   * Current signal :
+   *
+   * 1 SIGHUP Hang-up detected on the control terminal or death of the control process.
+   * 2 SIGINT Abort from keyboard
+   * 3 SIGQUIT Quit the keyboard
+   * 9 SIGKILL If a process receives this signal, it must quit immediately and will not perform any cleaning operations.
+   * 15 SIGTERM Software stop signal
+   *
+   * It is STRONGLY RECOMMENDED to use SIGTERM to gracefully exit a process. SIGKILL is the most abrupt and will certainly work.
+   *
+   * If no signal is sent, the asynchronous step will be considered a fire and forget asynchronous step and will have to terminate itself to stop the job.
+   *
+   * WARNING: the "no signal sent" option is subject to removal to avoid undefined behavior. Please refrain from using it.
+   */
+  signalOnParentStepExit?: InputMaybe<Scalars["Int"]>;
+  /** Steps are run sequentially. */
+  steps: Array<Step>;
 };
 
 /** StepFor describes a for loop. */
@@ -347,7 +425,7 @@ export type StepRun = {
   /**
    * Remap UID to root. Does not grant elevated system permissions, despite appearances.
    *
-   * If the "default" (Pyxis) container runtime is used, it will use the `--container-remap-root` flags.
+   * If the "default" (Enroot) container runtime is used, it will use the `--container-remap-root` flags.
    *
    * If the "apptainer" container runtime is used, the `--fakeroot` flag will be passed.
    *
@@ -361,7 +439,7 @@ export type StepRun = {
   /**
    * MPI selection.
    *
-   * Must be one of: none, pmix_v4, pmi2
+   * Must be one of: none, pmix_v4, pmi2.
    *
    * If null, will default to infrastructure provider settings (which may not be what you want).
    */
@@ -386,7 +464,7 @@ export type StepRun = {
   /**
    * Working directory.
    *
-   * If the "default" (Pyxis) container runtime is used, it will use the `--container-workdir` flag.
+   * If the "default" (Enroot) container runtime is used, it will use the `--container-workdir` flag.
    *
    * If the "apptainer" container runtime is used, the `--pwd` flag will be passed.
    *

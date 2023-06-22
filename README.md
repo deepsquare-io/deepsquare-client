@@ -36,38 +36,182 @@ You can add this network automatically if you have a wallet extension like `Meta
 
 - We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
 
+## Compatibility Matrix
+
+- These are the supported smart-contracts:
+
+| SDK Version         | Meta-scheduler Smart-contract address      |
+| ------------------- | ------------------------------------------ |
+| main                | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
+| v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
+
+
+
 ## Client Instantiation
 
 If you haven't yet, we recommend following our [Getting Started Guide](examples/hello-world/README.md) where you'll be directed through running a workload on the DeepSquare grid.
 
 To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
 
+In the example below we assume you have a `PRIVATE_KEY` and a `METASCHEDULER_ADDR` as environment variables.
+
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
+
+// Create the DeepSquareClient
+const deepSquareClient = await DeepSquareClient.build(
+  process.env.PRIVATE_KEY as string,
+  process.env.METASCHEDULER_ADDR as string
+);
 ```
 
-const deepSquareClient = await DeepSquareClient.build("myWeb3PrivateKey");`
+## Using the client
 
-## Developing the Client
+Detailed instructions on using the client are available in the [examples](./examples) directory. The examples cover various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job.
 
-If you wish to enhance or update the deepsquare-client library, perform the following :
+Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job). for a detailed API reference and job specification.
 
-In the folder containing the deepsquare-client,
+For example, the following would run a 6 minutes job on a 1 GPU.
 
-```bash
-pnpm build
-pnpm link --global
+```typescript
+const jobId = await deepSquareClient.submitJob(myJob, "myJob", 1e2);
 ```
 
-Then, in the other repo using the development version, do
+> Important note: The amount must be an integer.
 
-```bash
-pnpm link --global  @deepsquare/deepsquare-client
+### Retrieve job information
+
+You can retrieve job information by using the `getJob` method :
+
+```typescript
+const job = deepSquareClient.getJob(jobId);
 ```
 
-## Documentation
+The returned object contains several properties including :
 
-For a detailed API reference and job specification, please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/introduction/overview)
+- `status` :
+
+```typescript
+enum JobStatus {
+  PENDING = 0,
+  META_SCHEDULED = 1,
+  SCHEDULED = 2,
+  RUNNING = 3,
+  CANCELLED = 4,
+  FINISHED = 5,
+  FAILED = 6,
+  OUT_OF_CREDITS = 7,
+}
+```
+
+- `cost` which contains the `finalCost` property that represents the job cost in credit once it is finished.
+- `time` which contains the timestamps `start` and `end` representing the time bounds of the job.
+
+### Retrieve job logs
+
+Job logs can be retrieved using a gRPC streaming service.
+Here is how to use it:
+
+1. Get the log methods
+
+```typescript
+const logsMethods = deepSquareClient.getLogsMethods(_jobId);
+const [read, stopFetch] = await logsMethods.fetchLogs();
+```
+
+2. Fetch the logs :
+
+The `fetchLogs` function opens a stream and returns an AsyncIterable you can read this way :
+
+```typescript
+for await (const log of read) {
+  const lineStr = decoder.decode(log.data);
+  console.log(lineStr);
+}
+```
+
+3. Once you are done, you should close the stream
+
+```typescript
+stopFetch();
+```
+
+### Cancel a job
+
+To cancel a job you can use :
+
+```typescript
+await deepSquareClient.cancel(jobId);
+```
+
+## Example
+
+Below is a plain javascript fully working example that launches a "hello world" job. 
+For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
+
+> Don't forget to setup your env
+
+```javascript
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { BigNumber } from 'ethers';
+
+async function main() {
+  // Define the job
+  const helloWorldJob = {
+    "resources": {
+      "tasks": 1,
+      "gpusPerTask": 0,
+      "cpusPerTask": 1,
+      "memPerCpu": 1024
+    },
+    "enableLogging": true,
+    "steps": [
+      {
+        "name": "hello world",
+        "run": {
+          "command": "echo \"Hello World\""
+        }
+      }
+    ]
+  };
+
+  // Create the DeepSquareClient
+  const deepSquareClient = await DeepSquareClient.build(
+    process.env.PRIVATE_KEY as string,
+    process.env.METASCHEDULER_ADDR as string
+  );
+
+  // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)
+  const depositAmount = BigNumber.from('10000000000000');
+  await deepSquareClient.setAllowance(depositAmount);
+
+  // Launch the job
+  const randomString = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
+  const jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`);
+
+  // Print logs
+  console.log(`My job id ${jobId}`);
+  const logsMethods = deepSquareClient.getLogsMethods(jobId);
+  const [read, stopFetch] = await logsMethods.fetchLogs();
+  const decoder = new TextDecoder();
+
+  for await (const log of read) {
+    // Fetching job output here (e.g. anything printing to terminal, here Hello World)
+    console.log(decoder.decode(log.data));
+  }
+
+  stopFetch();
+}
+
+main();
+```
+
+## Job specification
+
+A Job is a finite sequence of instructions.
+
+The API reference can be read [in the official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job).
 
 ## Troubleshooting
 

@@ -41,20 +41,17 @@ async function main() {
     const randomString = Array.from({ length: 4 }, () =>
       String.fromCharCode(65 + Math.floor(Math.random() * 26))
     ).join("");
-    //jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2);
     jobId = await deepSquareClient.submitJob(
       helloWorldJob,
       `hello_world_${randomString}`,
       1e2,
       uses
     );
-    //jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2, [] as never);
     console.log(`New job id ${jobId}, getting logs...`);
   }
   // Print logs
   const logsMethods = deepSquareClient.getLogsMethods(
-    jobId,
-    "grid-logger.dev.deepsquare.run:443"
+    jobId
   );
   const [read, stopFetch] = await logsMethods.fetchLogs();
   const decoder = new TextDecoder();
