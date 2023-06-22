@@ -19,12 +19,14 @@ Before running the example, you need to configure the environment variables:
 
 1. Create a `.env` file in the same directory as the example code.
 2. Add the following lines to the `.env` file:
-    ```markdown
-    PRIVATE_KEY=<Your_Private_Key>
-    METASCHEDULER_ADDR=<MetaScheduler_Address>
-    ENDPOINT=<Endpoint_URL>
-    ```
-    Replace `<Your_Private_Key>`, `<MetaScheduler_Address>`, and `<Endpoint_URL>` with the corresponding values provided by the DeepSquare platform.
+
+   ```markdown
+   PRIVATE_KEY=<Your_Private_Key>
+   METASCHEDULER_ADDR=<MetaScheduler_Address>
+   ENDPOINT=<Endpoint_URL>
+   ```
+
+   Replace `<Your_Private_Key>`, `<MetaScheduler_Address>`, and `<Endpoint_URL>` with the corresponding values provided by the DeepSquare platform.
 
 ## Usage
 

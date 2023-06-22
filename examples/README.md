@@ -11,7 +11,7 @@ This directory contains a set of examples demonstrating the different functional
 
 ## Send a Job
 
-To submit a job to the DeepSquare Grid, you must first allow DeepSquare to access your credits. These credits represent the time allocation for your jobs. 
+To submit a job to the DeepSquare Grid, you must first allow DeepSquare to access your credits. These credits represent the time allocation for your jobs.
 
 If you run out of credits, all your jobs will be cancelled. To avoid this, consider setting up a side service that periodically increases the credit allocation.
 

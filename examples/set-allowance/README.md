@@ -19,4 +19,3 @@ The script uses the following environment variables:
 - `PRIVATE_KEY`: Your private key. This is used if no `privateKey` is provided as an argument.
 - `METASCHEDULER_ADDR`: The MetaScheduler address. This should be defined in your .env file.
 - `ENDPOINT`: The endpoint URL. This should be defined in your .env file.
-
