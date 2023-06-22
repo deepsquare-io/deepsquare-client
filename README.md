@@ -4,9 +4,7 @@ This package provides a straightforward interface to the DeepSquare Grid. With t
 
 ## Introduction
 
-The essence of the DeepSquare Grid lies in its **workflows**. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
-
-Begin your journey with our platform by following the Get Started guide below 
+The essence of the DeepSquare Grid lies in its [workflows](https://docs.deepsquare.run/workflow/getting-started/part-1-helloworld). These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
 
 For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
 
@@ -14,7 +12,9 @@ Stay informed about the latest updates and enhancements by following [this repos
 
 We can't wait to see what you'll build next!
 
-## Set up the library 
+## Set up the library
+
+Begin your journey with our platform by following the guide below:
 
 ### Installation
 
@@ -24,7 +24,7 @@ Ensure you have:
 
 - Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
 
-- Install BigNumber with 
+- Installed BigNumber with
 
 ```
 pnpm install @ethersproject/bignumber
@@ -38,13 +38,13 @@ pnpm install @ethersproject/bignumber
 
 ## Set up a wallet and get credits
 
-### Prerequisites 
+### Prerequisites
 
 Ensure you have:
 
-- A crypto wallet and your associated private key. You can use wallets like `MetaMask` or `Core Wallet` and/or cli like avalache-cli
+- A crypto wallet and your associated private key. You can use wallets like [MetaMask](https://metamask.io/) or [Core Wallet](https://core.app/) and/or cli like [avalache-cli](https://docs.avax.network/subnets/install-avalanche-cli).
 
-- [Carrying sufficient credit](#obtaining-credits) tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
+- [Carrying sufficient credit tokens](#obtaining-credits) to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
 
 ```yaml
 Network name: DeepSquare Testnet C-Chain
@@ -52,26 +52,21 @@ RPC URL: https://testnet.deepsquare.run/rpc
 Chain ID: 179188`
 ```
 
-You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
-
+If you have a wallet extension such as `MetaMask` or `Core Wallet` installed on your browser, you can automatically add the DeepSquare network. Simply visit [app.deepsquare.run](https://app.deepsquare.run/) and connect to the app using your crypto wallet. A pop-up will then appear, prompting you to install the DeepSquare network.
 
 ### Obtaining Credits
 
-
 Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
-
 
 ## Using the client
 
-We show below a high level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
+We show below a high-level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and canceling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
 
 Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
 
-
 ### Compatibility Matrix
 
-To launch a job you technically submit a transaction to a smart contract called the meta-scheduler. 
-In general you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released. 
+Launching a job involves technically submitting a transaction to a smart contract, referred to as the `meta-scheduler`. Typically, you would use the address corresponding to the `main` SDK Version. The deprecated version signifies the last supported contract that will be discontinued when a new version of the SDK is released.
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 | ------------------- | ------------------------------------------ |
@@ -79,12 +74,9 @@ In general you will be using the address corresponding to the `main` SDK Version
 | v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
-
-
 ### Client Instantiation
 
-In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
-
+In this example, we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below). If you're using MetaMask, here's a guide on [how to extract a private key](https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key#:~:text=On%20the%20account%20page%2C%20click,click%20%E2%80%9CConfirm%E2%80%9D%20to%20proceed.).
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
@@ -96,27 +88,26 @@ const deepSquareClient = await DeepSquareClient.build(
 );
 ```
 
-
 For example, the following would run a 6 minutes job on a 1 GPU.
 
 ```typescript
 const myJob = {
-    "resources": {
-      "tasks": 1,
-      "gpusPerTask": 0,
-      "cpusPerTask": 1,
-      "memPerCpu": 1024
+  resources: {
+    tasks: 1,
+    gpusPerTask: 0,
+    cpusPerTask: 1,
+    memPerCpu: 1024,
+  },
+  enableLogging: true,
+  steps: [
+    {
+      name: "hello world",
+      run: {
+        command: 'echo "Hello World"',
+      },
     },
-    "enableLogging": true,
-    "steps": [
-      {
-        "name": "hello world",
-        "run": {
-          "command": "echo \"Hello World\""
-        }
-      }
-    ]
-  };
+  ],
+};
 const jobId = await deepSquareClient.submitJob(myJob, "myJob", 1e2);
 ```
 
@@ -189,7 +180,7 @@ await deepSquareClient.cancel(jobId);
 
 ### Full example
 
-Below is a plain javascript fully working example that launches the "hello world" job. 
+Below is a plain javascript fully working example that launches the "hello world" job.
 For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
 
 > Don't forget to setup your env
