@@ -1,71 +1,87 @@
 # DeepSquare SDK
 
-This package aims to provide a simple and abstracted from web3 interface to the DeepSquare Grid. With this SDK, you will
-be able to send jobs to the Grid using your credits and retrieve them afterwards to track their status and cost.
+This package provides a straightforward interface to the DeepSquare Grid. With this SDK, users can easily submit jobs to the Grid, pay with their credits, and later retrieve job information for status checks and cost tracking.
 
-## Introduction 
+## Introduction
 
-The power of the DeepSquare Grid lies in the workflows. The workflows define the sequences of operations that are to be executed on the Grid. We highly recommend exploring our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog) to see the different types of jobs you can run on the DeepSquare Grid.
+The essence of the DeepSquare Grid lies in its workflows. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
 
-To stay updated on the latest additions and improvements, consider following this repository and the [workflow catalog](https://github.com/deepsquare-io/workflow-catalog) repository. By doing so, you'll be on the cutting edge of distributed computing, taking full advantage of the capabilities of the DeepSquare Grid.
+Begin your journey with our platform by following our [Getting Started Guide](examples\hello-world\README.md), the link to which will be provided shortly.
 
-We're excited to see what you build!
+For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
+
+Stay informed about the latest updates and enhancements by following [this repository](https://github.com/deepsquare-io/deepsquare-client).
+
+We can't wait to see what you'll build next!
+
+## Obtaining Credits
+
+Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://share-eu1.hsforms.com/18lhtQBNNTVWVRXCm7t-83Aev6gi).
+
+## Get Started
+
+Kick-start your journey by exploring our [Getting Started Guide](examples\hello-world\README.md). This guide provides a walkthrough on running workflows on the DeepSquare grid. It covers steps like submitting a "Hello World" job, accessing job logs, and displaying the job output in the console.
 
 ## Requirements
 
-We use BigNumber from @ethersproject/bignumber across this package and especially for arguments of methods. Please make
-sure to install this package to communicate properly with the client.
+- A crypto wallet, the private key of which you possess, carrying sufficient credit tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
 
-## Instanciating the client
+yamlCopy code
 
-In order to get an instance of the client, you will need the private key of a web3 wallet, containing credits to pay for
-the jobs, and also few Squares (SQR) to pay the transaction fees. You can also modify the contract and the API the
-package is interacting with, but remember only the default values are guaranteed to work.
+`Network name: DeepSquare Testnet C-Chain
+  RPC URL: https://testnet.deepsquare.run/rpc
+  Chain ID: 179188`
 
-```typescript
-import DeepSquareClient from "@deepsquare/deepsquare-client";
+You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/). A pop up will prompt you to install the DeepSquare network.
 
-const deepSquareClient = await DeepSquareClient.build("myWeb3PrivateKey");
-```
+- We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
 
-## Developing the client
+## Client Instanciation
 
-If you want to improve or update the deepsquare-client library do the following :
+If you haven't yet, we recommend following our [Getting Started Guide](examples\hello-world\README.md) where you'll be directed through running a workload on the DeepSquare grid.
 
-In the folder containing the deepsquare-client
+To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
 
-```
-pnpm build
-pnpm link --global
-```
+typescriptCopy code
 
-And then in the other repo using the development version you do
+`import DeepSquareClient from "@deepsquare/deepsquare-client";
 
-```
-pnpm link --global  @deepsquare/deepsquare-client
-```
+const deepSquareClient = await DeepSquareClient.build("myWeb3PrivateKey");`
 
-## Using the client
+## Developing the Client
 
-Detailed instructions on using the client are available in the [examples](./examples) directory. The examples cover various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job.
+If you wish to enhance or update the deepsquare-client library, perform the following :
 
-Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job). for a detailed API reference and job specification.
+In the folder containing the deepsquare-client,
 
+bashCopy code
 
+`pnpm build
+pnpm link --global`
+
+Then, in the other repo using the development version, do
+
+bashCopy code
+
+`pnpm link --global  @deepsquare/deepsquare-client`
+
+## Documentation
+
+For a detailed API reference and job specification, please refer to the [official DeepSquare documentation](<https://docs.deepsquare.run/workflow/work>
 
 ## Troubleshooting
 
-If you encounter any issues:
+If you run into any issues:
 
-- Double-check that the environment variables in the `.env` file are correctly set.
-- Confirm that you have a stable internet connection and access to the DeepSquare platform.
-- Ensure that you have the necessary permissions and resources available on the platform to submit jobs.
+If you run into any issues:
 
-If the problem persists:
+- Ensure that the environment variables in the `.env` file are set correctly.
+- Verify that you have a stable internet connection and can access the DeepSquare platform.
+- Check that you have the required permissions and resources on the platform to submit jobs.
 
-- Submit an [issue](https://github.com/deepsquare-io/deepsquare-client/issues) on the DeepSquare GitHub repository with a detailed description of the problem.
-- Join the DeepSquare [Discord community](https://discord.gg/vZGcf7kx) for direct support and discussion.
+If these steps don't resolve the issue:
 
-The DeepSquare team is committed to providing assistance and making your experience as smooth as possible.
+- Post an [issue](https://github.com/deepsquare-io/deepsquare-client/issues) on the DeepSquare GitHub repository, providing a detailed account of the problem.
+- Reach the [Discord community](https://discord.gg/UwaHJcNvq9) for direct support and engaging discussions.
 
-
+Remember, the DeepSquare team is always here to help and ensure a seamless experience for you.
