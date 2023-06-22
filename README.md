@@ -61,9 +61,17 @@ You can add this network automatically if you have a wallet extension like `Meta
 Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
 
 
+## Using the client
+
+We show below a high level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
+
+Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
+
+
 ### Compatibility Matrix
 
-- These are the supported smart-contracts:
+To launch a job you technically submit a transaction to a smart contract called the meta-scheduler. 
+In general you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released. 
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 | ------------------- | ------------------------------------------ |
@@ -71,14 +79,6 @@ Using the platform requires credit tokens for job execution and a minor amount o
 | v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
-
-
-
-## Using the client
-
-We show below a high level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
-
-Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
 
 
 ### Client Instantiation
