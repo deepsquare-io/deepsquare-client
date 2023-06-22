@@ -18,7 +18,7 @@ Follow these steps:
 
 1\. Open your terminal or command prompt.
 
-2\. Navigate to the directory containing the example code: `examples\hello-world`
+2\. Navigate to the directory containing the example code: `examples/hello-world`
 
 3\. Run `pnpm install` to install the necessary dependencies.
 
@@ -42,7 +42,7 @@ Replace `<MetaScheduler_Address>` with the Metascheduler contract address. You c
 
 ## Breaking Down the 'Hello-World' Script: A Step-by-Step Guide
 
-Let's break down `deepsquare-client\examples\hello-world\index.ts`
+Let's break down `deepsquare-client/examples/hello-world/index.ts`
 
 ### Imports
 

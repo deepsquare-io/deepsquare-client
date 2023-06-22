@@ -6,7 +6,7 @@ This package provides a straightforward interface to the DeepSquare Grid. With t
 
 The essence of the DeepSquare Grid lies in its workflows. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
 
-Begin your journey with our platform by following our [Getting Started Guide](examples\hello-world\README.md), the link to which will be provided shortly.
+Begin your journey with our platform by following our [Getting Started Guide](examples/hello-world/README.md), the link to which will be provided shortly.
 
 For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
 
@@ -20,7 +20,7 @@ Using the platform requires credit tokens for job execution and a minor amount o
 
 ## Get Started
 
-Kick-start your journey by exploring our [Getting Started Guide](examples\hello-world\README.md). This guide provides a walkthrough on running workflows on the DeepSquare grid. It covers steps like submitting a "Hello World" job, accessing job logs, and displaying the job output in the console.
+Kick-start your journey by exploring our [Getting Started Guide](examples/hello-world/README.md). This guide provides a walkthrough on running workflows on the DeepSquare grid. It covers steps like submitting a "Hello World" job, accessing job logs, and displaying the job output in the console.
 
 ## Requirements
 
@@ -38,7 +38,7 @@ You can add this network automatically if you have a wallet extension like `Meta
 
 ## Client Instantiation
 
-If you haven't yet, we recommend following our [Getting Started Guide](examples\hello-world\README.md) where you'll be directed through running a workload on the DeepSquare grid.
+If you haven't yet, we recommend following our [Getting Started Guide](examples/hello-world/README.md) where you'll be directed through running a workload on the DeepSquare grid.
 
 To initiate a client instance, you'll need a private key from a web3 wallet. This wallet should carry enough credits for job costs and a small number of Squares tokens for transaction fees. Although you can modify the contract and API interacted with by the package, remember only the default configurations are ensured to work properly.
 

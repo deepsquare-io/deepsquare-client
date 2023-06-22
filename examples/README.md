@@ -4,4 +4,4 @@ This directory contains a set of examples demonstrating the different functional
 
 ## Example(s)
 
-- [Getting Started with a simple Hello World workflow](examples\hello-world\README.md)
+- [Getting Started with a simple Hello World workflow](examples/hello-world/README.md)
