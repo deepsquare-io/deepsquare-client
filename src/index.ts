@@ -20,6 +20,7 @@ import type {
   JobDefinitionStructOutput,
   JobTimeStructOutput,
   MetaScheduler,
+  LabelStruct,
 } from "./contracts/MetaScheduler";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
@@ -27,6 +28,8 @@ import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
+
+export { LoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 
 export type Job = {
   jobId: string;
@@ -66,6 +69,12 @@ export function isJobTerminated(status: number): boolean {
   );
 }
 
+function jobDurationInMinutes(job: Job): bigint {
+  return (
+    BigInt(Math.floor(Date.now() / 1000)) - job.time.start.toBigInt() / 60n
+  );
+}
+
 /**
  * Computes the current cost of a job.
  *
@@ -78,15 +87,11 @@ export function isJobTerminated(status: number): boolean {
  *
  * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
- */ function computeCost(
-  job: Job,
-  providerPrice: ProviderPricesStruct
-): bigint {
+ */
+function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
   return isJobTerminated(job.status)
     ? job.cost.finalCost.toBigInt()
-    : (BigInt(Math.floor(Date.now() / (1000 * 60))) -
-        job.time.start.toBigInt() * 1000n) *
-        computeCostPerMin(job, providerPrice);
+    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
 }
 
 /**
@@ -117,7 +122,8 @@ function computeCostPerMin(
     job.definition.memPerCpu.toBigInt() *
     job.definition.cpuPerTask.toBigInt() *
     (providerPrice.memPricePerMin as BigNumber).toBigInt();
-  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
+  const total = tasks * (gpuCost + cpuCost + memCost);
+  return total;
 }
 
 export default class DeepSquareClient {
@@ -218,7 +224,8 @@ export default class DeepSquareClient {
   async submitJob(
     job: GQLJob,
     jobName: string,
-    maxAmount = 1e3
+    maxAmount = parseUnits("1e3", "ether"),
+    uses: LabelStruct[] = []
   ): Promise<string> {
     if (!(this.signerOrProvider instanceof Signer)) {
       throw new Error("provider is not a signer");
@@ -245,9 +252,9 @@ export default class DeepSquareClient {
                 : 4
               : 4,
             batchLocationHash: hash.submit,
-            uses: [{ key: "os", value: "linux" }],
+            uses: uses,
           },
-          parseUnits(maxAmount.toString(), "ether"),
+          maxAmount,
           formatBytes32String(jobName),
           true
         )
@@ -271,6 +278,7 @@ export default class DeepSquareClient {
       actualCost: bigint;
       costPerMin: bigint;
       timeLeft: bigint;
+      duration: bigint;
     }
   > {
     const job = await this.metaScheduler.jobs(jobId);
@@ -278,6 +286,7 @@ export default class DeepSquareClient {
     let costPerMin = 0n;
     let actualCost = 0n;
     let timeLeft = 0n;
+    const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
         job.providerAddr.toLowerCase()
@@ -288,7 +297,7 @@ export default class DeepSquareClient {
     } catch (e) {
       console.warn(e);
     }
-    return { ...job, actualCost, costPerMin, timeLeft };
+    return { ...job, actualCost, costPerMin, timeLeft, duration };
   }
 
   /**
