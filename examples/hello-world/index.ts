@@ -1,5 +1,5 @@
 import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { BigNumber } from "@ethersproject/bignumber";
+import { parseUnits } from "@ethersproject/units";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -34,7 +34,7 @@ async function main() {
       ],
     };
 
-    const depositAmount = BigNumber.from("10000000000000");
+    const depositAmount = parseUnits("1000000", 18);
     await deepSquareClient.setAllowance(depositAmount);
 
     // Launch the job
@@ -44,7 +44,7 @@ async function main() {
     jobId = await deepSquareClient.submitJob(
       helloWorldJob,
       `hello_world_${randomString}`,
-      1e2,
+      parseUnits("100", 18),
       uses
     );
     console.log(`New job id ${jobId}, getting logs...`);

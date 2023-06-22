@@ -2,6 +2,7 @@
   "name": "your-package-name",
   "version": "1.0.0",
   "scripts": {
+    "build": "tsc",
     "start": "tsc && node index.js",
     "test": "vitest",
     "lint": "eslint . --ext .ts,.tsx"
@@ -9,6 +10,7 @@
   "dependencies": {
     "@deepsquare/deepsquare-client": "workspace:*",
     "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/units": "^5.7.0",
     "dotenv": "^16.0.3",
     "ethers": "^6.3.0"
   },

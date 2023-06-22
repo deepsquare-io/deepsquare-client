@@ -51,14 +51,15 @@ Let's break down `deepsquare-client/examples/hello-world/index.ts`
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 
-import { BigNumber } from "@ethersproject/bignumber";
+import { parseUnits } from "@ethersproject/units";
+
 
 import dotenv from "dotenv";
 
 dotenv.config();
 ```
 
-First, we import the necessary modules. `DeepSquareClient` is the interface we use to interact with the DeepSquare platform, `BigNumber` is used for handling large numbers, and `dotenv` is used to manage environment variables.
+First, we import the necessary modules. `DeepSquareClient` is the interface we use to interact with the DeepSquare platform, `parseUnits` is used for handling large numbers, and `dotenv` is used to manage environment variables.
 
 The `dotenv.config()` line loads the environment variables from the `.env` file that we set up earlier.
 
@@ -120,7 +121,7 @@ const helloWorldJob = {
 Here, we're defining the configuration for our job. This includes specifying resources (like the number of tasks, GPUs per task, CPUs per task, and memory per CPU), enabling logging, and defining the steps for the job. If you want to know more about the significance of these keywords, please read our guide [How to write a workflow file](https://docs.deepsquare.run/workflow/getting-started/part-1-helloworld).
 
 ```typescript
-const depositAmount = BigNumber.from("10000000000000");
+const depositAmount = parseUnits("1000000", 18);
 await deepSquareClient.setAllowance(depositAmount);
 ```
 
@@ -131,7 +132,7 @@ You can use this useful [WEI converter tool](https://eth-converter.com/) to conv
     jobId = await deepSquareClient.submitJob(
       helloWorldJob,
       `hello_world_${randomString}`,
-      1e2,
+      parseUnits("100", 18);,
       uses
     );
     console.log(`New job id ${jobId}, getting logs...`);

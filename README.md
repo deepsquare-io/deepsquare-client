@@ -24,10 +24,11 @@ Ensure you have:
 
 - Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
 
-- Install BigNumber with 
+- Install BigNumber and Units with 
 
 ```
-pnpm install @ethersproject/bignumber
+pnpm install @ethersproject/bignumber @ethersproject/units dotenv
+pnpm install @types/node --save-dev
 ```
 
 - Install the library
@@ -75,8 +76,8 @@ In general you will be using the address corresponding to the `main` SDK Version
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 | ------------------- | ------------------------------------------ |
-| main                | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
-| v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| main                | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.7.X              | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
 
@@ -88,19 +89,38 @@ In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet]
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { parseUnits } from "@ethersproject/units";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-// Create the DeepSquareClient
-const deepSquareClient = await DeepSquareClient.build(
-  process.env.PRIVATE_KEY as string,
-  process.env.METASCHEDULER_ADDR as string
-);
+async function main() {
+
+  // Create the DeepSquareClient
+  const deepSquareClient = await DeepSquareClient.build(
+    process.env.PRIVATE_KEY as string,
+    process.env.METASCHEDULER_ADDR as string
+  );
+}
 ```
 
 
-For example, the following would run a 6 minutes job on a 1 GPU.
+For example, to run a simple hello world jobs with 1000 credits you can do.
 
 ```typescript
-const myJob = {
+import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { parseUnits } from "@ethersproject/units";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+
+async function main() {
+
+  // Create the DeepSquareClient
+  const deepSquareClient = await DeepSquareClient.build(
+    process.env.PRIVATE_KEY as string,
+    process.env.METASCHEDULER_ADDR as string
+  );
+  const myJob = {
     "resources": {
       "tasks": 1,
       "gpusPerTask": 0,
@@ -117,10 +137,14 @@ const myJob = {
       }
     ]
   };
-const jobId = await deepSquareClient.submitJob(myJob, "myJob", 1e2);
+  const credits = parseUnits("1000", 18);
+  const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
+}
+
+main();
 ```
 
-> Important note: The amount must be an integer and amount are given in credits (1000 credits = 1$).
+> Important note: The amount must be an BigNumber with 18 decimals. The easiest is to use parseUnits to convert credits to big number with the right number of digits.
 
 ### Retrieve job information
 
@@ -158,8 +182,9 @@ Here is how to use it:
 1. Get the log methods
 
 ```typescript
-const logsMethods = deepSquareClient.getLogsMethods(_jobId);
+const logsMethods = deepSquareClient.getLogsMethods(jobId);
 const [read, stopFetch] = await logsMethods.fetchLogs();
+const decoder = new TextDecoder();
 ```
 
 2. Fetch the logs :
@@ -167,6 +192,7 @@ const [read, stopFetch] = await logsMethods.fetchLogs();
 The `fetchLogs` function opens a stream and returns an AsyncIterable you can read this way :
 
 ```typescript
+
 for await (const log of read) {
   const lineStr = decoder.decode(log.data);
   console.log(lineStr);
@@ -196,11 +222,19 @@ For a detailed breakdown of the code follow this [guide](examples/hello-world/RE
 
 ```javascript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { BigNumber } from 'ethers';
+import { parseUnits } from "@ethersproject/units";
+import * as dotenv from "dotenv";
+dotenv.config();
+
 
 async function main() {
-  // Define the job
-  const helloWorldJob = {
+
+  // Create the DeepSquareClient
+  const deepSquareClient = await DeepSquareClient.build(
+    process.env.PRIVATE_KEY as string,
+    process.env.METASCHEDULER_ADDR as string
+  );
+  const myJob = {
     "resources": {
       "tasks": 1,
       "gpusPerTask": 0,
@@ -218,29 +252,23 @@ async function main() {
     ]
   };
 
-  // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient.build(
-    process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string
-  );
-
   // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)
-  const depositAmount = BigNumber.from('10000000000000');
+  const depositAmount = parseUnits("1000000", 18);
   await deepSquareClient.setAllowance(depositAmount);
 
   // Launch the job
-  const randomString = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
-  const jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`);
+  const credits = parseUnits("1000", 18);
+  const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
+  const job = deepSquareClient.getJob(jobId);
 
   // Print logs
-  console.log(`My job id ${jobId}`);
   const logsMethods = deepSquareClient.getLogsMethods(jobId);
   const [read, stopFetch] = await logsMethods.fetchLogs();
   const decoder = new TextDecoder();
 
   for await (const log of read) {
-    // Fetching job output here (e.g. anything printing to terminal, here Hello World)
-    console.log(decoder.decode(log.data));
+    const lineStr = decoder.decode(log.data);
+    console.log(lineStr);
   }
 
   stopFetch();
