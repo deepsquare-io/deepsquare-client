@@ -5,7 +5,7 @@
     "start": "tsc && node index.js"
   },
   "dependencies": {
-    "@deepsquare/deepsquare-client": "^0.7.3",
+    "@deepsquare/deepsquare-client": "workspace:*",
     "@ethersproject/bignumber": "^5.7.0",
     "dotenv": "^16.0.3",
     "ethers": "^6.3.0"

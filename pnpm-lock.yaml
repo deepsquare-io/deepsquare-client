@@ -145,8 +145,8 @@ importers:
   examples/hello-world:
     dependencies:
       '@deepsquare/deepsquare-client':
-        specifier: ^0.7.3
-        version: 0.7.3
+        specifier: workspace:*
+        version: link:../..
       '@ethersproject/bignumber':
         specifier: ^5.7.0
         version: 5.7.0
@@ -167,8 +167,8 @@ importers:
   examples/set-allowance:
     dependencies:
       '@deepsquare/deepsquare-client':
-        specifier: ^0.7.3
-        version: 0.7.3
+        specifier: workspace:*
+        version: link:../..
       '@ethersproject/bignumber':
         specifier: ^5.7.0
         version: 5.7.0
@@ -820,27 +820,6 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
-
-  /@deepsquare/deepsquare-client@0.7.3:
-    resolution: {integrity: sha512-T5SyiIrxiS1ZI6wF/30vkCYgbFSiSz21/cQYlp6l3/3HERUqZSqRd2LR1FWlHI96lKbxbsGA0wvNit2czql+qA==}
-    dependencies:
-      '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
-      '@ethersproject/providers': 5.7.2
-      '@ethersproject/wallet': 5.7.0
-      '@grpc/grpc-js': 1.8.11
-      '@protobuf-ts/grpc-transport': 2.8.2(@grpc/grpc-js@1.8.11)
-      '@protobuf-ts/runtime': 2.8.2
-      '@protobuf-ts/runtime-rpc': 2.8.2
-      async-lock: 1.4.0
-      ethers: 5.7.2
-      graphql: 15.8.0
-      graphql-request: 5.1.0(graphql@15.8.0)
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
 
   /@esbuild/android-arm64@0.17.19:
     resolution: {integrity: sha512-KBMWvEZooR7+kzY0BtbTQn0OAYY7CsiydT63pVEaPtVYF0hXbUaOyZog37DKxK7NF3XacBJOpYT4adIJh+avxA==}
