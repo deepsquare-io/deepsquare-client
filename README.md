@@ -32,11 +32,11 @@ yamlCopy code
   RPC URL: https://testnet.deepsquare.run/rpc
   Chain ID: 179188`
 
-You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/). A pop up will prompt you to install the DeepSquare network.
+You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/). A pop-up will prompt you to install the DeepSquare network.
 
 - We employ BigNumber from `@ethersproject/bignumber` throughout this package, particularly for method arguments. Ensure to install this package for seamless interaction with the client.
 
-## Client Instanciation
+## Client Instantiation
 
 If you haven't yet, we recommend following our [Getting Started Guide](examples\hello-world\README.md) where you'll be directed through running a workload on the DeepSquare grid.
 

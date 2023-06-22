@@ -7,8 +7,7 @@ async function main() {
   const uses = [{ key: "os", value: "linux" }] as never;
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string,
-    process.env.ENDPOINT as string
+    process.env.METASCHEDULER_ADDR as string
   );
   const args = process.argv.slice(2);
   let jobId = undefined;
