@@ -22,6 +22,11 @@ import { JobStatus } from "./types/enums/JobStatus";
 import { Job } from "./types/Job";
 import { ProviderPrices } from "./types/ProviderPrices";
 
+/**
+ * Checks if the job status indicates it has terminated.
+ * @param {number} status - The status of the job.
+ * @return {boolean} - True if job has terminated, False otherwise.
+ */
 export function isJobTerminated(status: number): boolean {
   return (
     status === JobStatus.CANCELLED ||
@@ -31,16 +36,44 @@ export function isJobTerminated(status: number): boolean {
   );
 }
 
-// compute the job current cost (total if job finished)
-function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
+function jobDurationInMinutes(job: Job): bigint {
+  return (
+    BigInt(Math.floor(Date.now() / 1000)) - job.time.start / 60n
+  );
+}
+
+/**
+ * Computes the current cost of a job.
+ *
+ * If the job has already been terminated, it returns the final cost of the job. Otherwise, it calculates
+ * the current cost based on the time elapsed since the start of the job and the cost per minute.
+ *
+ * @param {Job} job - The job object. It includes properties such as the status and the cost of the job.
+ * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It contains
+ *   the pricing details needed to compute the cost per minute of the job.
+ *
+ * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
+ *   (like wei for Ethereum), and is always an integer.
+ */function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
   return isJobTerminated(job.status)
     ? job.cost.finalCost
-    : (BigInt(Math.floor(Date.now() / (1000 * 60))) - job.time.start * 1000n) *
+    : jobDurationInMinutes(job) *
         computeCostPerMin(job, providerPrice);
 }
 
-// compute the job costs per minute based on provider price
-function computeCostPerMin(job: Job, providerPrice: ProviderPrices): bigint {
+/**
+ * Computes the cost per minute for a given job.
+ *
+ * The cost per minute is calculated based on the provider's price and the resources required by the job,
+ * which include the number of tasks, GPU per task, CPU per task, and memory per CPU.
+ *
+ * @param {Job} job - The job object, which contains the resource requirements per task.
+ * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It includes the
+ *   prices for GPU, CPU, and memory per minute.
+ *
+ * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
+ *   (like wei for Ethereum), and is always an integer.
+ */function computeCostPerMin(job: Job, providerPrice: ProviderPrices): bigint {
   const tasks = job.definition.ntasks;
   const gpuCost = job.definition.gpuPerTask * providerPrice.gpuPricePerMin;
   const cpuCost = job.definition.cpuPerTask * providerPrice.cpuPricePerMin;
@@ -89,6 +122,7 @@ export default class DeepSquareClient {
   private loggerClientFactory: () => ILoggerAPIClient;
 
   /**
+   * Creates an instance of DeepSquareClient.
    * @param privateKey {Hex} Web3 wallet private that will be used for credit billing. If empty, fallback to wallet.
    * @param wallet {WalletClient} Wallet Client coming from a wagmi frontend implementation. If empty, package will only be able to fetch public information
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract.
@@ -123,8 +157,15 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Allow DeepSquare Grid to use $amount of credits to pay for jobs.
-   * @param amount The amount to setAllowance.
+   * This method allows the DeepSquare Grid to consume a specific amount of credits from the client's
+   * account for running jobs. The credits act as the payment medium for the computational resources used.
+   *
+   * @param {BigNumber} amount - The amount of credits the client approves to be used for job execution.
+   *   This amount is represented as a BigNumber, which helps handle very large numbers safely in JavaScript.
+   *
+   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
+   *
+   * The approval is given to the MetaScheduler smart contract, which manages the job execution on the Grid.
    */
   async setAllowance(amount: bigint) {
     if (!this.wallet) {
@@ -154,15 +195,16 @@ export default class DeepSquareClient {
 
   /**
    * Submit a job to the DeepSquare Grid
-   * @param job The definition of job to send, including storage, environment variables, resources and computing steps. Check the package documentation for further details on the Job type
-   * @param jobName The name of the job, limited to 32 characters.
-   * @param maxAmount The amount of credit to provide to the requested job
-   * @returns {string} The id of the job on the Grid
+   * @param {GQLJob} job - The job object containing details like storage, environment variables, resources and computing steps.
+   * @param {string} jobName - The name of the job. It must be a maximum of 32 characters long.
+   * @param {number} maxAmount The maximum cost that can be incurred for the execution of the job. Default is 1000.
+   * @returns {Hex} The id of the job on the Grid
    */
   async submitJob(
     job: GQLJob,
     jobName: string,
-    maxAmount = 1000n
+    maxAmount = 1000n,
+    uses: LabelStruct[] = []
   ): Promise<Hex> {
     if (!this.wallet) {
       throw new Error(
@@ -200,7 +242,7 @@ export default class DeepSquareClient {
                 : 4
               : 4,
             batchLocationHash: hash.submit,
-            uses: [{ key: "os", value: "linux" }],
+            uses: uses,
           },
           maxAmount,
           toHex(jobName),
@@ -215,14 +257,18 @@ export default class DeepSquareClient {
   }
 
   /**
-   *  Get the job information from smarts contracts by id
-   * @param jobId {string} The job id to fetch.
+   * Fetches the details of a job from smart contracts based on the job ID. The details include actual cost, cost per minute and time left.
+   *
+   * @param jobId - The ID of the job that needs to be fetched.
+   *
+   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters.
    */
   async getJob(jobId: Hex): Promise<
     Job & {
       actualCost: bigint;
       costPerMin: bigint;
       timeLeft: bigint;
+      duration: bigint;
     }
   > {
     if (!this.providerManagerAddr) {
@@ -243,6 +289,7 @@ export default class DeepSquareClient {
     let costPerMin = 0n;
     let actualCost = 0n;
     let timeLeft = 0n;
+    const duration = jobDurationInMinutes(job);
 
     try {
       const providerPrices = await this.publicClient.readContract({
@@ -257,13 +304,14 @@ export default class DeepSquareClient {
     } catch (e) {
       console.warn(e);
     }
-    return { ...job, actualCost, costPerMin, timeLeft };
+    return { ...job, actualCost, costPerMin, timeLeft, duration };
   }
 
   /**
-   *  Cancel a job by id
-   * @param jobId {Hex} The job id to cancel.
-   * @param amount {bigint} The amount to top up.
+   * Add additional credits to a running job. This can be helpful when a job is close to consuming its maximum allocated credits.
+   *
+   * @param jobId - The ID of the job to which credits are being added.
+   * @param amount - The amount of credits to be added. Default is 1000.
    * @return {Hex} Returns the hash of the top up transaction.
    */
   async topUp(jobId: Hex, amount = 1000n) {
@@ -306,8 +354,13 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Get the iterable containing the live logs of given job. Make sure to close the stream with the second function returned once you're done with it.
-   * @param jobId {string} The job id from which getting the job
+   * Provides a method to fetch live logs of a given job. This method returns an object which contains the 'fetchLogs' function.
+   * The 'fetchLogs' function, when invoked, returns an async iterable to read logs and a function to close the stream. It is important
+   * to invoke the function to close the stream once you're done using it.
+   *
+   * @param jobId - The ID of the job for which logs are to be fetched.
+   *
+   * @returns Returns an object with a 'fetchLogs' method for accessing job logs. The 'fetchLogs' function returns a Promise that resolves to an async iterable for log access and a function to close the stream.
    */
   getLogsMethods(jobId: string): {
     fetchLogs: () => Promise<[AsyncIterable<ReadResponse>, () => void]>;
