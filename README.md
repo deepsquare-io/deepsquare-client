@@ -95,7 +95,7 @@ async function main() {
 }
 ```
 
-For example, to run a simple hello world jobs with 1000 credits you can do.
+For example, to run a simple 'Hello World' job with 1000 credits, you can follow the instructions provided. In this example, we assume that you have an allowance of at least 1000 credits. You can establish this allowance either from the [nexus portal](https://app.deepsquare.run/) header or by using the setAllowance method.
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
