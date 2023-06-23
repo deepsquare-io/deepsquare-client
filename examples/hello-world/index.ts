@@ -1,15 +1,16 @@
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
+import { Hex, parseEther } from "viem";
 import { JobStatus } from "../../src/types/enums/JobStatus";
-import { parseEther } from "viem";
 dotenv.config();
 
 async function main() {
   // Instantiate the DeepSquareClient
   const deepSquareClient = new DeepSquareClient(
-    process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string
+    process.env.PRIVATE_KEY as Hex,
+    undefined,
+    process.env.METASCHEDULER_ADDR as Hex
   );
 
   // Worflow

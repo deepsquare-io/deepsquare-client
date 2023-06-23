@@ -1,4 +1,4 @@
-export enum JobStatus {
+export const enum JobStatus {
   PENDING = 0,
   META_SCHEDULED = 1,
   SCHEDULED = 2,
