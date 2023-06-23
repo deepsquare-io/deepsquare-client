@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && node index.js",
+    "start": "tsc && node build/index.js",
     "test": "vitest",
     "lint": "eslint . --ext .ts,.tsx"
   },
@@ -21,5 +21,6 @@
     "@typescript-eslint/parser": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "eslint-config-prettier": "^8.3.0"
-  }
+  }, 
+  "type": "module"
 }
