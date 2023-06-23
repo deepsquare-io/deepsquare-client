@@ -16,6 +16,14 @@
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.mjs",
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.mjs"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
