@@ -215,12 +215,12 @@ await deepSquareClient.cancel(jobId);
 
 ### Full example
 
-Below is a plain javascript fully working example that launches the "hello world" job. 
+Below is a plain typescript fully working example that launches the "hello world" job. 
 For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
 
 > Don't forget to setup your env
 
-```javascript
+```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 import { parseUnits } from "@ethersproject/units";
 import * as dotenv from "dotenv";
