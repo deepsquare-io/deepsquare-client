@@ -1,4 +1,4 @@
-import { Hex, ReadContractReturnType } from "viem";
-import { MetaSchedulerAbi } from "../abis/MetaScheduler";
+import type { ReadContractReturnType } from "viem";
+import type { MetaSchedulerAbi } from "../abis/MetaScheduler";
 
 export type Job = ReadContractReturnType<typeof MetaSchedulerAbi, "getJob">;

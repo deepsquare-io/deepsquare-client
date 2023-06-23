@@ -13,9 +13,9 @@ import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
 import { JobStatus } from "./types/enums/JobStatus";
-import { Job } from "./types/Job";
-import { ProviderPrices } from "./types/ProviderPrices";
-import { Label } from "./types/Label";
+import type { Job } from "./types/Job";
+import type { ProviderPrices } from "./types/ProviderPrices";
+import type { Label } from "./types/Label";
 
 /**
  * Checks if the job status indicates it has terminated.

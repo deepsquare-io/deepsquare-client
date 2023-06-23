@@ -1,6 +1,7 @@
 import type { ReadResponse } from "./generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
-import { fromHex, Hex, WalletClient } from "viem";
+import type { Hex, WalletClient } from "viem";
+import { fromHex } from "viem";
 
 export class GRPCService {
   constructor(
