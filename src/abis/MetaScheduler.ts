@@ -1,3 +1,4 @@
+export const MetaSchedulerAbi = 
 [
   {
     "inputs":
@@ -1409,4 +1410,4 @@
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]
+] as const;
