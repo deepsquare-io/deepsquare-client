@@ -6,7 +6,7 @@ This package provides a straightforward interface to the DeepSquare Grid. With t
 
 The essence of the DeepSquare Grid lies in its **workflows**. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
 
-Begin your journey with our platform by following the Get Started guide below 
+Begin your journey with our platform by following the guide below
 
 For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
 
@@ -14,7 +14,7 @@ Stay informed about the latest updates and enhancements by following [this repos
 
 We can't wait to see what you'll build next!
 
-## Set up the library 
+## Set up the library
 
 ### Installation
 
@@ -24,7 +24,7 @@ Ensure you have:
 
 - Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
 
-- Install BigNumber and Units with 
+- Install BigNumber and Units with
 
 ```
 pnpm install @ethersproject/bignumber @ethersproject/units dotenv
@@ -39,7 +39,7 @@ pnpm install @types/node --save-dev
 
 ## Set up a wallet and get credits
 
-### Prerequisites 
+### Prerequisites
 
 Ensure you have:
 
@@ -55,12 +55,9 @@ Chain ID: 179188`
 
 You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
 
-
 ### Obtaining Credits
 
-
 Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
-
 
 ## Using the client
 
@@ -68,11 +65,10 @@ We show below a high level overview of the library covering various functionalit
 
 Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
 
-
 ### Compatibility Matrix
 
-To launch a job you technically submit a transaction to a smart contract called the meta-scheduler. 
-In general you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released. 
+To launch a job you technically submit a transaction to a smart contract called the meta-scheduler.
+In general you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 | ------------------- | ------------------------------------------ |
@@ -80,12 +76,9 @@ In general you will be using the address corresponding to the `main` SDK Version
 | v0.7.X              | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
-
-
 ### Client Instantiation
 
 In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
-
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
@@ -94,7 +87,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-
   // Create the DeepSquareClient
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
@@ -102,7 +94,6 @@ async function main() {
   );
 }
 ```
-
 
 For example, to run a simple hello world jobs with 1000 credits you can do.
 
@@ -112,30 +103,28 @@ import { parseUnits } from "@ethersproject/units";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-
 async function main() {
-
   // Create the DeepSquareClient
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
     process.env.METASCHEDULER_ADDR as string
   );
   const myJob = {
-    "resources": {
-      "tasks": 1,
-      "gpusPerTask": 0,
-      "cpusPerTask": 1,
-      "memPerCpu": 1024
+    resources: {
+      tasks: 1,
+      gpusPerTask: 0,
+      cpusPerTask: 1,
+      memPerCpu: 1024,
     },
-    "enableLogging": true,
-    "steps": [
+    enableLogging: true,
+    steps: [
       {
-        "name": "hello world",
-        "run": {
-          "command": "echo \"Hello World\""
-        }
-      }
-    ]
+        name: "hello world",
+        run: {
+          command: 'echo "Hello World"',
+        },
+      },
+    ],
   };
   const credits = parseUnits("1000", 18);
   const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
@@ -192,7 +181,6 @@ const decoder = new TextDecoder();
 The `fetchLogs` function opens a stream and returns an AsyncIterable you can read this way :
 
 ```typescript
-
 for await (const log of read) {
   const lineStr = decoder.decode(log.data);
   console.log(lineStr);
@@ -215,7 +203,7 @@ await deepSquareClient.cancel(jobId);
 
 ### Full example
 
-Below is a plain typescript fully working example that launches the "hello world" job. 
+Below is a plain typescript fully working example that launches the "hello world" job.
 For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
 
 > Don't forget to setup your env
@@ -226,30 +214,28 @@ import { parseUnits } from "@ethersproject/units";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-
 async function main() {
-
   // Create the DeepSquareClient
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
     process.env.METASCHEDULER_ADDR as string
   );
   const myJob = {
-    "resources": {
-      "tasks": 1,
-      "gpusPerTask": 0,
-      "cpusPerTask": 1,
-      "memPerCpu": 1024
+    resources: {
+      tasks: 1,
+      gpusPerTask: 0,
+      cpusPerTask: 1,
+      memPerCpu: 1024,
     },
-    "enableLogging": true,
-    "steps": [
+    enableLogging: true,
+    steps: [
       {
-        "name": "hello world",
-        "run": {
-          "command": "echo \"Hello World\""
-        }
-      }
-    ]
+        name: "hello world",
+        run: {
+          command: 'echo "Hello World"',
+        },
+      },
+    ],
   };
 
   // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)

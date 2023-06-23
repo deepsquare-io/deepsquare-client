@@ -289,7 +289,7 @@ export default class DeepSquareClient {
     const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
-        job.providerAddr.toLowerCase()
+        job.providerAddr
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
