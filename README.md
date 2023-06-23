@@ -1,51 +1,51 @@
 # DeepSquare SDK
 
-This package provides a straightforward interface to the DeepSquare Grid. With this SDK, users can easily **submit jobs** to the Grid, **pay** with their credits, and later retrieve job information for status checks and cost tracking.
+This package provides a straightforward interface to the DeepSquare Grid. It allows users to easily **submit jobs** to the Grid, **pay** with their credits, and retrieve job information for status checks and cost tracking.
 
 ## Introduction
 
-The essence of the DeepSquare Grid lies in its **workflows**. These workflows break down operations to be run on the Grid into simple steps, facilitating easy access to high-performance computing resources.
+The DeepSquare Grid operates through [workflows](https://docs.deepsquare.run/workflow/getting-started/part-1-helloworld#hello-world-workflow). These workflows break down operations to be run on the Grid into simple steps, providing easy access to high-performance computing resources.
 
-Begin your journey with our platform by following the guide below
+Start your journey with our platform by following the guide below.
 
-For a glimpse into the variety of jobs you can run on the DeepSquare Grid, peruse our [workflow catalog](https://github.com/deepsquare-io/workflow-catalog). It showcases a broad array of examples demonstrating the platform's capabilities.
+Stay updated with the latest changes and enhancements by following [this repository](https://github.com/deepsquare-io/deepsquare-client).
 
-Stay informed about the latest updates and enhancements by following [this repository](https://github.com/deepsquare-io/deepsquare-client).
-
-We can't wait to see what you'll build next!
+We are excited to see what you'll create!
 
 ## Set up the library
 
 ### Installation
 
-Ensure you have:
+Make sure you have:
 
 - Node.js installed on your system
 
-- Installed the [pnpm](https://pnpm.io/) package manager globally on your system.
+- The [pnpm](https://pnpm.io/) package manager globally installed on your system.
 
-- Install BigNumber and Units with
+Install BigNumber and Units with
 
 ```
 pnpm install @ethersproject/bignumber @ethersproject/units dotenv
 pnpm install @types/node --save-dev
 ```
 
-- Install the library
+Install the library
 
 ```
   pnpm install @deepsquare/deepsquare-client
 ```
 
-## Set up a wallet and get credits
+## Setting up a Wallet and Obtaining Credits
 
 ### Prerequisites
 
 Ensure you have:
 
-- A crypto wallet and your associated private key. You can use wallets like `MetaMask` or `Core Wallet` and/or cli like avalache-cli
+- A crypto wallet and your associated private key. You can use wallets like `MetaMask` or `Core Wallet` and/or CLI tools like `avalanche-cli`
 
-- [Carrying sufficient credit](#obtaining-credits) tokens to cater to job costs and a minor amount of SQUARE tokens to handle transaction fees on the DeepSquare `Deepji network`:
+- Sufficient [credit tokens](#obtaining-credits)for job costs, and a minor amount of SQUARE tokens for transaction fees on the DeepSquare `Deepji network`:
+
+DeepSquare network details:
 
 ```yaml
 Network name: DeepSquare Testnet C-Chain
@@ -53,7 +53,7 @@ RPC URL: https://testnet.deepsquare.run/rpc
 Chain ID: 179188`
 ```
 
-You can add this network automatically if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser and you visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
+You can automatically add this network if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser. Visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
 
 ### Obtaining Credits
 
@@ -61,14 +61,14 @@ Using the platform requires credit tokens for job execution and a minor amount o
 
 ## Using the client
 
-We show below a high level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](./examples) directory.
+Here is a high-level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](https://chat.openai.com/examples) directory.
 
 Please refer to the [official DeepSquare documentation](https://docs.deepsquare.run/workflow/workflow-api-reference/job) for a detailed API reference and job specification.
 
 ### Compatibility Matrix
 
 To launch a job you technically submit a transaction to a smart contract called the meta-scheduler.
-In general you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
+In general, you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 | ------------------- | ------------------------------------------ |
