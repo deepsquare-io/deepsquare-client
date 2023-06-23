@@ -7,13 +7,7 @@ import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
-import type {
-  Chain,
-  Hex,
-  PublicClient,
-  ReadContractReturnType,
-  WalletClient,
-} from "viem";
+import type { Chain, Hex, PublicClient, WalletClient } from "viem";
 import { createPublicClient, createWalletClient, http, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
@@ -21,6 +15,7 @@ import { ProviderManagerAbi } from "./abis/ProviderManager";
 import { JobStatus } from "./types/enums/JobStatus";
 import { Job } from "./types/Job";
 import { ProviderPrices } from "./types/ProviderPrices";
+import { Label } from "./types/Label";
 
 /**
  * Checks if the job status indicates it has terminated.
@@ -37,9 +32,7 @@ export function isJobTerminated(status: number): boolean {
 }
 
 function jobDurationInMinutes(job: Job): bigint {
-  return (
-    BigInt(Math.floor(Date.now() / 1000)) - job.time.start / 60n
-  );
+  return BigInt(Math.floor(Date.now() / 1000)) - job.time.start / 60n;
 }
 
 /**
@@ -54,11 +47,10 @@ function jobDurationInMinutes(job: Job): bigint {
  *
  * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
- */function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
+ */ function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
   return isJobTerminated(job.status)
     ? job.cost.finalCost
-    : jobDurationInMinutes(job) *
-        computeCostPerMin(job, providerPrice);
+    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
 }
 
 /**
@@ -68,12 +60,15 @@ function jobDurationInMinutes(job: Job): bigint {
  * which include the number of tasks, GPU per task, CPU per task, and memory per CPU.
  *
  * @param {Job} job - The job object, which contains the resource requirements per task.
- * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It includes the
+ * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It includes the
  *   prices for GPU, CPU, and memory per minute.
  *
  * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
- */function computeCostPerMin(job: Job, providerPrice: ProviderPrices): bigint {
+ */ function computeCostPerMin(
+  job: Job,
+  providerPrice: ProviderPrices
+): bigint {
   const tasks = job.definition.ntasks;
   const gpuCost = job.definition.gpuPerTask * providerPrice.gpuPricePerMin;
   const cpuCost = job.definition.cpuPerTask * providerPrice.cpuPricePerMin;
@@ -130,7 +125,7 @@ export default class DeepSquareClient {
    * @param publicClient {PublicClient} Public Client for contract reading.
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
-  private constructor(
+  constructor(
     privateKey?: Hex,
     wallet?: WalletClient,
     metaschedulerAddr: Hex = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
@@ -160,7 +155,7 @@ export default class DeepSquareClient {
    * This method allows the DeepSquare Grid to consume a specific amount of credits from the client's
    * account for running jobs. The credits act as the payment medium for the computational resources used.
    *
-   * @param {BigNumber} amount - The amount of credits the client approves to be used for job execution.
+   * @param {bigint} amount - The amount of credits the client approves to be used for job execution.
    *   This amount is represented as a BigNumber, which helps handle very large numbers safely in JavaScript.
    *
    * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
@@ -195,16 +190,17 @@ export default class DeepSquareClient {
 
   /**
    * Submit a job to the DeepSquare Grid
-   * @param {GQLJob} job - The job object containing details like storage, environment variables, resources and computing steps.
-   * @param {string} jobName - The name of the job. It must be a maximum of 32 characters long.
+   * @param {GQLJob} job The job object containing details like storage, environment variables, resources and computing steps.
+   * @param {string} jobName The name of the job. It must be a maximum of 32 characters long.
    * @param {number} maxAmount The maximum cost that can be incurred for the execution of the job. Default is 1000.
+   * @param {Label} uses Optional labels used for example to select providers or to pass arbitrary data to the job.
    * @returns {Hex} The id of the job on the Grid
    */
   async submitJob(
     job: GQLJob,
     jobName: string,
     maxAmount = 1000n,
-    uses: LabelStruct[] = []
+    uses: Label[] = []
   ): Promise<Hex> {
     if (!this.wallet) {
       throw new Error(

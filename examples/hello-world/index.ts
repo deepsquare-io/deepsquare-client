@@ -1,12 +1,13 @@
-import DeepSquareClient, { JobStatus } from "@deepsquare/deepsquare-client";
-import { parseUnits } from "@ethersproject/units";
+import DeepSquareClient from "@deepsquare/deepsquare-client";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
+import { JobStatus } from "../../src/types/enums/JobStatus";
+import { parseEther } from "viem";
 dotenv.config();
 
 async function main() {
   // Instantiate the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient.build(
+  const deepSquareClient = new DeepSquareClient(
     process.env.PRIVATE_KEY as string,
     process.env.METASCHEDULER_ADDR as string
   );
@@ -32,14 +33,14 @@ async function main() {
 
   // 'Allowance' lets DeepSquare use a set amount of your tokens to pay for jobs, like a spending limit.
   // DeepSquare can only use up to the limit you set, ensuring control and security over your wallet.
-  const depositAmount = parseUnits("1000", 18);
+  const depositAmount = parseEther("1000");
   await deepSquareClient.setAllowance(depositAmount);
 
   // Launch the job
   // The 'credits' specify how much of your allowance is used for a particular job. For instance,
   // if you set an allowance of 1000 and use 100 credits for a job, you'll still have 900 in allowance
   // for future jobs, no need to set a new allowance until your total credits exceed it.
-  const credits = parseUnits("1000", 18);
+  const credits = parseEther("1000");
   const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
 
   // Print logs
