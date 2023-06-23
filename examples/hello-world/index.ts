@@ -1,54 +1,83 @@
-import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { BigNumber } from '@ethersproject/bignumber';
-import dotenv from 'dotenv'
-dotenv.config()
-
+import DeepSquareClient, { JobStatus } from "@deepsquare/deepsquare-client";
+import { parseUnits } from "@ethersproject/units";
+import { RpcError } from "@protobuf-ts/runtime-rpc";
+import dotenv from "dotenv";
+dotenv.config();
 
 async function main() {
-  // Define the job
-  const helloWorldJob = {
-    "resources": {
-      "tasks": 1,
-      "gpusPerTask": 0,
-      "cpusPerTask": 1,
-      "memPerCpu": 1024
-    },
-    "enableLogging": true,
-    "steps": [
-      {
-        "name": "hello world",
-        "run": {
-          "command": "echo \"Hello World\""
-        }
-      }
-    ]
-  };
-
+  // Instantiate the DeepSquareClient
   const deepSquareClient = await DeepSquareClient.build(
     process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string,
-    process.env.ENDPOINT as string
+    process.env.METASCHEDULER_ADDR as string
   );
 
-  const depositAmount = BigNumber.from('10000000000000');
+  // Worflow
+  const myJob = {
+    resources: {
+      tasks: 1,
+      gpusPerTask: 0,
+      cpusPerTask: 1,
+      memPerCpu: 1024,
+    },
+    enableLogging: true,
+    steps: [
+      {
+        name: "hello world",
+        run: {
+          command: 'echo "Hello World"',
+        },
+      },
+    ],
+  };
+
+  // 'Allowance' lets DeepSquare use a set amount of your tokens to pay for jobs, like a spending limit.
+  // DeepSquare can only use up to the limit you set, ensuring control and security over your wallet.
+  const depositAmount = parseUnits("1000", 18);
   await deepSquareClient.setAllowance(depositAmount);
 
-  // Launch the job 
-  const randomString = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
-  const jobId = await deepSquareClient.submitJob(helloWorldJob, `hello_world_${randomString}`, 1e2);
+  // Launch the job
+  // The 'credits' specify how much of your allowance is used for a particular job. For instance,
+  // if you set an allowance of 1000 and use 100 credits for a job, you'll still have 900 in allowance
+  // for future jobs, no need to set a new allowance until your total credits exceed it.
+  const credits = parseUnits("1000", 18);
+  const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
 
   // Print logs
-  console.log(`My job id ${jobId}`);
+  console.log("JobId: " + jobId);
   const logsMethods = deepSquareClient.getLogsMethods(jobId);
   const [read, stopFetch] = await logsMethods.fetchLogs();
   const decoder = new TextDecoder();
 
-  for await (const log of read) {
-    // Fetching job output here (e.g. anything printing to terminal, here Hello World)
-    console.log(decoder.decode(log.data));
-  }
+  // Use a separate process for checking job status
+  const intervalId = setInterval(async () => {
+    const job = await deepSquareClient.getJob(jobId);
+    if (
+      job.status === JobStatus.FINISHED ||
+      job.status === JobStatus.FAILED ||
+      job.status === JobStatus.OUT_OF_CREDITS ||
+      job.status === JobStatus.CANCELLED
+    ) {
+      stopFetch(); // Stop fetching logs when job is done
+      clearInterval(intervalId); // Stop status checking when job is done
+    }
+  }, 1000); // Check status every second (you can adjust this interval to suit your needs)
 
-  stopFetch();
+  // Start handling incoming logs separately. This is done asynchronously.
+  // Here, we're using a 'for await...of' loop that works with async iterators.
+  // 'read' is an async iterable that reads logs as they come in.
+  try {
+    for await (const log of read) {
+      const lineStr = decoder.decode(log.data);
+      console.log(lineStr);
+    }
+  } catch (err) {
+    if (err instanceof RpcError && err.code === "CANCELLED") {
+      // Specific logic for 'CANCELLED' RpcError
+    } else {
+      // Logic for other errors or re-throw the error if you can't handle it
+      throw err;
+    }
+  }
 }
 
 main();

@@ -1,9 +1,9 @@
 import type { Provider } from "@ethersproject/providers";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { parseUnits } from "@ethersproject/units";
 import AsyncLock from "async-lock";
 import type { BigNumber } from "ethers";
-import { Signer, Wallet } from "ethers";
-import { formatBytes32String, parseUnits } from "ethers/lib/utils";
+import { Signer, Wallet, ethers } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import type { IERC20 } from "./contracts";
 import {
@@ -19,8 +19,8 @@ import type {
   JobCostStructOutput,
   JobDefinitionStructOutput,
   JobTimeStructOutput,
-  MetaScheduler,
   LabelStruct,
+  MetaScheduler,
 } from "./contracts/MetaScheduler";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
@@ -255,7 +255,7 @@ export default class DeepSquareClient {
             uses: uses,
           },
           maxAmount,
-          formatBytes32String(jobName),
+          ethers.utils.formatBytes32String(jobName),
           true
         )
       ).wait();
@@ -289,7 +289,7 @@ export default class DeepSquareClient {
     const duration = jobDurationInMinutes(job);
     try {
       providerPrices = await this.providerManager.getProviderPrices(
-        job.providerAddr.toLowerCase()
+        job.providerAddr
       );
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
