@@ -217,8 +217,9 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient.build(
+  const deepSquareClient = await DeepSquareClient(
     process.env.PRIVATE_KEY as string,
+    undefined,
     process.env.METASCHEDULER_ADDR as string
   );
   const myJob = {
