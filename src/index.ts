@@ -1,59 +1,21 @@
-import type { Provider } from "@ethersproject/providers";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { parseUnits } from "@ethersproject/units";
 import AsyncLock from "async-lock";
-import type { BigNumber } from "ethers";
-import { Signer, Wallet, ethers } from "ethers";
 import { GraphQLClient } from "graphql-request";
-import type { IERC20 } from "./contracts";
-import {
-  IERC20__factory,
-  IProviderManager__factory,
-  MetaScheduler__factory,
-} from "./contracts";
-import type {
-  IProviderManager,
-  ProviderPricesStruct,
-} from "./contracts/IProviderManager";
-import type {
-  JobCostStructOutput,
-  JobDefinitionStructOutput,
-  JobTimeStructOutput,
-  LabelStruct,
-  MetaScheduler,
-} from "./contracts/MetaScheduler";
+import { MetaSchedulerAbi } from "./abis/MetaScheduler";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
 import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
-
-export { LoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
-
-export type Job = {
-  jobId: string;
-  status: number;
-  customerAddr: string;
-  providerAddr: string;
-  definition: JobDefinitionStructOutput;
-  valid: boolean;
-  cost: JobCostStructOutput;
-  time: JobTimeStructOutput;
-  jobName: string;
-  hasCancelRequest: boolean;
-};
-
-export enum JobStatus {
-  PENDING = 0,
-  META_SCHEDULED = 1,
-  SCHEDULED = 2,
-  RUNNING = 3,
-  CANCELLED = 4,
-  FINISHED = 5,
-  FAILED = 6,
-  OUT_OF_CREDITS = 7,
-}
+import type { Chain, Hex, PublicClient, WalletClient } from "viem";
+import { createPublicClient, createWalletClient, http, toHex } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { CreditAbi } from "./abis/Credit";
+import { ProviderManagerAbi } from "./abis/ProviderManager";
+import { JobStatus } from "./types/enums/JobStatus";
+import type { Job } from "./types/Job";
+import type { ProviderPrices } from "./types/ProviderPrices";
+import type { Label } from "./types/Label";
 
 /**
  * Checks if the job status indicates it has terminated.
@@ -70,9 +32,7 @@ export function isJobTerminated(status: number): boolean {
 }
 
 function jobDurationInMinutes(job: Job): bigint {
-  return (
-    BigInt(Math.floor(Date.now() / 1000)) - job.time.start.toBigInt() / 60n
-  );
+  return BigInt(Math.floor(Date.now() / 1000)) - job.time.start / 60n;
 }
 
 /**
@@ -82,15 +42,14 @@ function jobDurationInMinutes(job: Job): bigint {
  * the current cost based on the time elapsed since the start of the job and the cost per minute.
  *
  * @param {Job} job - The job object. It includes properties such as the status and the cost of the job.
- * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It contains
+ * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It contains
  *   the pricing details needed to compute the cost per minute of the job.
  *
  * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
- */
-function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
+ */ function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
   return isJobTerminated(job.status)
-    ? job.cost.finalCost.toBigInt()
+    ? job.cost.finalCost
     : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
 }
 
@@ -101,147 +60,196 @@ function computeCost(job: Job, providerPrice: ProviderPricesStruct): bigint {
  * which include the number of tasks, GPU per task, CPU per task, and memory per CPU.
  *
  * @param {Job} job - The job object, which contains the resource requirements per task.
- * @param {ProviderPricesStruct} providerPrice - The pricing structure of the provider. It includes the
+ * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It includes the
  *   prices for GPU, CPU, and memory per minute.
  *
  * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
- */
-function computeCostPerMin(
+ */ function computeCostPerMin(
   job: Job,
-  providerPrice: ProviderPricesStruct
+  providerPrice: ProviderPrices
 ): bigint {
-  const tasks = job.definition.ntasks.toBigInt();
-  const gpuCost =
-    job.definition.gpuPerTask.toBigInt() *
-    (providerPrice.gpuPricePerMin as BigNumber).toBigInt();
-  const cpuCost =
-    job.definition.cpuPerTask.toBigInt() *
-    (providerPrice.cpuPricePerMin as BigNumber).toBigInt();
+  const tasks = job.definition.ntasks;
+  const gpuCost = job.definition.gpuPerTask * providerPrice.gpuPricePerMin;
+  const cpuCost = job.definition.cpuPerTask * providerPrice.cpuPricePerMin;
   const memCost =
-    job.definition.memPerCpu.toBigInt() *
-    job.definition.cpuPerTask.toBigInt() *
-    (providerPrice.memPricePerMin as BigNumber).toBigInt();
-  const total = tasks * (gpuCost + cpuCost + memCost);
-  return total;
+    job.definition.memPerCpu *
+    job.definition.cpuPerTask *
+    providerPrice.memPricePerMin;
+  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
 }
+
+export const deepSquareChain = {
+  id: 179188,
+  name: "DeepSquare Mainnet C-Chain",
+  network: "deepsquare testnet",
+  nativeCurrency: {
+    name: "Square",
+    symbol: "SQUARE",
+    decimals: 18,
+  },
+  rpcUrls: {
+    public: { http: ["https://testnet.deepsquare.run/rpc"] },
+    default: { http: ["https://testnet.deepsquare.run/rpc"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "DeepTrace",
+      url: "https://https://deeptrace.deepsquare.run/",
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: "0xad25E3e89e005EE6b1d9a4723DE82b2D591779d2",
+      blockCreated: 38009,
+    },
+  },
+} as const satisfies Chain;
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();
+  private readonly wallet?: WalletClient;
+  private readonly publicClient: PublicClient;
+  private readonly metaSchedulerAddr: Hex;
+  private creditAddr?: Hex;
+  private providerManagerAddr?: Hex;
+  private readonly sbatchServiceClient: GraphQLClient;
+  private loggerClientFactory: () => ILoggerAPIClient;
 
   /**
    * Creates an instance of DeepSquareClient.
-   * @param signerOrProvider - The signer or provider that will sign the transactions.
-   * @param metaScheduler - The MetaScheduler contract.
-   * @param credit - The credit contract.
-   * @param providerManager - The ProviderManager contract.
-   * @param sbatchServiceClient - The SBatch Service GraphQL client.
-   * @param loggerClientFactory - The logger client factory.
-   */
-  private constructor(
-    private readonly signerOrProvider: Signer | Provider,
-    private readonly metaScheduler: MetaScheduler,
-    private readonly credit: IERC20,
-    private readonly providerManager: IProviderManager,
-    private readonly sbatchServiceClient: GraphQLClient,
-    private loggerClientFactory: () => ILoggerAPIClient
-  ) {}
-
-  /**
-   * @param privateKey {string} Web3 wallet private that will be used for credit billing. If empty, unauthenticated.
+   * @param privateKey {Hex} Web3 wallet private that will be used for credit billing. If empty, fallback to wallet.
+   * @param wallet {WalletClient} Wallet Client coming from a wagmi frontend implementation. If empty, package will only be able to fetch public information
    * @param metaschedulerAddr {string} Address of the metascheduler smart contract.
    * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service.
-   * @param jsonRpcProvider {JsonRpcProvider} JsonRpcProvider to a ethereum API.
+   * @param publicClient {PublicClient} Public Client for contract reading.
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
-  static async build(
-    privateKey: string,
-    metaschedulerAddr = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
+  constructor(
+    privateKey?: Hex,
+    wallet?: WalletClient,
+    metaschedulerAddr: Hex = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
-    jsonRpcProvider: JsonRpcProvider = new JsonRpcProvider(
-      "https://testnet.deepsquare.run/rpc",
-      {
-        name: "DeepSquare Testnet",
-        chainId: 179188,
-      }
-    ),
+    publicClient: PublicClient = createPublicClient({
+      transport: http("https://testnet.deepsquare.run/rpc"),
+      chain: deepSquareChain,
+    }),
     loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
-  ): Promise<DeepSquareClient> {
-    // Use a authenticated client if there is a key, else don't.
-    const signerOrProvider = privateKey
-      ? new Wallet(privateKey, jsonRpcProvider)
-      : jsonRpcProvider;
-    const metaScheduler = MetaScheduler__factory.connect(
-      metaschedulerAddr,
-      signerOrProvider
-    );
-    const creditAddr = await metaScheduler.credit();
-    const credit = IERC20__factory.connect(creditAddr, signerOrProvider);
+  ) {
+    this.publicClient = publicClient;
+    if (privateKey) {
+      this.wallet = createWalletClient({
+        account: privateKeyToAccount(privateKey),
+        chain: deepSquareChain,
+        transport: http("https://testnet.deepsquare.run/rpc"),
+      });
+    } else {
+      this.wallet = wallet;
+    }
+    this.sbatchServiceClient = new GraphQLClient(sbatchServiceEndpoint);
+    this.loggerClientFactory = loggerClientFactory;
+    this.metaSchedulerAddr = metaschedulerAddr;
+  }
 
-    const providerAddr = await metaScheduler.providerManager();
-    const providerManager = IProviderManager__factory.connect(
-      providerAddr,
-      signerOrProvider
-    );
+  /**
+   * Lazy load credit contract address
+   */
+  async shouldLoadCredit() {
+    if (!this.creditAddr) {
+      this.creditAddr = await this.publicClient.readContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "credit",
+      });
+    }
+  }
 
-    return new DeepSquareClient(
-      signerOrProvider,
-      metaScheduler,
-      credit,
-      providerManager,
-      new GraphQLClient(sbatchServiceEndpoint),
-      loggerClientFactory
-    );
+  /**
+   * Lazy load provider manager contract address
+   */
+  async shouldLoadProviderManager() {
+    if (!this.providerManagerAddr) {
+      this.providerManagerAddr = await this.publicClient.readContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "providerManager",
+      });
+    }
   }
 
   /**
    * This method allows the DeepSquare Grid to consume a specific amount of credits from the client's
    * account for running jobs. The credits act as the payment medium for the computational resources used.
    *
-   * @param {BigNumber} amount - The amount of credits the client approves to be used for job execution.
+   * @param {bigint} amount - The amount of credits the client approves to be used for job execution.
    *   This amount is represented as a BigNumber, which helps handle very large numbers safely in JavaScript.
    *
    * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
    *
    * The approval is given to the MetaScheduler smart contract, which manages the job execution on the Grid.
    */
-  async setAllowance(amount: BigNumber) {
-    await this.credit.approve(
-      this.metaScheduler.address,
-      parseUnits(amount.toString(), "ether")
-    );
+  async setAllowance(amount: bigint) {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+      );
+    }
+
+    await this.shouldLoadCredit();
+
+    const [address] = await this.wallet.getAddresses();
+
+    const { request } = await this.publicClient.simulateContract({
+      address: this.creditAddr!,
+      abi: CreditAbi,
+      functionName: "approve",
+      account: address,
+      args: [this.metaSchedulerAddr, amount],
+    });
+
+    await this.wallet.writeContract(request);
   }
 
   /**
-   * This method is used to submit a job to the DeepSquare Grid. It requires job details, job name and maximum amount for execution.
-   *
-   * @param {GQLJob} job - The job object containing details like storage, environment variables, resources and computing steps.
-   * @param {string} jobName - The name of the job. It must be a maximum of 32 characters long.
-   * @param {number} maxAmount - The maximum cost that can be incurred for the execution of the job. Default is 1000.
-   *
-   * @returns {Promise<string>} Returns a Promise that resolves to the Job ID on the grid.
+   * Submit a job to the DeepSquare Grid
+   * @param {GQLJob} job The job object containing details like storage, environment variables, resources and computing steps.
+   * @param {string} jobName The name of the job. It must be a maximum of 32 characters long.
+   * @param {number} maxAmount The maximum cost that can be incurred for the execution of the job. Default is 1000.
+   * @param {Label} uses Optional labels used for example to select providers or to pass arbitrary data to the job.
+   * @returns {Hex} The id of the job on the Grid
    */
   async submitJob(
     job: GQLJob,
     jobName: string,
-    maxAmount = parseUnits("1e3", "ether"),
-    uses: LabelStruct[] = []
-  ): Promise<string> {
-    if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error("provider is not a signer");
+    maxAmount = 1000n,
+    uses: Label[] = []
+  ): Promise<Hex> {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+      );
     }
+
     if (jobName.length > 32) throw new Error("Job name exceeds 32 characters");
+
     const hash = await this.sbatchServiceClient.request(SubmitDocument, {
       job,
     });
+
+    const [address] = await this.wallet.getAddresses();
+
     return this.lock.acquire("submitJob", async () => {
-      const job_output = await (
-        await this.metaScheduler.requestNewJob(
+      const { request, result } = await this.publicClient.simulateContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "requestNewJob",
+        account: address,
+        args: [
           {
-            ntasks: job.resources.tasks,
-            gpuPerTask: job.resources.gpusPerTask,
-            cpuPerTask: job.resources.cpusPerTask,
-            memPerCpu: job.resources.memPerCpu,
+            ntasks: BigInt(job.resources.tasks),
+            gpuPerTask: BigInt(job.resources.gpusPerTask),
+            cpuPerTask: BigInt(job.resources.cpusPerTask),
+            memPerCpu: BigInt(job.resources.memPerCpu),
             storageType: job.output
               ? job.output.s3
                 ? 2
@@ -255,14 +263,14 @@ export default class DeepSquareClient {
             uses: uses,
           },
           maxAmount,
-          ethers.utils.formatBytes32String(jobName),
-          true
-        )
-      ).wait();
-      const event = job_output.events!.filter(
-        (event) => event.event === "NewJobRequestEvent"
-      )![0];
-      return event.args![0] as string;
+          toHex(jobName),
+          true,
+        ],
+      });
+
+      await this.wallet?.writeContract(request);
+
+      return result;
     });
   }
 
@@ -273,7 +281,7 @@ export default class DeepSquareClient {
    *
    * @returns Returns a Promise that resolves to an object containing job details and its cost parameters.
    */
-  async getJob(jobId: string): Promise<
+  async getJob(jobId: Hex): Promise<
     Job & {
       actualCost: bigint;
       costPerMin: bigint;
@@ -281,19 +289,30 @@ export default class DeepSquareClient {
       duration: bigint;
     }
   > {
-    const job = await this.metaScheduler.jobs(jobId);
-    let providerPrices: ProviderPricesStruct;
+    await this.shouldLoadProviderManager();
+
+    const job = await this.publicClient.readContract({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      functionName: "getJob",
+      args: [jobId],
+    });
+
     let costPerMin = 0n;
     let actualCost = 0n;
     let timeLeft = 0n;
     const duration = jobDurationInMinutes(job);
+
     try {
-      providerPrices = await this.providerManager.getProviderPrices(
-        job.providerAddr
-      );
+      const providerPrices = await this.publicClient.readContract({
+        address: this.providerManagerAddr!,
+        abi: ProviderManagerAbi,
+        functionName: "getProviderPrices",
+        args: [job.providerAddr],
+      });
       actualCost = computeCost(job, providerPrices);
       costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft = (job.cost.maxCost.toBigInt() - actualCost) / costPerMin;
+      timeLeft = (job.cost.maxCost - actualCost) / costPerMin;
     } catch (e) {
       console.warn(e);
     }
@@ -305,27 +324,45 @@ export default class DeepSquareClient {
    *
    * @param jobId - The ID of the job to which credits are being added.
    * @param amount - The amount of credits to be added. Default is 1000.
+   * @return {Hex} Returns the hash of the top up transaction.
    */
-  async topUp(jobId: string, amount = 1e3) {
-    if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error("provider is not a signer");
+  async topUp(jobId: Hex, amount = 1000n) {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+      );
     }
-    return await this.metaScheduler.topUpJob(
-      jobId,
-      parseUnits(amount.toString(), "ether")
-    );
+
+    const { request } = await this.publicClient.simulateContract({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      functionName: "topUpJob",
+      args: [jobId, amount],
+    });
+
+    return await this.wallet.writeContract(request);
   }
 
   /**
-   * Cancels an ongoing job by its ID.
-   *
-   * @param jobId - The ID of the job to be cancelled.
+   *  Cancel a job by id
+   * @param jobId {Hex} The job id to cancel.
+   * @return {Hex} The hash of the cancel transaction.
    */
-  async cancel(jobId: string) {
-    if (!(this.signerOrProvider instanceof Signer)) {
-      throw new Error("provider is not a signer");
+  async cancel(jobId: Hex) {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+      );
     }
-    return await this.metaScheduler.cancelJob(jobId);
+
+    const { request } = await this.publicClient.simulateContract({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      functionName: "cancelJob",
+      args: [jobId],
+    });
+
+    return await this.wallet.writeContract(request);
   }
 
   /**
@@ -342,14 +379,16 @@ export default class DeepSquareClient {
   } {
     return {
       fetchLogs: async () => {
-        if (!(this.signerOrProvider instanceof Signer)) {
-          throw new Error("provider is not a signer");
+        if (!this.wallet) {
+          throw new Error(
+            "Client has been instanced without wallet client and is therefore unable to execute write operations"
+          );
         }
         const service = new GRPCService(
           this.loggerClientFactory(),
-          this.signerOrProvider
+          this.wallet
         );
-        const address = await this.signerOrProvider.getAddress();
+        const [address] = await this.wallet.getAddresses();
         return service.readAndWatch(address, jobId);
       },
     };
