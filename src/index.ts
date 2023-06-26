@@ -152,6 +152,32 @@ export default class DeepSquareClient {
   }
 
   /**
+   * Lazy load credit contract address
+   */
+  async shouldLoadCredit() {
+    if (!this.creditAddr) {
+      this.creditAddr = await this.publicClient.readContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "credit",
+      });
+    }
+  }
+
+  /**
+   * Lazy load provider manager contract address
+   */
+  async shouldLoadProviderManager() {
+    if (!this.providerManagerAddr) {
+      this.providerManagerAddr = await this.publicClient.readContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "providerManager",
+      });
+    }
+  }
+
+  /**
    * This method allows the DeepSquare Grid to consume a specific amount of credits from the client's
    * account for running jobs. The credits act as the payment medium for the computational resources used.
    *
@@ -168,17 +194,13 @@ export default class DeepSquareClient {
         "Client has been instanced without wallet client and is therefore unable to execute write operations"
       );
     }
-    if (!this.creditAddr) {
-      this.creditAddr = await this.publicClient.readContract({
-        address: this.metaSchedulerAddr,
-        abi: MetaSchedulerAbi,
-        functionName: "credit",
-      });
-    }
+
+    await this.shouldLoadCredit();
+
     const [address] = await this.wallet.getAddresses();
 
     const { request } = await this.publicClient.simulateContract({
-      address: this.creditAddr,
+      address: this.creditAddr!,
       abi: CreditAbi,
       functionName: "approve",
       account: address,
@@ -267,13 +289,7 @@ export default class DeepSquareClient {
       duration: bigint;
     }
   > {
-    if (!this.providerManagerAddr) {
-      this.providerManagerAddr = await this.publicClient.readContract({
-        address: this.metaSchedulerAddr,
-        abi: MetaSchedulerAbi,
-        functionName: "providerManager",
-      });
-    }
+    await this.shouldLoadProviderManager();
 
     const job = await this.publicClient.readContract({
       address: this.metaSchedulerAddr,
@@ -289,7 +305,7 @@ export default class DeepSquareClient {
 
     try {
       const providerPrices = await this.publicClient.readContract({
-        address: this.providerManagerAddr,
+        address: this.providerManagerAddr!,
         abi: ProviderManagerAbi,
         functionName: "getProviderPrices",
         args: [job.providerAddr],
