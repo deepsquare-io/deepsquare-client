@@ -197,13 +197,11 @@ export default class DeepSquareClient {
 
     await this.shouldLoadCredit();
 
-    const [address] = await this.wallet.getAddresses();
-
     const { request } = await this.publicClient.simulateContract({
       address: this.creditAddr!,
       abi: CreditAbi,
       functionName: "approve",
-      account: address,
+      account: this.wallet.account,
       args: [this.metaSchedulerAddr, amount],
     });
 
@@ -236,14 +234,12 @@ export default class DeepSquareClient {
       job,
     });
 
-    const [address] = await this.wallet.getAddresses();
-
     return this.lock.acquire("submitJob", async () => {
       const { request, result } = await this.publicClient.simulateContract({
         address: this.metaSchedulerAddr,
         abi: MetaSchedulerAbi,
         functionName: "requestNewJob",
-        account: address,
+        account: this.wallet?.account,
         args: [
           {
             ntasks: BigInt(job.resources.tasks),
@@ -338,6 +334,7 @@ export default class DeepSquareClient {
       abi: MetaSchedulerAbi,
       functionName: "topUpJob",
       args: [jobId, amount],
+      account: this.wallet.account,
     });
 
     return await this.wallet.writeContract(request);
