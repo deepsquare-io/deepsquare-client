@@ -275,6 +275,22 @@ export default class DeepSquareClient {
   }
 
   /**
+   * Fetch all job IDs ran by given wallet
+   *
+   * @param walletAddress  - The wallet address from which fetch job IDs
+   *
+   * @returns Returns job IDs in hexadecimal.
+   */
+  async listJob(walletAddress: Hex): Promise<readonly Hex[]> {
+    return this.publicClient.readContract({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      functionName: "getJobs",
+      args: [walletAddress],
+    });
+  }
+
+  /**
    * Fetches the details of a job from smart contracts based on the job ID. The details include actual cost, cost per minute and time left.
    *
    * @param jobId - The ID of the job that needs to be fetched.
