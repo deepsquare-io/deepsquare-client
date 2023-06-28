@@ -1,5 +1,5 @@
-import { Job } from "../types/Job";
-import { ProviderPrices } from "../types/ProviderPrices";
+import type { Job } from "../types/Job";
+import type { ProviderPrices } from "../types/ProviderPrices";
 import isJobTerminated from "./isJobTerminated";
 import computeCostPerMin from "./computeCostPerMin";
 

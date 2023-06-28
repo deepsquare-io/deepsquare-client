@@ -12,9 +12,9 @@ import { createPublicClient, createWalletClient, http, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
-import { Job } from "./types/Job";
+import type { Job } from "./types/Job";
 import type { Label } from "./types/Label";
-import { Provider } from "./types/Provider";
+import type { Provider } from "./types/Provider";
 
 export const deepSquareChain = {
   id: 179188,

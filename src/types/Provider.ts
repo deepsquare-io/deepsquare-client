@@ -1,7 +1,7 @@
-import { Hex } from "viem";
-import { ProviderHardware } from "./ProviderHardware";
-import { ProviderPrices } from "./ProviderPrices";
-import { ProviderStatus } from "./ProviderStatus";
+import type { Hex } from "viem";
+import type { ProviderHardware } from "./ProviderHardware";
+import type { ProviderPrices } from "./ProviderPrices";
+import type { ProviderStatus } from "./ProviderStatus";
 
 export type Provider = {
   addr: Hex;
