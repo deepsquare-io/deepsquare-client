@@ -228,11 +228,12 @@ export default class DeepSquareClient {
    *
    * @param jobId - The ID of the job that needs to be fetched.
    *
-   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters.
+   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters. Provider property will not
+   * be defined if the job has not been scheduled.
    */
   async getJob(jobId: Hex): Promise<
     Job & {
-      provider: Provider;
+      provider: Provider | undefined;
     }
   > {
     await this.shouldLoadProviderManager();
@@ -244,22 +245,27 @@ export default class DeepSquareClient {
       args: [jobId],
     });
 
-    const rawProvider = await this.publicClient.readContract({
-      address: this.providerManagerAddr!,
-      abi: ProviderManagerAbi,
-      functionName: "providers",
-      args: [job.providerAddr],
-    });
+    let provider: Provider | undefined = undefined;
 
-    const provider = {
-      addr: rawProvider[0],
-      providerHardware: rawProvider[1],
-      providerPrices: rawProvider[2],
-      status: rawProvider[3],
-      jobCount: rawProvider[4],
-      valid: rawProvider[5],
-      linkListed: rawProvider[6],
-    };
+    try {
+      const rawProvider = await this.publicClient.readContract({
+        address: this.providerManagerAddr!,
+        abi: ProviderManagerAbi,
+        functionName: "providers",
+        args: [job.providerAddr],
+      });
+
+      provider = {
+        addr: rawProvider[0],
+        providerHardware: rawProvider[1],
+        providerPrices: rawProvider[2],
+        status: rawProvider[3],
+        jobCount: rawProvider[4],
+        valid: rawProvider[5],
+        linkListed: rawProvider[6],
+      };
+    }
+
     return { ...job, provider };
   }
 
