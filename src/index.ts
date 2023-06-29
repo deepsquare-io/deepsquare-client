@@ -12,72 +12,9 @@ import { createPublicClient, createWalletClient, http, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
-import { JobStatus } from "./types/enums/JobStatus";
-import type { Job } from "./types/Job";
-import type { ProviderPrices } from "./types/ProviderPrices";
 import type { Label } from "./types/Label";
-
-/**
- * Checks if the job status indicates it has terminated.
- * @param {number} status - The status of the job.
- * @return {boolean} - True if job has terminated, False otherwise.
- */
-export function isJobTerminated(status: number): boolean {
-  return (
-    status === JobStatus.CANCELLED ||
-    status === JobStatus.FAILED ||
-    status === JobStatus.FINISHED ||
-    status === JobStatus.OUT_OF_CREDITS
-  );
-}
-
-function jobDurationInMinutes(job: Job): bigint {
-  return BigInt(Math.floor(Date.now() / 1000)) - job.time.start / 60n;
-}
-
-/**
- * Computes the current cost of a job.
- *
- * If the job has already been terminated, it returns the final cost of the job. Otherwise, it calculates
- * the current cost based on the time elapsed since the start of the job and the cost per minute.
- *
- * @param {Job} job - The job object. It includes properties such as the status and the cost of the job.
- * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It contains
- *   the pricing details needed to compute the cost per minute of the job.
- *
- * @returns The current cost of the job. It's expressed in the smallest unit of the job's currency
- *   (like wei for Ethereum), and is always an integer.
- */ function computeCost(job: Job, providerPrice: ProviderPrices): bigint {
-  return isJobTerminated(job.status)
-    ? job.cost.finalCost
-    : jobDurationInMinutes(job) * computeCostPerMin(job, providerPrice);
-}
-
-/**
- * Computes the cost per minute for a given job.
- *
- * The cost per minute is calculated based on the provider's price and the resources required by the job,
- * which include the number of tasks, GPU per task, CPU per task, and memory per CPU.
- *
- * @param {Job} job - The job object, which contains the resource requirements per task.
- * @param {ProviderPrices} providerPrice - The pricing structure of the provider. It includes the
- *   prices for GPU, CPU, and memory per minute.
- *
- * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
- *   (like wei for Ethereum), and is always an integer.
- */ function computeCostPerMin(
-  job: Job,
-  providerPrice: ProviderPrices
-): bigint {
-  const tasks = job.definition.ntasks;
-  const gpuCost = job.definition.gpuPerTask * providerPrice.gpuPricePerMin;
-  const cpuCost = job.definition.cpuPerTask * providerPrice.cpuPricePerMin;
-  const memCost =
-    job.definition.memPerCpu *
-    job.definition.cpuPerTask *
-    providerPrice.memPricePerMin;
-  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
-}
+import type { Provider } from "./types/Provider";
+import type { JobSummary } from "./types/JobSummary";
 
 export const deepSquareChain = {
   id: 179188,
@@ -126,9 +63,9 @@ export default class DeepSquareClient {
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
   constructor(
-    privateKey?: Hex,
-    wallet?: WalletClient,
-    metaschedulerAddr: Hex = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
+    privateKey: Hex | undefined = undefined,
+    wallet: WalletClient | undefined = undefined,
+    metaschedulerAddr: Hex = "0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),
@@ -259,7 +196,7 @@ export default class DeepSquareClient {
             uses: uses,
           },
           maxAmount,
-          toHex(jobName),
+          toHex(jobName, { size: 32 }),
           true,
         ],
       });
@@ -287,20 +224,14 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Fetches the details of a job from smart contracts based on the job ID. The details include actual cost, cost per minute and time left.
+   * Fetches the details of a job from smart contracts based on the job ID.
    *
    * @param jobId - The ID of the job that needs to be fetched.
    *
-   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters.
+   * @returns Returns a Promise that resolves to an object containing job details and its cost parameters. Provider property will not
+   * be defined if the job has not been scheduled.
    */
-  async getJob(jobId: Hex): Promise<
-    Job & {
-      actualCost: bigint;
-      costPerMin: bigint;
-      timeLeft: bigint;
-      duration: bigint;
-    }
-  > {
+  async getJob(jobId: Hex): Promise<JobSummary> {
     await this.shouldLoadProviderManager();
 
     const job = await this.publicClient.readContract({
@@ -310,25 +241,30 @@ export default class DeepSquareClient {
       args: [jobId],
     });
 
-    let costPerMin = 0n;
-    let actualCost = 0n;
-    let timeLeft = 0n;
-    const duration = jobDurationInMinutes(job);
+    let provider: Provider | undefined = undefined;
 
     try {
-      const providerPrices = await this.publicClient.readContract({
+      const rawProvider = await this.publicClient.readContract({
         address: this.providerManagerAddr!,
         abi: ProviderManagerAbi,
-        functionName: "getProviderPrices",
+        functionName: "providers",
         args: [job.providerAddr],
       });
-      actualCost = computeCost(job, providerPrices);
-      costPerMin = computeCostPerMin(job, providerPrices);
-      timeLeft = (job.cost.maxCost - actualCost) / costPerMin;
+
+      provider = {
+        addr: rawProvider[0],
+        providerHardware: rawProvider[1],
+        providerPrices: rawProvider[2],
+        status: rawProvider[3],
+        jobCount: rawProvider[4],
+        valid: rawProvider[5],
+        linkListed: rawProvider[6],
+      };
     } catch (e) {
-      console.warn(e);
+      console.error(e);
     }
-    return { ...job, actualCost, costPerMin, timeLeft, duration };
+
+    return { ...job, provider };
   }
 
   /**

@@ -71,9 +71,10 @@ To launch a job you technically submit a transaction to a smart contract called 
 In general, you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
-| ------------------- | ------------------------------------------ |
-| main                | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
-| v0.7.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+|---------------------| ------------------------------------------ |
+| main                | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.8.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.7.X              | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
 ### Client Instantiation
@@ -88,9 +89,8 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient.build(
+  const deepSquareClient = new DeepSquareClient(
     process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string
   );
 }
 ```
@@ -105,11 +105,10 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient(
+  const deepSquareClient = new DeepSquareClient(
     process.env.PRIVATE_KEY as string,
-    undefined,
-    process.env.METASCHEDULER_ADDR as string
   );
+  
   const myJob = {
     resources: {
       tasks: 1,
@@ -164,6 +163,17 @@ enum JobStatus {
 - `cost` which contains the `finalCost` property that represents the job cost in credit once it is finished.
 - `time` which contains the timestamps `start` and `end` representing the time bounds of the job.
 
+Optional : You can also compute some more information using utility functions :
+
+```typescript
+import computeCost from "./computeCost";
+import computeCostPerMin from "./computeCostPerMin";
+
+const costPerMin = computeCostPerMin(jobSummary);
+const currentCost = computeCost(jobSummary);
+const timeLeft = (jobSummary.cost.maxCost - currentCost) / costPerMin;
+```
+
 ### Retrieve job logs
 
 Job logs can be retrieved using a gRPC streaming service.
@@ -217,11 +227,7 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient(
-    process.env.PRIVATE_KEY as string,
-    undefined,
-    process.env.METASCHEDULER_ADDR as string
-  );
+  const deepSquareClient = new DeepSquareClient(process.env.PRIVATE_KEY as string);
   const myJob = {
     resources: {
       tasks: 1,
