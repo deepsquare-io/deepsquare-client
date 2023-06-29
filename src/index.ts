@@ -196,7 +196,7 @@ export default class DeepSquareClient {
             uses: uses,
           },
           maxAmount,
-          toHex(jobName),
+          toHex(jobName, { size: 32 }),
           true,
         ],
       });
