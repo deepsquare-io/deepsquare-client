@@ -12,10 +12,9 @@ import { createPublicClient, createWalletClient, http, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
-import type { Job } from "./types/Job";
 import type { Label } from "./types/Label";
 import type { Provider } from "./types/Provider";
-import { JobSummary } from "./types/JobSummary";
+import type { JobSummary } from "./types/JobSummary";
 
 export const deepSquareChain = {
   id: 179188,
@@ -66,7 +65,7 @@ export default class DeepSquareClient {
   constructor(
     privateKey: Hex | undefined = undefined,
     wallet: WalletClient | undefined = undefined,
-    metaschedulerAddr: Hex = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
+    metaschedulerAddr: Hex = "0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),

@@ -1,4 +1,4 @@
-import { JobSummary } from "../types/JobSummary";
+import type { JobSummary } from "../types/JobSummary";
 
 /**
  * Computes the cost per minute for a given job.
