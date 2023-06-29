@@ -264,6 +264,8 @@ export default class DeepSquareClient {
         valid: rawProvider[5],
         linkListed: rawProvider[6],
       };
+    } catch (e) {
+      console.error(e);
     }
 
     return { ...job, provider };
