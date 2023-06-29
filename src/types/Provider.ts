@@ -1,7 +1,7 @@
 import type { Hex } from "viem";
 import type { ProviderHardware } from "./ProviderHardware";
 import type { ProviderPrices } from "./ProviderPrices";
-import type { ProviderStatus } from "./ProviderStatus";
+import type { ProviderStatus } from "./enums/ProviderStatus";
 
 export type Provider = {
   addr: Hex;

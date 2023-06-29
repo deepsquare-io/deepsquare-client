@@ -264,6 +264,8 @@ export default class DeepSquareClient {
       console.error(e);
     }
 
+    provider?.status;
+
     return { ...job, provider };
   }
 
