@@ -78,11 +78,7 @@ const uses = [{ key: "os", value: "linux" }] as never;
 This line defines tags as key-value pair that are used to add constraints on the compute provider that can run our workload. For example, we might want to exclusively run our job in Sion in Switzerland and add the pair `{ key: 'region', value: 'ch-sion'}`
 
 ```typescript
-const deepSquareClient = await DeepSquareClient.build(
-  process.env.PRIVATE_KEY as string,
-
-  process.env.METASCHEDULER_ADDR as string
-);
+const deepSquareClient = new DeepSquareClient(process.env.PRIVATE_KEY as string);
 ```
 
 Here we're creating an instance of `DeepSquareClient`, passing in the private key and MetaScheduler address from our environment variables.

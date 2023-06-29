@@ -15,6 +15,7 @@ import { ProviderManagerAbi } from "./abis/ProviderManager";
 import type { Job } from "./types/Job";
 import type { Label } from "./types/Label";
 import type { Provider } from "./types/Provider";
+import { JobSummary } from "./types/JobSummary";
 
 export const deepSquareChain = {
   id: 179188,
@@ -63,8 +64,8 @@ export default class DeepSquareClient {
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
   constructor(
-    privateKey?: Hex,
-    wallet?: WalletClient,
+    privateKey: Hex | undefined = undefined,
+    wallet: WalletClient | undefined = undefined,
     metaschedulerAddr: Hex = "0xB95a74d32Fa5C95984406Ca82653cBD6570cb523",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     publicClient: PublicClient = createPublicClient({
@@ -231,11 +232,7 @@ export default class DeepSquareClient {
    * @returns Returns a Promise that resolves to an object containing job details and its cost parameters. Provider property will not
    * be defined if the job has not been scheduled.
    */
-  async getJob(jobId: Hex): Promise<
-    Job & {
-      provider: Provider | undefined;
-    }
-  > {
+  async getJob(jobId: Hex): Promise<JobSummary> {
     await this.shouldLoadProviderManager();
 
     const job = await this.publicClient.readContract({

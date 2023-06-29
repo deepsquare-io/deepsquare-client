@@ -88,9 +88,8 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient.build(
+  const deepSquareClient = new DeepSquareClient(
     process.env.PRIVATE_KEY as string,
-    process.env.METASCHEDULER_ADDR as string
   );
 }
 ```
@@ -105,11 +104,10 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient(
+  const deepSquareClient = new DeepSquareClient(
     process.env.PRIVATE_KEY as string,
-    undefined,
-    process.env.METASCHEDULER_ADDR as string
   );
+  
   const myJob = {
     resources: {
       tasks: 1,
@@ -164,6 +162,17 @@ enum JobStatus {
 - `cost` which contains the `finalCost` property that represents the job cost in credit once it is finished.
 - `time` which contains the timestamps `start` and `end` representing the time bounds of the job.
 
+Optional : You can also compute some more information using utility functions :
+
+```typescript
+import computeCost from "./computeCost";
+import computeCostPerMin from "./computeCostPerMin";
+
+const costPerMin = computeCostPerMin(jobSummary);
+const currentCost = computeCost(jobSummary);
+const timeLeft = (jobSummary.cost.maxCost - currentCost) / costPerMin;
+```
+
 ### Retrieve job logs
 
 Job logs can be retrieved using a gRPC streaming service.
@@ -217,11 +226,7 @@ dotenv.config();
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = await DeepSquareClient(
-    process.env.PRIVATE_KEY as string,
-    undefined,
-    process.env.METASCHEDULER_ADDR as string
-  );
+  const deepSquareClient = new DeepSquareClient(process.env.PRIVATE_KEY as string);
   const myJob = {
     resources: {
       tasks: 1,
