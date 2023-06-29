@@ -71,8 +71,9 @@ To launch a job you technically submit a transaction to a smart contract called 
 In general, you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
-| ------------------- | ------------------------------------------ |
+|---------------------| ------------------------------------------ |
 | main                | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
+| v0.8.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 | v0.7.X              | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
 | v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
 
