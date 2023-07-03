@@ -1,4 +1,4 @@
-export const enum ProviderStatus {
+export enum ProviderStatus {
   UNKNOWN,
   WAITING_APPROVAL,
   JOINED,
