@@ -5,6 +5,8 @@ import { Hex, parseEther } from "viem";
 import { JobStatus } from "../../src/types/enums/JobStatus";
 dotenv.config();
 
+export { JobStatus };
+
 async function main() {
   // Instantiate the DeepSquareClient
   const deepSquareClient = new DeepSquareClient(
