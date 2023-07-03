@@ -15,6 +15,7 @@ import { ProviderManagerAbi } from "./abis/ProviderManager";
 import type { Label } from "./types/Label";
 import type { Provider } from "./types/Provider";
 import type { JobSummary } from "./types/JobSummary";
+import { JobStatus } from "./types/enums/JobStatus";
 
 export const deepSquareChain = {
   id: 179188,
@@ -42,6 +43,8 @@ export const deepSquareChain = {
     },
   },
 } as const satisfies Chain;
+
+export { JobStatus };
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();
