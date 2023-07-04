@@ -341,12 +341,16 @@ export default class DeepSquareClient {
             "Client has been instanced without wallet client and is therefore unable to execute write operations"
           );
         }
+
+        if (!this.wallet.account) {
+          throw new Error("Unable to get wallet account");
+        }
         const service = new GRPCService(
           this.loggerClientFactory(),
           this.wallet
         );
         const [address] = await this.wallet.getAddresses();
-        return service.readAndWatch(address, jobId);
+        return service.readAndWatch(this.wallet.account.address, jobId);
       },
     };
   }
