@@ -349,7 +349,6 @@ export default class DeepSquareClient {
           this.loggerClientFactory(),
           this.wallet
         );
-        const [address] = await this.wallet.getAddresses();
         return service.readAndWatch(this.wallet.account.address, jobId);
       },
     };
