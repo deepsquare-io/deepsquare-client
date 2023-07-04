@@ -144,7 +144,6 @@ export default class DeepSquareClient {
       address: this.creditAddr!,
       abi: CreditAbi,
       functionName: "approve",
-      account: this.wallet.account,
       args: [this.metaSchedulerAddr, amount],
     });
 
@@ -182,7 +181,6 @@ export default class DeepSquareClient {
         address: this.metaSchedulerAddr,
         abi: MetaSchedulerAbi,
         functionName: "requestNewJob",
-        account: this.wallet?.account,
         args: [
           {
             ntasks: BigInt(job.resources.tasks),
@@ -294,7 +292,6 @@ export default class DeepSquareClient {
       abi: MetaSchedulerAbi,
       functionName: "topUpJob",
       args: [jobId, amount],
-      account: this.wallet.account,
     });
 
     return await this.wallet.writeContract(request);
@@ -336,20 +333,17 @@ export default class DeepSquareClient {
   } {
     return {
       fetchLogs: async () => {
-        if (!this.wallet) {
+        if (!this.wallet || !this.wallet.account) {
           throw new Error(
             "Client has been instanced without wallet client and is therefore unable to execute write operations"
           );
         }
 
-        if (!this.wallet.account) {
-          throw new Error("Unable to get wallet account");
-        }
         const service = new GRPCService(
           this.loggerClientFactory(),
           this.wallet
         );
-        return service.readAndWatch(this.wallet.account.address, jobId);
+        return service.readAndWatch(this.wallet.account, jobId);
       },
     };
   }

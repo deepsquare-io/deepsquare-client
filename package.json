@@ -1,6 +1,6 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",

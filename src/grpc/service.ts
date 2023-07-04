@@ -1,6 +1,6 @@
 import type { ReadResponse } from "./generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./generated/logger/v1alpha1/log.client";
-import type { Hex, WalletClient } from "viem";
+import type { Account, Hex, WalletClient } from "viem";
 import { fromHex } from "viem";
 
 export class GRPCService {
@@ -10,20 +10,20 @@ export class GRPCService {
   ) {}
 
   async readAndWatch(
-    address: Hex,
+    account: Account,
     logName: string
   ): Promise<[AsyncIterable<ReadResponse>, () => void]> {
     const abortReadAndWatch = new AbortController();
     const timestamp = Date.now();
-    const message = `read:${address.toLowerCase()}/${logName}/${timestamp}`;
+    const message = `read:${account.address.toLowerCase()}/${logName}/${timestamp}`;
     const signedHash = await this.wallet.signMessage({
-      account: address,
+      account,
       message,
     });
 
     const { responses } = this.loggerClient.read(
       {
-        address: address,
+        address: account.address,
         logName: logName,
         timestamp: BigInt(timestamp),
         signedHash: fromHex(signedHash, "bytes"),
