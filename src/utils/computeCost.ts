@@ -1,4 +1,4 @@
-import isJobTerminated from "./isJobTerminated";
+import { isJobTerminated } from "./isJobTerminated";
 import { computeCostPerMin } from "./computeCostPerMin";
 import type { JobSummary } from "../types/JobSummary";
 
