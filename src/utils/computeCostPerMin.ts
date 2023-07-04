@@ -11,7 +11,7 @@ import type { JobSummary } from "../types/JobSummary";
  * @returns The cost per minute for the job, expressed in the smallest unit of the job's currency
  *   (like wei for Ethereum), and is always an integer.
  */
-export default function computeCostPerMin(summary: JobSummary): bigint {
+export function computeCostPerMin(summary: JobSummary): bigint {
   if (!summary.provider) return 0n;
   const tasks = summary.definition.ntasks;
   const gpuCost =

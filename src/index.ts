@@ -16,6 +16,9 @@ import type { Label } from "./types/Label";
 import type { Provider } from "./types/Provider";
 import type { JobSummary } from "./types/JobSummary";
 import { JobStatus } from "./types/enums/JobStatus";
+import { computeCost } from "./utils/computeCost";
+import { computeCostPerMin } from "./utils/computeCostPerMin";
+import { isJobTerminated } from "./utils/isJobTerminated";
 
 export const deepSquareChain = {
   id: 179188,
@@ -44,7 +47,7 @@ export const deepSquareChain = {
   },
 } as const satisfies Chain;
 
-export { JobStatus };
+export { JobStatus, computeCost, computeCostPerMin, isJobTerminated };
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();

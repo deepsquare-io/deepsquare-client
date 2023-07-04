@@ -5,7 +5,7 @@ import { JobStatus } from "../types/enums/JobStatus";
  * @param {number} status - The status of the job.
  * @return {boolean} - True if job has terminated, False otherwise.
  */
-export default function isJobTerminated(status: number): boolean {
+export function isJobTerminated(status: number): boolean {
   return (
     status === JobStatus.CANCELLED ||
     status === JobStatus.FAILED ||
