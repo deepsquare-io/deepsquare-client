@@ -10,21 +10,17 @@ export class GRPCService {
   ) {}
 
   async readAndWatch(
-    account: Account,
-    logName: string
+    address: Hex,
+    jobId: string,
+    signedHash: Hex,
+    timestamp: number
   ): Promise<[AsyncIterable<ReadResponse>, () => void]> {
     const abortReadAndWatch = new AbortController();
-    const timestamp = Date.now();
-    const message = `read:${account.address.toLowerCase()}/${logName}/${timestamp}`;
-    const signedHash = await this.wallet.signMessage({
-      account,
-      message,
-    });
 
     const { responses } = this.loggerClient.read(
       {
-        address: account.address,
-        logName: logName,
+        address,
+        logName: jobId,
         timestamp: BigInt(timestamp),
         signedHash: fromHex(signedHash, "bytes"),
       },

@@ -320,6 +320,30 @@ export default class DeepSquareClient {
   }
 
   /**
+   * Get the hash message to send to the grpc service in order to fetch the logs.
+   *
+   * @param jobId - The ID of the job for which one need the logs.
+   *
+   * @returns The hash .
+   */
+  async getJobHash(jobId: string): Promise<{ hash: Hex; timestamp: number }> {
+    if (!this.wallet || !this.wallet.account) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+      );
+    }
+    const timestamp = Date.now();
+    const message = `read:${this.wallet.account.address.toLowerCase()}/${jobId}/${timestamp}`;
+    return {
+      hash: await this.wallet.signMessage({
+        account: this.wallet.account,
+        message,
+      }),
+      timestamp,
+    };
+  }
+
+  /**
    * Provides a method to fetch live logs of a given job. This method returns an object which contains the 'fetchLogs' function.
    * The 'fetchLogs' function, when invoked, returns an async iterable to read logs and a function to close the stream. It is important
    * to invoke the function to close the stream once you're done using it.
@@ -343,7 +367,15 @@ export default class DeepSquareClient {
           this.loggerClientFactory(),
           this.wallet
         );
-        return service.readAndWatch(this.wallet.account, jobId);
+
+        const { hash, timestamp } = await this.getJobHash(jobId);
+
+        return service.readAndWatch(
+          this.wallet.account.address,
+          jobId,
+          hash,
+          timestamp
+        );
       },
     };
   }
