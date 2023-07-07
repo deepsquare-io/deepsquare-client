@@ -1,20 +1,20 @@
 import AsyncLock from "async-lock";
 import { GraphQLClient } from "graphql-request";
+import type { Chain, Hex, PublicClient, WalletClient } from "viem";
+import { createPublicClient, createWalletClient, http, toHex } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { CreditAbi } from "./abis/Credit";
 import { MetaSchedulerAbi } from "./abis/MetaScheduler";
+import { ProviderManagerAbi } from "./abis/ProviderManager";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
 import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
-import type { Chain, Hex, PublicClient, WalletClient } from "viem";
-import { createPublicClient, createWalletClient, http, toHex } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { CreditAbi } from "./abis/Credit";
-import { ProviderManagerAbi } from "./abis/ProviderManager";
+import type { JobSummary } from "./types/JobSummary";
 import type { Label } from "./types/Label";
 import type { Provider } from "./types/Provider";
-import type { JobSummary } from "./types/JobSummary";
 import { JobStatus } from "./types/enums/JobStatus";
 import { computeCost } from "./utils/computeCost";
 import { computeCostPerMin } from "./utils/computeCostPerMin";
@@ -367,10 +367,7 @@ export default class DeepSquareClient {
           );
         }
 
-        const service = new GRPCService(
-          this.loggerClientFactory(),
-          this.wallet
-        );
+        const service = new GRPCService(this.loggerClientFactory());
 
         const { hash, timestamp } = await this.getJobHash(jobId);
 
