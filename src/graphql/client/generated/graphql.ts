@@ -528,6 +528,18 @@ export type Step = {
    */
   for?: InputMaybe<StepFor>;
   /**
+   * "If" is a boolean test that skips the step if the test is false.
+   *
+   * The test format is bash and variables such as $PATH or $(pwd) can be expanded.
+   *
+   * Note that "If" will be run after the "DependsOn".
+   *
+   * Example: '3 -eq 3 && "${TEST}" = "test"'.
+   *
+   * Go name: "If".
+   */
+  if?: InputMaybe<Scalars["String"]>;
+  /**
    * Launch a background process to run a group of commands if not null.
    *
    * Is exclusive with "run", "for", "use".
@@ -847,6 +859,11 @@ export type StepUse = {
    * Syntax: <url>@<tag/hash>
    *
    * Example: github.com/example/my-module@v1
+   * Example: github.com/example/module-monorepo/my-module@v1
+   *
+   * The host must be a git repository accessible via HTTPS.
+   * The path must indicates a directory. For example, `/my-module` indicates the root directory of the repository `my-module`.
+   * `module-monorepo/my-module` indicates the subdirectory `my-module` of the repository `module-monorepo`.
    *
    * Go name: "Source".
    */

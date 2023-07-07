@@ -1,5 +1,5 @@
 overwrite: true
-schema: "https://sbatch.deepsquare.run/graphql"
+schema: "https://sbatch.dev.deepsquare.run/graphql"
 documents: "src/graphql/client/operations/*.graphql"
 config:
   strictScalars: true

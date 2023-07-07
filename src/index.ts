@@ -143,6 +143,7 @@ export default class DeepSquareClient {
     const { request } = await this.publicClient.simulateContract({
       address: this.creditAddr!,
       abi: CreditAbi,
+      account: this.wallet.account,
       functionName: "approve",
       args: [this.metaSchedulerAddr, amount],
     });
@@ -180,6 +181,7 @@ export default class DeepSquareClient {
       const { request, result } = await this.publicClient.simulateContract({
         address: this.metaSchedulerAddr,
         abi: MetaSchedulerAbi,
+        account: this.wallet?.account,
         functionName: "requestNewJob",
         args: [
           {
@@ -290,6 +292,7 @@ export default class DeepSquareClient {
     const { request } = await this.publicClient.simulateContract({
       address: this.metaSchedulerAddr,
       abi: MetaSchedulerAbi,
+      account: this.wallet.account,
       functionName: "topUpJob",
       args: [jobId, amount],
     });
@@ -312,6 +315,7 @@ export default class DeepSquareClient {
     const { request } = await this.publicClient.simulateContract({
       address: this.metaSchedulerAddr,
       abi: MetaSchedulerAbi,
+      account: this.wallet.account,
       functionName: "cancelJob",
       args: [jobId],
     });
