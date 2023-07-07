@@ -295,12 +295,50 @@ export type JobResources = {
  *
  * The module.yaml file goes through a templating engine first before getting parsed. So some variables are available:
  *
- * - {{ .Job }} and its childs, which represent the Job object using the module. Can be useful if you want to dynamically set an value based on the job.
- * - {{ .Step }} and its childs, which represent the Step object using the module. Can be useful if you want the step name.
+ * - `{{ .Job }}` and its childs, which represent the Job object using the module. Can be useful if you want to dynamically set an value based on the job.
+ * - `{{ .Step }}` and its childs, which represent the Step object using the module. Can be useful if you want the step name.
  *
- * Notice that the templating follows the Go format. You can also apply sprig templating functions.
+ * If you want your user to pass custom steps, you can use `{{- .Step.Use.Steps | toYaml | nindent <n> }}` which is the group of steps.
  *
- * To outputs environment variables, just append KEY=value to the "${DEEPSQUARE_ENV}" file.
+ * Example:
+ *
+ * ```yaml
+ * # module.yaml
+ * steps:
+ *   - name: my step
+ *   {{- .Step.Use.Steps | toYaml | nindent 2 }}
+ *   - name: my other step
+ * ```
+ *
+ * ```yaml
+ * # job.yaml
+ * steps:
+ *   - name: module
+ *     use:
+ *       source: git/my-module
+ *       steps:
+ *         - name: step by user
+ *         - name: another step by user
+ * ```
+ *
+ * Will render:
+ *
+ * ```yaml
+ * # module.yaml
+ * steps:
+ *   - name: my step
+ *   - name: step by user
+ *   - name: another step by user
+ *   - name: my other step
+ * ```
+ *
+ * Notice that the templating follows the Go format. You can also apply [sprig](http://masterminds.github.io/sprig/) templating functions.
+ *
+ * To outputs environment variables, just append KEY=value to the "${DEEPSQUARE_ENV}" file, like this:
+ *
+ * ```
+ * echo "KEY=value" >> "${DEEPSQUARE_ENV}"
+ * ```
  */
 export type Module = {
   /**
@@ -508,6 +546,12 @@ export type S3Data = {
 /** Step is one instruction. */
 export type Step = {
   /**
+   * Group of steps that will be run sequentially on error.
+   *
+   * Go name: "Catch".
+   */
+  catch?: InputMaybe<Array<Step>>;
+  /**
    * Depends on wait for async tasks to end before launching this step.
    *
    * DependsOn uses the `handleName` property of a `StepAsyncLaunch`.
@@ -520,9 +564,15 @@ export type Step = {
    */
   dependsOn?: InputMaybe<Array<Scalars["String"]>>;
   /**
+   * Group of steps that will be run sequentially after the group of steps or command finishes.
+   *
+   * Go name: "Finally".
+   */
+  finally?: InputMaybe<Array<Step>>;
+  /**
    * Run a for loop if not null.
    *
-   * Is exclusive with "run", "launch", "use".
+   * Is exclusive with "run", "launch", "use", "steps".
    *
    * Go name: "For".
    */
@@ -542,7 +592,7 @@ export type Step = {
   /**
    * Launch a background process to run a group of commands if not null.
    *
-   * Is exclusive with "run", "for", "use".
+   * Is exclusive with "run", "for", "use", "steps".
    *
    * Go name: "Launch".
    */
@@ -558,15 +608,23 @@ export type Step = {
   /**
    * Run a command if not null.
    *
-   * Is exclusive with "for", "launch", "use".
+   * Is exclusive with "for", "launch", "use", "steps".
    *
    * Go name: "Run".
    */
   run?: InputMaybe<StepRun>;
   /**
+   * Group of steps that will be run sequentially.
+   *
+   * Is exclusive with "for", "launch", "use", "run".
+   *
+   * Go name: "Steps".
+   */
+  steps?: InputMaybe<Array<Step>>;
+  /**
    * Use a third-party group of steps.
    *
-   * Is exclusive with "run", "for", "launch".
+   * Is exclusive with "run", "for", "launch", "steps".
    *
    * Go name: "Use".
    */
@@ -658,7 +716,15 @@ export type StepFor = {
  *
  * A temporary shared storage is accessible through the $STORAGE_PATH environment variable.
  *
- * A shared cache per site is accessible via the $DEEPSQUARE_TMP environment variable. The $DEEPSQUARE_TMP directory is cleared periodically.
+ * Availables caches can be used by invoking one of the following environment variable:
+ *
+ * | Environment variables                   | Lifecycle                        |
+ * | --------------------------------------- | -------------------------------- |
+ * | STORAGE_PATH                            | job duration                     |
+ * | DEEPSQUARE_TMP or DEEPSQUARE_SHARED_TMP | provider's policy                |
+ * | DEEPSQUARE_SHARED_WORLD_TMP             | provider's policy                |
+ * | DEEPSQUARE_DISK_TMP                     | node reboot or provider's policy |
+ * | DEEPSQUARE_DISK_WORLD_TMP               | node reboot or provider's policy |
  *
  * echo "KEY=value" >> "$DEEPSQUARE_ENV" can be used to share environment variables between steps.
  *
@@ -868,6 +934,14 @@ export type StepUse = {
    * Go name: "Source".
    */
   source: Scalars["String"];
+  /**
+   * Additional children steps to the module.
+   *
+   * If the module allow children steps, these steps will be passed to the module to replace {{ .Step.Run.Steps }}.
+   *
+   * Go name: "Steps".
+   */
+  steps?: InputMaybe<Array<Step>>;
 };
 
 export type TransportData = {
