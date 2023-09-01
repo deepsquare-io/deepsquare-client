@@ -6,40 +6,27 @@ export const ProviderManagerAbi = [
   },
   {
     inputs: [],
+    name: "ArrayLengthMismatch",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Banned",
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "InvalidNCpu",
+    inputs: [],
+    name: "InvalidNodesCount",
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "InvalidNMem",
+    inputs: [],
+    name: "InvalidTotalCpus",
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "current",
-        type: "uint256",
-      },
-    ],
-    name: "InvalidNNodes",
+    inputs: [],
+    name: "InvalidTotalMem",
     type: "error",
   },
   {
@@ -146,6 +133,25 @@ export const ProviderManagerAbi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum ProviderStatus",
+        name: "status",
+        type: "uint8",
+      },
+    ],
+    name: "ProviderStatusChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "bytes32",
         name: "role",
@@ -215,19 +221,6 @@ export const ProviderManagerAbi = [
       },
     ],
     name: "RoleRevoked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "_providerAddr",
-        type: "address",
-      },
-    ],
-    name: "ToBeApproved",
     type: "event",
   },
   {
@@ -447,7 +440,26 @@ export const ProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "getAllTag",
+    name: "getJobCount",
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
+    name: "getLabels",
     outputs: [
       {
         components: [
@@ -478,12 +490,100 @@ export const ProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "getJobCount",
+    name: "getProvider",
     outputs: [
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "address",
+            name: "walletAddr",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "uint64",
+                name: "nodes",
+                type: "uint64",
+              },
+              {
+                internalType: "uint64[]",
+                name: "gpusPerNode",
+                type: "uint64[]",
+              },
+              {
+                internalType: "uint64[]",
+                name: "cpusPerNode",
+                type: "uint64[]",
+              },
+              {
+                internalType: "uint64[]",
+                name: "memPerNode",
+                type: "uint64[]",
+              },
+            ],
+            internalType: "struct ProviderHardware",
+            name: "providerHardware",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "gpuPricePerMin",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "cpuPricePerMin",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "memPricePerMin",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ProviderPrices",
+            name: "providerPrices",
+            type: "tuple",
+          },
+          {
+            internalType: "enum ProviderStatus",
+            name: "status",
+            type: "uint8",
+          },
+          {
+            internalType: "uint64",
+            name: "jobCount",
+            type: "uint64",
+          },
+          {
+            components: [
+              {
+                internalType: "string",
+                name: "key",
+                type: "string",
+              },
+              {
+                internalType: "string",
+                name: "value",
+                type: "string",
+              },
+            ],
+            internalType: "struct Label[]",
+            name: "labels",
+            type: "tuple[]",
+          },
+          {
+            internalType: "bool",
+            name: "linkListed",
+            type: "bool",
+          },
+        ],
+        internalType: "struct Provider",
         name: "",
-        type: "uint64",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -507,19 +607,19 @@ export const ProviderManagerAbi = [
             type: "uint64",
           },
           {
-            internalType: "uint64",
-            name: "gpus",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "gpusPerNode",
+            type: "uint64[]",
           },
           {
-            internalType: "uint64",
-            name: "cpus",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "cpusPerNode",
+            type: "uint64[]",
           },
           {
-            internalType: "uint64",
-            name: "mem",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "memPerNode",
+            type: "uint64[]",
           },
         ],
         internalType: "struct ProviderHardware",
@@ -588,25 +688,6 @@ export const ProviderManagerAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_providerAddr",
-        type: "address",
-      },
-    ],
-    name: "getProviderWalletAddr",
-    outputs: [
-      {
-        internalType: "address",
-        name: "_walletAddr",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -618,30 +699,6 @@ export const ProviderManagerAbi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_providerAddr",
-        type: "address",
-      },
-      {
-        internalType: "string",
-        name: "tagKey",
-        type: "string",
-      },
-    ],
-    name: "getTag",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
       },
     ],
     stateMutability: "view",
@@ -853,19 +910,19 @@ export const ProviderManagerAbi = [
             type: "uint64",
           },
           {
-            internalType: "uint64",
-            name: "gpus",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "gpusPerNode",
+            type: "uint64[]",
           },
           {
-            internalType: "uint64",
-            name: "cpus",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "cpusPerNode",
+            type: "uint64[]",
           },
           {
-            internalType: "uint64",
-            name: "mem",
-            type: "uint64",
+            internalType: "uint64[]",
+            name: "memPerNode",
+            type: "uint64[]",
           },
         ],
         internalType: "struct ProviderHardware",
@@ -906,11 +963,6 @@ export const ProviderManagerAbi = [
       },
       {
         internalType: "bool",
-        name: "valid",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
         name: "linkListed",
         type: "bool",
       },
@@ -921,39 +973,53 @@ export const ProviderManagerAbi = [
   {
     inputs: [
       {
-        internalType: "uint64",
-        name: "_nNodes",
-        type: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "nodes",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64[]",
+            name: "gpusPerNode",
+            type: "uint64[]",
+          },
+          {
+            internalType: "uint64[]",
+            name: "cpusPerNode",
+            type: "uint64[]",
+          },
+          {
+            internalType: "uint64[]",
+            name: "memPerNode",
+            type: "uint64[]",
+          },
+        ],
+        internalType: "struct ProviderHardware",
+        name: "_hardware",
+        type: "tuple",
       },
       {
-        internalType: "uint64",
-        name: "_gpus",
-        type: "uint64",
-      },
-      {
-        internalType: "uint64",
-        name: "_cpus",
-        type: "uint64",
-      },
-      {
-        internalType: "uint64",
-        name: "_mem",
-        type: "uint64",
-      },
-      {
-        internalType: "uint256",
-        name: "_gpuPricePerMin",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_cpuPricePerMin",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_memPricePerMin",
-        type: "uint256",
+        components: [
+          {
+            internalType: "uint256",
+            name: "gpuPricePerMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "cpuPricePerMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "memPricePerMin",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct ProviderPrices",
+        name: "_prices",
+        type: "tuple",
       },
       {
         components: [
@@ -969,7 +1035,7 @@ export const ProviderManagerAbi = [
           },
         ],
         internalType: "struct Label[]",
-        name: "_tags",
+        name: "_labels",
         type: "tuple[]",
       },
     ],
@@ -986,39 +1052,53 @@ export const ProviderManagerAbi = [
         type: "address",
       },
       {
-        internalType: "uint64",
-        name: "_nNodes",
-        type: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "nodes",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64[]",
+            name: "gpusPerNode",
+            type: "uint64[]",
+          },
+          {
+            internalType: "uint64[]",
+            name: "cpusPerNode",
+            type: "uint64[]",
+          },
+          {
+            internalType: "uint64[]",
+            name: "memPerNode",
+            type: "uint64[]",
+          },
+        ],
+        internalType: "struct ProviderHardware",
+        name: "_hardware",
+        type: "tuple",
       },
       {
-        internalType: "uint64",
-        name: "_gpus",
-        type: "uint64",
-      },
-      {
-        internalType: "uint64",
-        name: "_cpus",
-        type: "uint64",
-      },
-      {
-        internalType: "uint64",
-        name: "_mem",
-        type: "uint64",
-      },
-      {
-        internalType: "uint256",
-        name: "_gpuPricePerMin",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_cpuPricePerMin",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_memPricePerMin",
-        type: "uint256",
+        components: [
+          {
+            internalType: "uint256",
+            name: "gpuPricePerMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "cpuPricePerMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "memPricePerMin",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct ProviderPrices",
+        name: "_prices",
+        type: "tuple",
       },
       {
         components: [
@@ -1034,7 +1114,7 @@ export const ProviderManagerAbi = [
           },
         ],
         internalType: "struct Label[]",
-        name: "_tags",
+        name: "_labels",
         type: "tuple[]",
       },
     ],
@@ -1145,19 +1225,6 @@ export const ProviderManagerAbi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "totalJobCount",
-    outputs: [
-      {
-        internalType: "uint64",
-        name: "",
-        type: "uint64",
       },
     ],
     stateMutability: "view",
