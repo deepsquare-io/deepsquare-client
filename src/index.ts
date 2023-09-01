@@ -73,7 +73,7 @@ export default class DeepSquareClient {
     privateKey: Hex | undefined = undefined,
     wallet: WalletClient | undefined = undefined,
     metaschedulerAddr: Hex = "0x3707aB457CF457275b7ec32e203c54df80C299d5",
-    sbatchServiceEndpoint: string = "https://sbatch.deepsquare.run/graphql",
+    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),
       chain: deepSquareChain,

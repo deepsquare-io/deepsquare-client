@@ -1,4 +1,4 @@
 import type { ReadContractReturnType } from "viem";
-import { JobRepositoryAbi } from "../abis/JobRepository";
+import type { JobRepositoryAbi } from "../abis/JobRepository";
 
 export type Job = ReadContractReturnType<typeof JobRepositoryAbi, "get">;

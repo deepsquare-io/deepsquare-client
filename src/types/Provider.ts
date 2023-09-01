@@ -1,5 +1,5 @@
-import { ReadContractReturnType } from "viem";
-import { IProviderManagerAbi } from "../abis/IProviderManager";
+import type { ReadContractReturnType } from "viem";
+import type { IProviderManagerAbi } from "../abis/IProviderManager";
 
 export type Provider = ReadContractReturnType<
   typeof IProviderManagerAbi,
