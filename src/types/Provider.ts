@@ -1,14 +1,7 @@
-import type { Hex } from "viem";
-import type { ProviderHardware } from "./ProviderHardware";
-import type { ProviderPrices } from "./ProviderPrices";
-import type { ProviderStatus } from "./enums/ProviderStatus";
+import type { ReadContractReturnType } from "viem";
+import type { IProviderManagerAbi } from "../abis/IProviderManager";
 
-export type Provider = {
-  addr: Hex;
-  providerHardware: ProviderHardware;
-  providerPrices: ProviderPrices;
-  status: ProviderStatus;
-  jobCount: bigint;
-  valid: boolean;
-  linkListed: boolean;
-};
+export type Provider = ReadContractReturnType<
+  typeof IProviderManagerAbi,
+  "getProvider"
+>;

@@ -14,11 +14,11 @@ import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.clie
 import { GRPCService } from "./grpc/service";
 import type { JobSummary } from "./types/JobSummary";
 import type { Label } from "./types/Label";
-import type { Provider } from "./types/Provider";
 import { JobStatus } from "./types/enums/JobStatus";
 import { computeCost } from "./utils/computeCost";
 import { computeCostPerMin } from "./utils/computeCostPerMin";
 import { isJobTerminated } from "./utils/isJobTerminated";
+import { JobRepositoryAbi } from "./abis/JobRepository";
 
 export const deepSquareChain = {
   id: 179188,
@@ -56,6 +56,7 @@ export default class DeepSquareClient {
   private readonly metaSchedulerAddr: Hex;
   private creditAddr?: Hex;
   private providerManagerAddr?: Hex;
+  private jobRepositoryAddr?: Hex;
   private readonly sbatchServiceClient: GraphQLClient;
   private loggerClientFactory: () => ILoggerAPIClient;
 
@@ -71,7 +72,7 @@ export default class DeepSquareClient {
   constructor(
     privateKey: Hex | undefined = undefined,
     wallet: WalletClient | undefined = undefined,
-    metaschedulerAddr: Hex = "0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0",
+    metaschedulerAddr: Hex = "0x3707aB457CF457275b7ec32e203c54df80C299d5",
     sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
     publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),
@@ -116,6 +117,19 @@ export default class DeepSquareClient {
         address: this.metaSchedulerAddr,
         abi: MetaSchedulerAbi,
         functionName: "providerManager",
+      });
+    }
+  }
+
+  /**
+   * Lazy load job repository contract address
+   */
+  async shouldLoadJobRepository() {
+    if (!this.jobRepositoryAddr) {
+      this.jobRepositoryAddr = await this.publicClient.readContract({
+        address: this.metaSchedulerAddr,
+        abi: MetaSchedulerAbi,
+        functionName: "jobs",
       });
     }
   }
@@ -186,8 +200,8 @@ export default class DeepSquareClient {
         args: [
           {
             ntasks: BigInt(job.resources.tasks),
-            gpuPerTask: BigInt(job.resources.gpusPerTask),
-            cpuPerTask: BigInt(job.resources.cpusPerTask),
+            gpusPerTask: BigInt(job.resources.gpusPerTask),
+            cpusPerTask: BigInt(job.resources.cpusPerTask),
             memPerCpu: BigInt(job.resources.memPerCpu),
             storageType: job.output
               ? job.output.s3
@@ -200,6 +214,7 @@ export default class DeepSquareClient {
               : 4,
             batchLocationHash: hash.submit,
             uses: uses,
+            affinity: [],
           },
           maxAmount,
           toHex(jobName, { size: 32 }),
@@ -221,10 +236,12 @@ export default class DeepSquareClient {
    * @returns Returns job IDs in hexadecimal.
    */
   async listJob(walletAddress: Hex): Promise<readonly Hex[]> {
+    await this.shouldLoadJobRepository();
+
     return this.publicClient.readContract({
-      address: this.metaSchedulerAddr,
-      abi: MetaSchedulerAbi,
-      functionName: "getJobs",
+      address: this.jobRepositoryAddr!,
+      abi: JobRepositoryAbi,
+      functionName: "getByCustomer",
       args: [walletAddress],
     });
   }
@@ -239,38 +256,21 @@ export default class DeepSquareClient {
    */
   async getJob(jobId: Hex): Promise<JobSummary> {
     await this.shouldLoadProviderManager();
+    await this.shouldLoadJobRepository();
 
     const job = await this.publicClient.readContract({
-      address: this.metaSchedulerAddr,
-      abi: MetaSchedulerAbi,
-      functionName: "getJob",
+      address: this.jobRepositoryAddr!,
+      abi: JobRepositoryAbi,
+      functionName: "get",
       args: [jobId],
     });
 
-    let provider: Provider | undefined = undefined;
-
-    try {
-      const rawProvider = await this.publicClient.readContract({
-        address: this.providerManagerAddr!,
-        abi: ProviderManagerAbi,
-        functionName: "providers",
-        args: [job.providerAddr],
-      });
-
-      provider = {
-        addr: rawProvider[0],
-        providerHardware: rawProvider[1],
-        providerPrices: rawProvider[2],
-        status: rawProvider[3],
-        jobCount: rawProvider[4],
-        valid: rawProvider[5],
-        linkListed: rawProvider[6],
-      };
-    } catch (e) {
-      console.error(e);
-    }
-
-    provider?.status;
+    const provider = await this.publicClient.readContract({
+      address: this.providerManagerAddr!,
+      abi: ProviderManagerAbi,
+      functionName: "getProvider",
+      args: [job.providerAddr],
+    });
 
     return { ...job, provider };
   }

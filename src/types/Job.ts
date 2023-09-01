@@ -1,4 +1,4 @@
 import type { ReadContractReturnType } from "viem";
-import type { MetaSchedulerAbi } from "../abis/MetaScheduler";
+import type { JobRepositoryAbi } from "../abis/JobRepository";
 
-export type Job = ReadContractReturnType<typeof MetaSchedulerAbi, "getJob">;
+export type Job = ReadContractReturnType<typeof JobRepositoryAbi, "get">;
