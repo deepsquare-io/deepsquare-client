@@ -315,6 +315,103 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
+    name: "getWaitingForApprovalProvider",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "addr",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "uint64",
+                name: "nodes",
+                type: "uint64",
+              },
+              {
+                internalType: "uint64[]",
+                name: "gpusPerNode",
+                type: "uint64[]",
+              },
+              {
+                internalType: "uint64[]",
+                name: "cpusPerNode",
+                type: "uint64[]",
+              },
+              {
+                internalType: "uint64[]",
+                name: "memPerNode",
+                type: "uint64[]",
+              },
+            ],
+            internalType: "struct ProviderHardware",
+            name: "providerHardware",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "gpuPricePerMin",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "cpuPricePerMin",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "memPricePerMin",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ProviderPrices",
+            name: "providerPrices",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "string",
+                name: "key",
+                type: "string",
+              },
+              {
+                internalType: "string",
+                name: "value",
+                type: "string",
+              },
+            ],
+            internalType: "struct Label[]",
+            name: "labels",
+            type: "tuple[]",
+          },
+          {
+            internalType: "bool",
+            name: "isBanned",
+            type: "bool",
+          },
+        ],
+        internalType: "struct Provider",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_providerAddr",
+        type: "address",
+      },
+    ],
     name: "incJobCount",
     outputs: [],
     stateMutability: "nonpayable",
