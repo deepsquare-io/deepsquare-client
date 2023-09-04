@@ -82,32 +82,6 @@ export const DoubleLinkedListAbi = [
     type: "event",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_data",
-        type: "bytes32",
-      },
-    ],
-    name: "addHead",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_data",
-        type: "bytes32",
-      },
-    ],
-    name: "addTail",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "elementCount",
     outputs: [
@@ -242,42 +216,6 @@ export const DoubleLinkedListAbi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_prevId",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_data",
-        type: "bytes32",
-      },
-    ],
-    name: "insertAfter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_nextId",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_data",
-        type: "bytes32",
-      },
-    ],
-    name: "insertBefore",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
         name: "",
         type: "uint256",
       },
@@ -306,19 +244,6 @@ export const DoubleLinkedListAbi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_id",
-        type: "uint256",
-      },
-    ],
-    name: "remove",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
