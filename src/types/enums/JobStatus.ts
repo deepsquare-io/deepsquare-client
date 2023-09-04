@@ -7,4 +7,5 @@ export enum JobStatus {
   FINISHED = 5,
   FAILED = 6,
   OUT_OF_CREDITS = 7,
+  PANICKED = 8,
 }

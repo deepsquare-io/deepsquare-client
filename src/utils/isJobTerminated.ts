@@ -10,6 +10,7 @@ export function isJobTerminated(status: number): boolean {
     status === JobStatus.CANCELLED ||
     status === JobStatus.FAILED ||
     status === JobStatus.FINISHED ||
-    status === JobStatus.OUT_OF_CREDITS
+    status === JobStatus.OUT_OF_CREDITS ||
+    status === JobStatus.PANICKED
   );
 }

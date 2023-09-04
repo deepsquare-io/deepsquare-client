@@ -1,4 +1,6 @@
-import DeepSquareClient from "@deepsquare/deepsquare-client";
+import DeepSquareClient, {
+  isJobTerminated,
+} from "@deepsquare/deepsquare-client";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
 import { Hex, parseEther } from "viem";
@@ -53,12 +55,7 @@ async function main() {
   // Use a separate process for checking job status
   const intervalId = setInterval(async () => {
     const job = await deepSquareClient.getJob(jobId);
-    if (
-      job.status === JobStatus.FINISHED ||
-      job.status === JobStatus.FAILED ||
-      job.status === JobStatus.OUT_OF_CREDITS ||
-      job.status === JobStatus.CANCELLED
-    ) {
+    if (isJobTerminated(job.status)) {
       stopFetch(); // Stop fetching logs when job is done
       clearInterval(intervalId); // Stop status checking when job is done
     }
