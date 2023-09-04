@@ -72,7 +72,8 @@ In general, you will be using the address corresponding to the `main` SDK Versio
 
 | SDK Version         | Meta-scheduler Smart-contract address      |
 |---------------------| ------------------------------------------ |
-| main                | 0x3707aB457CF457275b7ec32e203c54df80C299d5 |
+| main                | 0xeD6Deb4c6E7e5D35c0d0FE3802663142e3E266da |
+| v0.11.X             | 0x3707aB457CF457275b7ec32e203c54df80C299d5 |
 | v0.10.X             | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 | v0.9.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 | v0.8.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
