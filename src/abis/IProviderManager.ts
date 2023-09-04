@@ -5,11 +5,11 @@ export const IProviderManagerAbi = [
       {
         indexed: false,
         internalType: "address",
-        name: "_providerAddr",
+        name: "addr",
         type: "address",
       },
     ],
-    name: "HardwareUpdatedEvent",
+    name: "ProviderApproved",
     type: "event",
   },
   {
@@ -18,17 +18,43 @@ export const IProviderManagerAbi = [
       {
         indexed: false,
         internalType: "address",
-        name: "_providerAddr",
+        name: "addr",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "enum ProviderStatus",
+        internalType: "bool",
         name: "status",
-        type: "uint8",
+        type: "bool",
       },
     ],
-    name: "ProviderStatusChanged",
+    name: "ProviderBanChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+    ],
+    name: "ProviderRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+    ],
+    name: "ProviderWaitingForApproval",
     type: "event",
   },
   {
@@ -121,7 +147,7 @@ export const IProviderManagerAbi = [
         components: [
           {
             internalType: "address",
-            name: "walletAddr",
+            name: "addr",
             type: "address",
           },
           {
@@ -174,16 +200,6 @@ export const IProviderManagerAbi = [
             type: "tuple",
           },
           {
-            internalType: "enum ProviderStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "uint64",
-            name: "jobCount",
-            type: "uint64",
-          },
-          {
             components: [
               {
                 internalType: "string",
@@ -202,7 +218,7 @@ export const IProviderManagerAbi = [
           },
           {
             internalType: "bool",
-            name: "linkListed",
+            name: "isBanned",
             type: "bool",
           },
         ],
@@ -299,15 +315,9 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "getProviderStatus",
-    outputs: [
-      {
-        internalType: "enum ProviderStatus",
-        name: "_status",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "view",
+    name: "incJobCount",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -318,7 +328,7 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "hasJoined",
+    name: "isBanned",
     outputs: [
       {
         internalType: "bool",
@@ -337,9 +347,15 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "incJobCount",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "isValidForScheduling",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -350,9 +366,15 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "kick",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "isWaitingForApproval",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -436,74 +458,8 @@ export const IProviderManagerAbi = [
         name: "_providerAddr",
         type: "address",
       },
-      {
-        components: [
-          {
-            internalType: "uint64",
-            name: "nodes",
-            type: "uint64",
-          },
-          {
-            internalType: "uint64[]",
-            name: "gpusPerNode",
-            type: "uint64[]",
-          },
-          {
-            internalType: "uint64[]",
-            name: "cpusPerNode",
-            type: "uint64[]",
-          },
-          {
-            internalType: "uint64[]",
-            name: "memPerNode",
-            type: "uint64[]",
-          },
-        ],
-        internalType: "struct ProviderHardware",
-        name: "_hardware",
-        type: "tuple",
-      },
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "gpuPricePerMin",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "cpuPricePerMin",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "memPricePerMin",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct ProviderPrices",
-        name: "_prices",
-        type: "tuple",
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "key",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "value",
-            type: "string",
-          },
-        ],
-        internalType: "struct Label[]",
-        name: "_labels",
-        type: "tuple[]",
-      },
     ],
-    name: "registerProvider",
+    name: "remove",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -516,20 +472,7 @@ export const IProviderManagerAbi = [
         type: "address",
       },
     ],
-    name: "reinstate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_providerAddr",
-        type: "address",
-      },
-    ],
-    name: "removeProvider",
+    name: "unban",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
