@@ -23,6 +23,9 @@ importers:
       '@protobuf-ts/runtime-rpc':
         specifier: ^2.9.1
         version: 2.9.1
+      abitype:
+        specifier: ^0.9.8
+        version: 0.9.8(typescript@5.1.3)
       async-lock:
         specifier: ^1.4.0
         version: 1.4.0
@@ -32,6 +35,9 @@ importers:
       graphql-request:
         specifier: ^5.2.0
         version: 5.2.0(graphql@15.8.0)
+      queueable:
+        specifier: ^5.3.1
+        version: 5.3.1
       viem:
         specifier: ^1.1.6
         version: 1.1.6(typescript@5.1.3)
@@ -3130,6 +3136,20 @@ packages:
       typescript: 5.1.3
     dev: false
 
+  /abitype@0.9.8(typescript@5.1.3):
+    resolution: {integrity: sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.19.1
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      typescript: 5.1.3
+    dev: false
+
   /abortcontroller-polyfill@1.7.5:
     resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
     dev: true
@@ -4475,6 +4495,10 @@ packages:
   /fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
     dev: true
+
+  /fast-list@1.0.3:
+    resolution: {integrity: sha512-Lm56Ci3EqefHNdIneRFuzhpPcpVVBz9fgqVmG3UQIxAefJv1mEYsZ1WQLTWqmdqeGEwbI2t6fbZgp9TqTYARuA==}
+    dev: false
 
   /fast-querystring@1.1.2:
     resolution: {integrity: sha512-g6KuKWmFXc0fID8WWH0jit4g0AGBoJhCkJMb1RmbsSEUNvQ+ZC8D6CUZ+GtF8nMzSPXnhiePyyqqipzNNEnHjg==}
@@ -6100,6 +6124,13 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
     dev: true
+
+  /queueable@5.3.1:
+    resolution: {integrity: sha512-rZ7LvbkZN15Ul9ZfT6ZN6kidT6cZQd+/8yljFya6wWvaa2NDF2lYuBPOlFEb55L9gm8+mt2TsRdjtUfxcjMIQg==}
+    engines: {node: '>=18'}
+    dependencies:
+      fast-list: 1.0.3
+    dev: false
 
   /react-error-overlay@6.0.9:
     resolution: {integrity: sha512-nQTTcUu+ATDbrSD1BZHr5kgSD4oF8OFjxun8uAaL8RwPBacGBNPf/yAuVVdx17N8XNzRDMrZ9XcKZHCjPW+9ew==}

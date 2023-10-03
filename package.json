@@ -32,9 +32,11 @@
     "@protobuf-ts/grpcweb-transport": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
+    "abitype": "^0.9.8",
     "async-lock": "^1.4.0",
     "graphql": "^15.8.0",
     "graphql-request": "^5.2.0",
+    "queueable": "^5.3.1",
     "viem": "^1.1.6"
   },
   "devDependencies": {

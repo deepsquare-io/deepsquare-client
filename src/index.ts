@@ -1,7 +1,14 @@
 import AsyncLock from "async-lock";
 import { GraphQLClient } from "graphql-request";
+import { Channel } from "queueable";
 import type { Chain, Hex, PublicClient, WalletClient } from "viem";
-import { createPublicClient, createWalletClient, http, toHex } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  toHex,
+  webSocket,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
 import { JobRepositoryAbi } from "./abis/JobRepository";
@@ -13,8 +20,12 @@ import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
+import type { Approval } from "./types/Approval";
 import type { JobSummary } from "./types/JobSummary";
+import type { JobTransitionEvent } from "./types/JobTransitionEvent";
 import type { Label } from "./types/Label";
+import type { NewJobRequestEvent } from "./types/NewJobRequestEvent";
+import type { Transfer } from "./types/Transfer";
 import { JobStatus } from "./types/enums/JobStatus";
 import { computeCost } from "./utils/computeCost";
 import { computeCostPerMin } from "./utils/computeCostPerMin";
@@ -52,19 +63,15 @@ export { JobStatus, computeCost, computeCostPerMin, isJobTerminated };
 export default class DeepSquareClient {
   private lock = new AsyncLock();
   private readonly wallet?: WalletClient;
-  private readonly publicClient: PublicClient;
-  private readonly metaSchedulerAddr: Hex;
   private creditAddr?: Hex;
   private providerManagerAddr?: Hex;
   private jobRepositoryAddr?: Hex;
-  private readonly sbatchServiceClient: GraphQLClient;
-  private loggerClientFactory: () => ILoggerAPIClient;
 
   /**
    * Creates an instance of DeepSquareClient.
    * @param privateKey {Hex} Web3 wallet private that will be used for credit billing. If empty, fallback to wallet.
    * @param wallet {WalletClient} Wallet Client coming from a wagmi frontend implementation. If empty, package will only be able to fetch public information
-   * @param metaschedulerAddr {string} Address of the metascheduler smart contract.
+   * @param metaSchedulerAddr {string} Address of the metascheduler smart contract.
    * @param sbatchServiceEndpoint {string} Endpoint of the sbatch service.
    * @param publicClient {PublicClient} Public Client for contract reading.
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
@@ -72,15 +79,20 @@ export default class DeepSquareClient {
   constructor(
     privateKey: Hex | undefined = undefined,
     wallet: WalletClient | undefined = undefined,
-    metaschedulerAddr: Hex = "0x196A7EB3E16a8359c30408f4F79622157Ef86d7c",
-    sbatchServiceEndpoint = "https://sbatch.deepsquare.run/graphql",
-    publicClient: PublicClient = createPublicClient({
+    private readonly metaSchedulerAddr: Hex = "0x196A7EB3E16a8359c30408f4F79622157Ef86d7c",
+    private readonly sbatchServiceClient: GraphQLClient = new GraphQLClient(
+      "https://sbatch.deepsquare.run/graphql"
+    ),
+    private readonly publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),
       chain: deepSquareChain,
     }),
-    loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
+    private readonly wsClient: PublicClient = createPublicClient({
+      transport: webSocket("https://testnet.deepsquare.run/ws"),
+      chain: deepSquareChain,
+    }),
+    private readonly loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
   ) {
-    this.publicClient = publicClient;
     if (privateKey) {
       this.wallet = createWalletClient({
         account: privateKeyToAccount(privateKey),
@@ -90,9 +102,6 @@ export default class DeepSquareClient {
     } else {
       this.wallet = wallet;
     }
-    this.sbatchServiceClient = new GraphQLClient(sbatchServiceEndpoint);
-    this.loggerClientFactory = loggerClientFactory;
-    this.metaSchedulerAddr = metaschedulerAddr;
   }
 
   /**
@@ -194,31 +203,20 @@ export default class DeepSquareClient {
   /**
    * This method fetches the balance of the client's account.
    * The credits act as the payment medium for the computational resources used.
-   *
-   * @returns {bigint} The amount of credits of the client.
-   *
+   * @param address The address of the account. If undefined, will use the address of the client.
+   * @returns  {bigint} The amount of credits of the client.
    * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
    */
-  async getBalance(): Promise<bigint> {
-    if (!this.wallet) {
-      throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
-      );
+  async getBalance(address?: Hex): Promise<bigint> {
+    if (!address) {
+      if (!this.wallet) {
+        throw new Error(
+          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
+        );
+      }
+      address = this.wallet.account!.address;
     }
 
-    return this.getBalanceOf(this.wallet.account!.address);
-  }
-
-  /**
-   * This method fetches the balance of one account.
-   * The credits act as the payment medium for the computational resources used.
-   *
-   * @param {Hex} address The address of the user's balance.
-   * @returns {bigint} The amount of credits of one account.
-   *
-   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
-   */
-  async getBalanceOf(address: Hex): Promise<bigint> {
     await this.shouldLoadCredit();
 
     return this.publicClient.readContract({
@@ -323,7 +321,16 @@ export default class DeepSquareClient {
    *
    * @returns Returns job IDs in hexadecimal.
    */
-  async listJob(walletAddress: Hex): Promise<readonly Hex[]> {
+  async listJob(walletAddress?: Hex): Promise<readonly Hex[]> {
+    if (!walletAddress) {
+      if (!this.wallet) {
+        throw new Error(
+          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
+        );
+      }
+      walletAddress = this.wallet.account!.address;
+    }
+
     await this.shouldLoadJobRepository();
 
     return this.publicClient.readContract({
@@ -364,25 +371,12 @@ export default class DeepSquareClient {
   }
 
   /**
-   * Fetches the list of jobs of the user.
+   * Fetches a lazy list of jobs of one user.
    */
-  async *getJobs(): AsyncGenerator<JobSummary> {
-    if (!this.wallet) {
-      throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
-      );
-    }
+  async *getJobs(walletAddress?: Hex): AsyncIterable<JobSummary> {
+    const jobIds = await this.listJob(walletAddress);
 
-    await this.shouldLoadJobRepository();
-
-    const jobs = await this.publicClient.readContract({
-      address: this.jobRepositoryAddr!,
-      abi: JobRepositoryAbi,
-      functionName: "getByCustomer",
-      args: [this.wallet.account!.address],
-    });
-
-    for (const jobId of jobs) {
+    for (const jobId of jobIds) {
       yield await this.getJob(jobId);
     }
   }
@@ -475,7 +469,7 @@ export default class DeepSquareClient {
       fetchLogs: async () => {
         if (!this.wallet || !this.wallet.account) {
           throw new Error(
-            "Client has been instanced without wallet client and is therefore unable to execute write operations"
+            "Client has been instanced without wallet client and is therefore unable to execute signing operations"
           );
         }
 
@@ -491,5 +485,221 @@ export default class DeepSquareClient {
         );
       },
     };
+  }
+
+  /**
+   * Fetches live JobTransitionEvents.
+   *
+   * It is important to invoke the function to close the stream once you're done using it.
+   *
+   * @returns Returns a async iterable of JobTransitionEvents with it closer function.
+   */
+  watchJobTransitions(): [AsyncIterable<JobTransitionEvent>, () => void] {
+    const channel = new Channel<JobTransitionEvent>();
+
+    const unwatch = this.wsClient.watchContractEvent({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      eventName: "JobTransitionEvent",
+      onLogs: async (logs) => {
+        for (const e of logs) {
+          try {
+            await channel.push(e);
+          } catch (e) {
+            // Ignore channel push errors.
+          }
+        }
+      },
+    });
+
+    const close = () => {
+      unwatch();
+      channel.close();
+    };
+
+    return [channel, close];
+  }
+
+  /**
+   * Fetches live NewJobRequestEvents.
+   *
+   * It is important to invoke the function to close the stream once you're done using it.
+   *
+   * @returns Returns a async iterable of NewJobRequestEvents with it closer function.
+   */
+  watchNewJobRequest(): [AsyncIterable<NewJobRequestEvent>, () => void] {
+    const channel = new Channel<NewJobRequestEvent>();
+
+    const unwatch = this.wsClient.watchContractEvent({
+      address: this.metaSchedulerAddr,
+      abi: MetaSchedulerAbi,
+      eventName: "NewJobRequestEvent",
+      onLogs: async (logs) => {
+        for (const e of logs) {
+          try {
+            await channel.push(e);
+          } catch (e) {
+            // Ignore channel push errors.
+          }
+        }
+      },
+    });
+
+    const close = () => {
+      unwatch();
+      channel.close();
+    };
+
+    return [channel, close];
+  }
+
+  /**
+   * Fetches live Transfer events.
+   *
+   * It is important to invoke the function to close the stream once you're done using it.
+   *
+   * @returns Returns a async iterable of Transfer with it closer function.
+   */
+  watchTransfer(): [AsyncIterable<Transfer>, () => void] {
+    const channel = new Channel<Transfer>();
+
+    const unwatch = this.wsClient.watchContractEvent({
+      address: this.creditAddr,
+      abi: CreditAbi,
+      eventName: "Transfer",
+      onLogs: async (logs) => {
+        for (const e of logs) {
+          try {
+            await channel.push(e);
+          } catch (e) {
+            // Ignore channel push errors.
+          }
+        }
+      },
+    });
+
+    const close = () => {
+      unwatch();
+      channel.close();
+    };
+
+    return [channel, close];
+  }
+
+  /**
+   * Fetches live Approval events.
+   *
+   * It is important to invoke the function to close the stream once you're done using it.
+   *
+   * @returns Returns a async iterable of Approval with it closer function.
+   */
+  watchApproval(): [AsyncIterable<Approval>, () => void] {
+    const channel = new Channel<Approval>();
+
+    const unwatch = this.wsClient.watchContractEvent({
+      address: this.creditAddr,
+      abi: CreditAbi,
+      eventName: "Approval",
+      onLogs: async (logs) => {
+        for (const e of logs) {
+          try {
+            await channel.push(e);
+          } catch (e) {
+            // Ignore channel push errors.
+          }
+        }
+      },
+    });
+
+    const close = () => {
+      unwatch();
+      channel.close();
+    };
+
+    return [channel, close];
+  }
+
+  /**
+   * Fetches live balance.
+   *
+   * It is initialized with the current balance.
+   *
+   * @returns Returns a async iterable of balance with it closer function.
+   */
+  async watchBalance(): Promise<[AsyncIterable<bigint>, () => void]> {
+    const channel = new Channel<bigint>();
+
+    let balance: bigint;
+    try {
+      balance = await this.getBalance();
+      await channel.push(balance);
+    } finally {
+      channel.close();
+    }
+
+    const [events, closeTransfers] = this.watchTransfer();
+
+    void (async () => {
+      for await (const e of events) {
+        try {
+          if (this.wallet?.account?.address === e.args.from) {
+            balance -= e.args.value!;
+          } else if (this.wallet?.account?.address === e.args.to) {
+            balance += e.args.value!;
+          }
+          await channel.push(balance);
+        } catch (e) {
+          // Ignore channel push errors.
+        }
+      }
+    })();
+
+    const close = () => {
+      closeTransfers();
+      channel.close();
+    };
+
+    return [channel, close];
+  }
+
+  /**
+   * Fetches live allowance.
+   *
+   * It is initialized with the current allowance.
+   *
+   * @returns Returns a async iterable of allowance with it closer function.
+   */
+  async watchAllowance(): Promise<[AsyncIterable<bigint>, () => void]> {
+    const channel = new Channel<bigint>();
+
+    let allowance: bigint;
+    try {
+      allowance = await this.getAllowance();
+      await channel.push(allowance);
+    } finally {
+      channel.close();
+    }
+
+    const [events, closeApprovals] = this.watchApproval();
+
+    void (async () => {
+      for await (const e of events) {
+        try {
+          if (this.wallet?.account?.address === e.args.owner) {
+            allowance = e.args.value!;
+          }
+          await channel.push(allowance);
+        } catch (e) {
+          // Ignore channel push errors.
+        }
+      }
+    })();
+
+    const close = () => {
+      closeApprovals();
+      channel.close();
+    };
+
+    return [channel, close];
   }
 }
