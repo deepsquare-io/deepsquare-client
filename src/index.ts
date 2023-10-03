@@ -492,7 +492,7 @@ export default class DeepSquareClient {
    *
    * It is important to invoke the function to close the stream once you're done using it.
    *
-   * @returns Returns a async iterable of JobTransitionEvents with it closer function.
+   * @returns Returns a async iterable of JobTransitionEvents with its close function.
    */
   watchJobTransitions(): [AsyncIterable<JobTransitionEvent>, () => void] {
     const channel = new Channel<JobTransitionEvent>();
@@ -525,7 +525,7 @@ export default class DeepSquareClient {
    *
    * It is important to invoke the function to close the stream once you're done using it.
    *
-   * @returns Returns a async iterable of NewJobRequestEvents with it closer function.
+   * @returns Returns a async iterable of NewJobRequestEvents with its close function.
    */
   watchNewJobRequest(): [AsyncIterable<NewJobRequestEvent>, () => void] {
     const channel = new Channel<NewJobRequestEvent>();
@@ -558,7 +558,7 @@ export default class DeepSquareClient {
    *
    * It is important to invoke the function to close the stream once you're done using it.
    *
-   * @returns Returns a async iterable of Transfer with it closer function.
+   * @returns Returns a async iterable of Transfer with its close function.
    */
   watchTransfer(): [AsyncIterable<Transfer>, () => void] {
     const channel = new Channel<Transfer>();
@@ -591,7 +591,7 @@ export default class DeepSquareClient {
    *
    * It is important to invoke the function to close the stream once you're done using it.
    *
-   * @returns Returns a async iterable of Approval with it closer function.
+   * @returns Returns a async iterable of Approval with its close function.
    */
   watchApproval(): [AsyncIterable<Approval>, () => void] {
     const channel = new Channel<Approval>();
@@ -624,7 +624,7 @@ export default class DeepSquareClient {
    *
    * It is initialized with the current balance.
    *
-   * @returns Returns a async iterable of balance with it closer function.
+   * @returns Returns a async iterable of balance with its close function.
    */
   async watchBalance(): Promise<[AsyncIterable<bigint>, () => void]> {
     const channel = new Channel<bigint>();
@@ -667,7 +667,7 @@ export default class DeepSquareClient {
    *
    * It is initialized with the current allowance.
    *
-   * @returns Returns a async iterable of allowance with it closer function.
+   * @returns Returns a async iterable of allowance with its close function.
    */
   async watchAllowance(): Promise<[AsyncIterable<bigint>, () => void]> {
     const channel = new Channel<bigint>();
