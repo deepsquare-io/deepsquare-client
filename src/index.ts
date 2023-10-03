@@ -4,6 +4,7 @@ import type { Chain, Hex, PublicClient, WalletClient } from "viem";
 import { createPublicClient, createWalletClient, http, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CreditAbi } from "./abis/Credit";
+import { JobRepositoryAbi } from "./abis/JobRepository";
 import { MetaSchedulerAbi } from "./abis/MetaScheduler";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
@@ -18,7 +19,6 @@ import { JobStatus } from "./types/enums/JobStatus";
 import { computeCost } from "./utils/computeCost";
 import { computeCostPerMin } from "./utils/computeCostPerMin";
 import { isJobTerminated } from "./utils/isJobTerminated";
-import { JobRepositoryAbi } from "./abis/JobRepository";
 
 export const deepSquareChain = {
   id: 179188,
@@ -166,11 +166,99 @@ export default class DeepSquareClient {
   }
 
   /**
+   * This method fetches the amount of credits allowed to be used by the DeepSquare Grid from the client's
+   * account for running jobs. The credits act as the payment medium for the computational resources used.
+   *
+   * @returns {bigint} The amount of credits the client approved to be used for job executions.
+   *
+   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
+   */
+  async getAllowance(): Promise<bigint> {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
+      );
+    }
+
+    await this.shouldLoadCredit();
+
+    return this.publicClient.readContract({
+      address: this.creditAddr!,
+      abi: CreditAbi,
+      account: this.wallet.account,
+      functionName: "allowance",
+      args: [this.wallet.account!.address, this.metaSchedulerAddr],
+    });
+  }
+
+  /**
+   * This method fetches the balance of the client's account.
+   * The credits act as the payment medium for the computational resources used.
+   *
+   * @returns {bigint} The amount of credits of the client.
+   *
+   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
+   */
+  async getBalance(): Promise<bigint> {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
+      );
+    }
+
+    return this.getBalanceOf(this.wallet.account!.address);
+  }
+
+  /**
+   * This method fetches the balance of one account.
+   * The credits act as the payment medium for the computational resources used.
+   *
+   * @param {Hex} address The address of the user's balance.
+   * @returns {bigint} The amount of credits of one account.
+   *
+   * Note: Be aware that the amount is in the smallest unit of the currency, like wei for Ethereum.
+   */
+  async getBalanceOf(address: Hex): Promise<bigint> {
+    await this.shouldLoadCredit();
+
+    return this.publicClient.readContract({
+      address: this.creditAddr!,
+      abi: CreditAbi,
+      functionName: "balanceOf",
+      args: [address],
+    });
+  }
+
+  /**
+   * Tranfer credits from the user's account to another.
+   *
+   * @param {Hex} to The recipient address.
+   * @param {bigint} amount The amount of credits in wei. (1 credits = 1e18 wei)
+   */
+  async transferCredits(to: Hex, amount: bigint) {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
+      );
+    }
+
+    const { request } = await this.publicClient.simulateContract({
+      address: this.creditAddr!,
+      abi: CreditAbi,
+      account: this.wallet.account,
+      functionName: "transfer",
+      args: [to, amount],
+    });
+
+    await this.wallet.writeContract(request);
+  }
+
+  /**
    * Submit a job to the DeepSquare Grid
    * @param {GQLJob} job The job object containing details like storage, environment variables, resources and computing steps.
    * @param {string} jobName The name of the job. It must be a maximum of 32 characters long.
-   * @param {number} maxAmount The maximum cost that can be incurred for the execution of the job. Default is 1000.
-   * @param {Label} uses Optional labels used for example to select providers or to pass arbitrary data to the job.
+   * @param {bigint} maxAmount The maximum cost that can be incurred for the execution of the job. Default is 1000.
+   * @param {Label[]} uses Optional labels used for example to select providers or to pass arbitrary data to the job.
    * @returns {Hex} The id of the job on the Grid
    */
   async submitJob(
@@ -276,6 +364,30 @@ export default class DeepSquareClient {
   }
 
   /**
+   * Fetches the list of jobs of the user.
+   */
+  async *getJobs(): AsyncGenerator<JobSummary> {
+    if (!this.wallet) {
+      throw new Error(
+        "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
+      );
+    }
+
+    await this.shouldLoadJobRepository();
+
+    const jobs = await this.publicClient.readContract({
+      address: this.jobRepositoryAddr!,
+      abi: JobRepositoryAbi,
+      functionName: "getByCustomer",
+      args: [this.wallet.account!.address],
+    });
+
+    for (const jobId of jobs) {
+      yield await this.getJob(jobId);
+    }
+  }
+
+  /**
    * Add additional credits to a running job. This can be helpful when a job is close to consuming its maximum allocated credits.
    *
    * @param jobId - The ID of the job to which credits are being added.
@@ -302,7 +414,7 @@ export default class DeepSquareClient {
 
   /**
    *  Cancel a job by id
-   * @param jobId {Hex} The job id to cancel.
+   * @param {Hex} jobId The job id to cancel.
    * @return {Hex} The hash of the cancel transaction.
    */
   async cancel(jobId: Hex) {
@@ -328,12 +440,12 @@ export default class DeepSquareClient {
    *
    * @param jobId - The ID of the job for which one need the logs.
    *
-   * @returns The hash .
+   * @returns The hash of the job.
    */
   async getJobHash(jobId: string): Promise<{ hash: Hex; timestamp: number }> {
     if (!this.wallet || !this.wallet.account) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+        "Client has been instanced without wallet client and is therefore unable to execute signing operations"
       );
     }
     const timestamp = Date.now();
