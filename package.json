@@ -28,9 +28,10 @@
   "license": "ISC",
   "dependencies": {
     "@grpc/grpc-js": "^1.8.16",
-    "@protobuf-ts/grpc-transport": "^2.9.0",
-    "@protobuf-ts/runtime": "^2.9.0",
-    "@protobuf-ts/runtime-rpc": "^2.9.0",
+    "@protobuf-ts/grpc-transport": "^2.9.1",
+    "@protobuf-ts/grpcweb-transport": "^2.9.1",
+    "@protobuf-ts/runtime": "^2.9.1",
+    "@protobuf-ts/runtime-rpc": "^2.9.1",
     "async-lock": "^1.4.0",
     "graphql": "^15.8.0",
     "graphql-request": "^5.2.0",

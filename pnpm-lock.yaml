@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -12,14 +12,17 @@ importers:
         specifier: ^1.8.16
         version: 1.8.16
       '@protobuf-ts/grpc-transport':
-        specifier: ^2.9.0
-        version: 2.9.0(@grpc/grpc-js@1.8.16)
+        specifier: ^2.9.1
+        version: 2.9.1(@grpc/grpc-js@1.8.16)
+      '@protobuf-ts/grpcweb-transport':
+        specifier: ^2.9.1
+        version: 2.9.1
       '@protobuf-ts/runtime':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       '@protobuf-ts/runtime-rpc':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       async-lock:
         specifier: ^1.4.0
         version: 1.4.0
@@ -2646,24 +2649,31 @@ packages:
       webcrypto-core: 1.7.7
     dev: true
 
-  /@protobuf-ts/grpc-transport@2.9.0(@grpc/grpc-js@1.8.16):
-    resolution: {integrity: sha512-LiPZ95G9BPVgxO6tJIXjaX3hxtTPrvzi7h4ZU9ce+3Wd9/nzYkawTMtZ6CpLZCSpsk4KlFuDfNmyfJLWefSdKw==}
+  /@protobuf-ts/grpc-transport@2.9.1(@grpc/grpc-js@1.8.16):
+    resolution: {integrity: sha512-p3o69oQUqMX1dG0QcBsnK7/2h0ReEIfJRbZykMCumTn2uAc9znTfh74xB8aH8I5Q+sWphucG8mPytJ/QIW9WSA==}
     peerDependencies:
       '@grpc/grpc-js': ^1.6.0
     dependencies:
       '@grpc/grpc-js': 1.8.16
-      '@protobuf-ts/runtime': 2.9.0
-      '@protobuf-ts/runtime-rpc': 2.9.0
+      '@protobuf-ts/runtime': 2.9.1
+      '@protobuf-ts/runtime-rpc': 2.9.1
     dev: false
 
-  /@protobuf-ts/runtime-rpc@2.9.0:
-    resolution: {integrity: sha512-h2S86+u2cNJACjzbBubbjKmNrnXkTmJ9yJHW4t7ZVS9xdV1C68blsVIh3Su4ghR8Nlj0459FuIUTsjWR8hA/7g==}
+  /@protobuf-ts/grpcweb-transport@2.9.1:
+    resolution: {integrity: sha512-42bvBX312qhPlosMNTZE9XI+lt58ISM5vEJKv/wOx2Fu70J0TdlLa4Bjz8xcuRlv4Pq1CA+94DC1IgNxNRsQdg==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.0
+      '@protobuf-ts/runtime': 2.9.1
+      '@protobuf-ts/runtime-rpc': 2.9.1
     dev: false
 
-  /@protobuf-ts/runtime@2.9.0:
-    resolution: {integrity: sha512-DnJtLZFMglADv9jiawBmg0RaET4a6fNSAaAHuU6Ovw2ZhJ23ehIY0NrlYLS0Lc8HRH0S5rkLI1QF1A1h8uKUnA==}
+  /@protobuf-ts/runtime-rpc@2.9.1:
+    resolution: {integrity: sha512-pzO20J6s07LTWcj8hKAXh/dAacU5HIVir6SANKXXH8G0pn0VIIB4FFECq5Hbv25/8PQoOGZ7iApq/DMHaSjGhg==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.1
+    dev: false
+
+  /@protobuf-ts/runtime@2.9.1:
+    resolution: {integrity: sha512-ZTc8b+pQ6bwxZa3qg9/IO/M/brRkvr0tic9cSGgAsDByfPrtatT2300wTIRLDk8X9WTW1tT+FhyqmcrbMHTeww==}
     dev: false
 
   /@protobufjs/aspromise@1.1.2:
@@ -5672,6 +5682,7 @@ packages:
   /node-gyp-build-optional-packages@5.0.7:
     resolution: {integrity: sha512-YlCCc6Wffkx0kHkmam79GKvDQ6x+QZkMjFGrIMxgFNILFvGSbCp2fCBC55pGTT9gVaz8Na5CLmxt/urtzRv36w==}
     hasBin: true
+    requiresBuild: true
     dev: true
     optional: true
 
