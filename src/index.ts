@@ -26,7 +26,7 @@ import type { JobTransitionEvent } from "./types/JobTransitionEvent";
 import type { Label } from "./types/Label";
 import type { NewJobRequestEvent } from "./types/NewJobRequestEvent";
 import type { Transfer } from "./types/Transfer";
-import { JobStatus } from "./types/enums/JobStatus";
+import { FormatJobStatus, JobStatus } from "./types/enums/JobStatus";
 import { computeCost } from "./utils/computeCost";
 import { computeCostPerMin } from "./utils/computeCostPerMin";
 import { isJobTerminated } from "./utils/isJobTerminated";
@@ -58,7 +58,13 @@ export const deepSquareChain = {
   },
 } as const satisfies Chain;
 
-export { JobStatus, computeCost, computeCostPerMin, isJobTerminated };
+export {
+  FormatJobStatus,
+  JobStatus,
+  computeCost,
+  computeCostPerMin,
+  isJobTerminated,
+};
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();
@@ -88,7 +94,7 @@ export default class DeepSquareClient {
       chain: deepSquareChain,
     }),
     private readonly wsClient: PublicClient = createPublicClient({
-      transport: webSocket("https://testnet.deepsquare.run/ws"),
+      transport: webSocket("wss://testnet.deepsquare.run/ws"),
       chain: deepSquareChain,
     }),
     private readonly loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
@@ -171,7 +177,10 @@ export default class DeepSquareClient {
       args: [this.metaSchedulerAddr, amount],
     });
 
-    await this.wallet.writeContract(request);
+    const tx = await this.wallet.writeContract(request);
+    await this.publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
   }
 
   /**
@@ -240,6 +249,8 @@ export default class DeepSquareClient {
       );
     }
 
+    await this.shouldLoadCredit();
+
     const { request } = await this.publicClient.simulateContract({
       address: this.creditAddr!,
       abi: CreditAbi,
@@ -248,7 +259,10 @@ export default class DeepSquareClient {
       args: [to, amount],
     });
 
-    await this.wallet.writeContract(request);
+    const tx = await this.wallet.writeContract(request);
+    await this.publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
   }
 
   /**
@@ -403,7 +417,10 @@ export default class DeepSquareClient {
       args: [jobId, amount],
     });
 
-    return await this.wallet.writeContract(request);
+    const tx = await this.wallet.writeContract(request);
+    await this.publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
   }
 
   /**
@@ -426,7 +443,10 @@ export default class DeepSquareClient {
       args: [jobId],
     });
 
-    return await this.wallet.writeContract(request);
+    const tx = await this.wallet.writeContract(request);
+    await this.publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
   }
 
   /**
@@ -501,10 +521,10 @@ export default class DeepSquareClient {
       address: this.metaSchedulerAddr,
       abi: MetaSchedulerAbi,
       eventName: "JobTransitionEvent",
-      onLogs: async (logs) => {
+      onLogs: (logs) => {
         for (const e of logs) {
           try {
-            await channel.push(e);
+            void channel.push(e);
           } catch (e) {
             // Ignore channel push errors.
           }
@@ -534,10 +554,10 @@ export default class DeepSquareClient {
       address: this.metaSchedulerAddr,
       abi: MetaSchedulerAbi,
       eventName: "NewJobRequestEvent",
-      onLogs: async (logs) => {
+      onLogs: (logs) => {
         for (const e of logs) {
           try {
-            await channel.push(e);
+            void channel.push(e);
           } catch (e) {
             // Ignore channel push errors.
           }
@@ -560,17 +580,19 @@ export default class DeepSquareClient {
    *
    * @returns Returns a async iterable of Transfer with its close function.
    */
-  watchTransfer(): [AsyncIterable<Transfer>, () => void] {
+  async watchTransfer(): Promise<[AsyncIterable<Transfer>, () => void]> {
+    await this.shouldLoadCredit();
+
     const channel = new Channel<Transfer>();
 
     const unwatch = this.wsClient.watchContractEvent({
       address: this.creditAddr,
       abi: CreditAbi,
       eventName: "Transfer",
-      onLogs: async (logs) => {
+      onLogs: (logs) => {
         for (const e of logs) {
           try {
-            await channel.push(e);
+            void channel.push(e);
           } catch (e) {
             // Ignore channel push errors.
           }
@@ -593,17 +615,19 @@ export default class DeepSquareClient {
    *
    * @returns Returns a async iterable of Approval with its close function.
    */
-  watchApproval(): [AsyncIterable<Approval>, () => void] {
+  async watchApproval(): Promise<[AsyncIterable<Approval>, () => void]> {
+    await this.shouldLoadCredit();
+
     const channel = new Channel<Approval>();
 
     const unwatch = this.wsClient.watchContractEvent({
       address: this.creditAddr,
       abi: CreditAbi,
       eventName: "Approval",
-      onLogs: async (logs) => {
+      onLogs: (logs) => {
         for (const e of logs) {
           try {
-            await channel.push(e);
+            void channel.push(e);
           } catch (e) {
             // Ignore channel push errors.
           }
@@ -627,17 +651,20 @@ export default class DeepSquareClient {
    * @returns Returns a async iterable of balance with its close function.
    */
   async watchBalance(): Promise<[AsyncIterable<bigint>, () => void]> {
+    await this.shouldLoadCredit();
+
     const channel = new Channel<bigint>();
 
     let balance: bigint;
     try {
       balance = await this.getBalance();
-      await channel.push(balance);
-    } finally {
+      void channel.push(balance);
+    } catch (e) {
       channel.close();
+      throw e;
     }
 
-    const [events, closeTransfers] = this.watchTransfer();
+    const [events, closeTransfers] = await this.watchTransfer();
 
     void (async () => {
       for await (const e of events) {
@@ -647,7 +674,7 @@ export default class DeepSquareClient {
           } else if (this.wallet?.account?.address === e.args.to) {
             balance += e.args.value!;
           }
-          await channel.push(balance);
+          void channel.push(balance);
         } catch (e) {
           // Ignore channel push errors.
         }
@@ -670,17 +697,20 @@ export default class DeepSquareClient {
    * @returns Returns a async iterable of allowance with its close function.
    */
   async watchAllowance(): Promise<[AsyncIterable<bigint>, () => void]> {
+    await this.shouldLoadCredit();
+
     const channel = new Channel<bigint>();
 
     let allowance: bigint;
     try {
       allowance = await this.getAllowance();
-      await channel.push(allowance);
-    } finally {
+      void channel.push(allowance);
+    } catch (e) {
       channel.close();
+      throw e;
     }
 
-    const [events, closeApprovals] = this.watchApproval();
+    const [events, closeApprovals] = await this.watchApproval();
 
     void (async () => {
       for await (const e of events) {
@@ -688,7 +718,7 @@ export default class DeepSquareClient {
           if (this.wallet?.account?.address === e.args.owner) {
             allowance = e.args.value!;
           }
-          await channel.push(allowance);
+          void channel.push(allowance);
         } catch (e) {
           // Ignore channel push errors.
         }

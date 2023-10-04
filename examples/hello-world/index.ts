@@ -1,10 +1,11 @@
 import DeepSquareClient, {
+  FormatJobStatus,
   isJobTerminated,
 } from "@deepsquare/deepsquare-client";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
 import { Hex, parseEther } from "viem";
-import { JobStatus } from "../../src/types/enums/JobStatus";
+
 dotenv.config();
 
 async function main() {
@@ -53,13 +54,19 @@ async function main() {
   const decoder = new TextDecoder();
 
   // Use a separate process for checking job status
-  const intervalId = setInterval(async () => {
-    const job = await deepSquareClient.getJob(jobId);
-    if (isJobTerminated(job.status)) {
-      stopFetch(); // Stop fetching logs when job is done
-      clearInterval(intervalId); // Stop status checking when job is done
+  const [transitions, stopWatchJobTransitions] =
+    deepSquareClient.watchJobTransitions();
+  (async () => {
+    for await (const tr of transitions) {
+      if (tr.args._jobId == jobId) {
+        console.log(`job status is ${FormatJobStatus(tr.args._to ?? 0)}`);
+        if (isJobTerminated(tr.args._to ?? 0)) {
+          stopFetch();
+          stopWatchJobTransitions();
+        }
+      }
     }
-  }, 1000); // Check status every second (you can adjust this interval to suit your needs)
+  })();
 
   // Start handling incoming logs separately. This is done asynchronously.
   // Here, we're using a 'for await...of' loop that works with async iterators.
@@ -77,6 +84,9 @@ async function main() {
       throw err;
     }
   }
+
+  // TODO: fix dangling promise
+  process.exit(0);
 }
 
 main();

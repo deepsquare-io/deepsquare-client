@@ -5,6 +5,7 @@ import type { CreditAbi } from "../abis/Credit";
 export type Transfer = Log<
   bigint,
   number,
+  false,
   ExtractAbiEvent<typeof CreditAbi, "Transfer">,
   undefined
 >;
