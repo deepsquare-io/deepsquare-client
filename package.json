@@ -28,13 +28,16 @@
   "license": "ISC",
   "dependencies": {
     "@grpc/grpc-js": "^1.8.16",
-    "@protobuf-ts/grpc-transport": "^2.9.0",
-    "@protobuf-ts/runtime": "^2.9.0",
-    "@protobuf-ts/runtime-rpc": "^2.9.0",
+    "@protobuf-ts/grpc-transport": "^2.9.1",
+    "@protobuf-ts/grpcweb-transport": "^2.9.1",
+    "@protobuf-ts/runtime": "^2.9.1",
+    "@protobuf-ts/runtime-rpc": "^2.9.1",
+    "abitype": "^0.9.8",
     "async-lock": "^1.4.0",
     "graphql": "^15.8.0",
     "graphql-request": "^5.2.0",
-    "viem": "^1.1.6"
+    "queueable": "^5.3.1",
+    "viem": "^1.15.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
