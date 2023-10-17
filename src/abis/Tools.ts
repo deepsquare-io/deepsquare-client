@@ -52,44 +52,6 @@ export const ToolsAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_address",
-        type: "address",
-      },
-    ],
-    name: "convertAddressToBytes32",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "_bytes",
-        type: "bytes32",
-      },
-    ],
-    name: "convertBytes32ToAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint64",
@@ -473,6 +435,11 @@ export const ToolsAbi = [
             components: [
               {
                 internalType: "uint256",
+                name: "submit",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
                 name: "start",
                 type: "uint256",
               },
@@ -515,6 +482,11 @@ export const ToolsAbi = [
             internalType: "string",
             name: "lastError",
             type: "string",
+          },
+          {
+            internalType: "int64",
+            name: "exitCode",
+            type: "int64",
           },
         ],
         internalType: "struct Job",

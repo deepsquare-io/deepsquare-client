@@ -514,12 +514,16 @@ export default class DeepSquareClient {
    *
    * @returns Returns a async iterable of JobTransitionEvents with its close function.
    */
-  watchJobTransitions(): [AsyncIterable<JobTransitionEvent>, () => void] {
+  async watchJobTransitions(): Promise<
+    [AsyncIterable<JobTransitionEvent>, () => void]
+  > {
+    await this.shouldLoadJobRepository();
+
     const channel = new Channel<JobTransitionEvent>();
 
     const unwatch = this.wsClient.watchContractEvent({
-      address: this.metaSchedulerAddr,
-      abi: MetaSchedulerAbi,
+      address: this.jobRepositoryAddr,
+      abi: JobRepositoryAbi,
       eventName: "JobTransitionEvent",
       onLogs: (logs) => {
         for (const e of logs) {
