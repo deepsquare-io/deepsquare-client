@@ -55,7 +55,7 @@ async function main() {
 
   // Use a separate process for checking job status
   const [transitions, stopWatchJobTransitions] =
-    deepSquareClient.watchJobTransitions();
+    await deepSquareClient.watchJobTransitions();
   (async () => {
     for await (const tr of transitions) {
       if (tr.args._jobId == jobId) {

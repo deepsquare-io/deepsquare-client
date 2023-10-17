@@ -1,11 +1,11 @@
 import type { ExtractAbiEvent } from "abitype";
 import type { Log } from "viem";
-import type { MetaSchedulerAbi } from "../abis/MetaScheduler";
+import type { JobRepositoryAbi } from "../abis/JobRepository";
 
 export type JobTransitionEvent = Log<
   bigint,
   number,
   false,
-  ExtractAbiEvent<typeof MetaSchedulerAbi, "JobTransitionEvent">,
+  ExtractAbiEvent<typeof JobRepositoryAbi, "JobTransitionEvent">,
   undefined
 >;
