@@ -4,7 +4,7 @@ import DeepSquareClient, {
 } from "@deepsquare/deepsquare-client";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
-import { Hex, parseEther } from "viem";
+import { parseEther, type Hex } from "viem";
 
 dotenv.config();
 
@@ -55,7 +55,7 @@ async function main() {
 
   // Use a separate process for checking job status
   const [transitions, stopWatchJobTransitions] =
-    await deepSquareClient.watchJobTransitions();
+    deepSquareClient.watchJobTransitions();
   (async () => {
     for await (const tr of transitions) {
       if (tr.args._jobId == jobId) {

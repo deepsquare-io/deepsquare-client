@@ -85,7 +85,7 @@ export default class DeepSquareClient {
   constructor(
     privateKey: Hex | undefined = undefined,
     wallet: WalletClient | undefined = undefined,
-    private readonly metaSchedulerAddr: Hex = "0x196A7EB3E16a8359c30408f4F79622157Ef86d7c",
+    private readonly metaSchedulerAddr: Hex = "0x7524fBB0c1e099A4A472C5A7b0B1E1E3aBd3fE97",
     private readonly sbatchServiceClient: GraphQLClient = new GraphQLClient(
       "https://sbatch.deepsquare.run/graphql"
     ),

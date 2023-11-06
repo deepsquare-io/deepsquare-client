@@ -16,24 +16,13 @@ We are excited to see what you'll create!
 
 ### Installation
 
-Make sure you have:
+Install the library with:
 
-- Node.js installed on your system
-
-- The [pnpm](https://pnpm.io/) package manager globally installed on your system.
-
-Install BigNumber and Units with
-
-```
-pnpm install @ethersproject/bignumber @ethersproject/units dotenv
-pnpm install @types/node --save-dev
+```shell
+npm install @deepsquare/deepsquare-client viem
 ```
 
-Install the library
-
-```
-  pnpm install @deepsquare/deepsquare-client
-```
+Viem is used as the main Ethereum runtime. It can be used for with the browser runtime, or with a Node.js runtime.
 
 ## Setting up a Wallet and Obtaining Credits
 
@@ -43,23 +32,23 @@ Ensure you have:
 
 - A crypto wallet and your associated private key. You can use wallets like `MetaMask` or `Core Wallet` and/or CLI tools like `avalanche-cli`
 
-- Sufficient [credit tokens](#obtaining-credits)for job costs, and a minor amount of SQUARE tokens for transaction fees on the DeepSquare `Deepji network`:
+- Sufficient [credit tokens](#obtaining-credits) for job costs, and a minor amount of SQUARE tokens for transaction fees on the DeepSquare `Deepji network`:
 
 DeepSquare network details:
 
 ```yaml
 Network name: DeepSquare Testnet C-Chain
 RPC URL: https://testnet.deepsquare.run/rpc
-Chain ID: 179188`
+Chain ID: 179188
 ```
 
-You can automatically add this network if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser. Visit [app.deepsquare.run/](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
+You can automatically add this network if you have a wallet extension like `MetaMask` or `Core Wallet` installed on your browser. Visit [app.deepsquare.run](https://app.deepsquare.run/) and connect to the app via your crypto wallet. A pop-up will prompt you to install the DeepSquare network.
 
 ### Obtaining Credits
 
 Using the platform requires credit tokens for job execution and a minor amount of SQUARE tokens to cover the fees. Apply for free credits through [this form](https://app.deepsquare.run/credits).
 
-## Using the client
+## Getting Started
 
 Here is a high-level overview of the library covering various functionalities including setting the credit allowance, submitting a job, retrieving job information, retrieving job logs, and cancelling a job. Detailed instructions on using the client are available in the [examples](https://chat.openai.com/examples) directory.
 
@@ -70,168 +59,43 @@ Please refer to the [official DeepSquare documentation](https://docs.deepsquare.
 To launch a job you technically submit a transaction to a smart contract called the meta-scheduler.
 In general, you will be using the address corresponding to the `main` SDK Version, the deprecated version is the last contract supported that will be discontinued when a new version of the SDK is released.
 
-| SDK Version         | Meta-scheduler Smart-contract address      |
-|---------------------| ------------------------------------------ |
-| v0.13.X             | 0x196A7EB3E16a8359c30408f4F79622157Ef86d7c |
-| v0.12.X             | 0xeD6Deb4c6E7e5D35c0d0FE3802663142e3E266da |
-| v0.11.X             | 0x3707aB457CF457275b7ec32e203c54df80C299d5 |
-| v0.10.X             | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
-| v0.9.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
-| v0.8.X              | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
-| v0.7.X              | 0x3a97E2ddD148647E60b4b94BdAD56173072Aa925 |
-| v0.6.X (deprecated) | 0x77ae38244e0be7cFfB84da4e5dff077C6449C922 |
+| SDK Version          | Meta-scheduler Smart-contract address      |
+| -------------------- | ------------------------------------------ |
+| v0.14.X              | 0x7524fBB0c1e099A4A472C5A7b0B1E1E3aBd3fE97 |
+| v0.13.X              | 0x196A7EB3E16a8359c30408f4F79622157Ef86d7c |
+| v0.12.X              | 0xeD6Deb4c6E7e5D35c0d0FE3802663142e3E266da |
+| v0.11.X              | 0x3707aB457CF457275b7ec32e203c54df80C299d5 |
+| v0.10.X (deprecated) | 0xc9AcB97F1132f0FB5dC9c5733B7b04F9079540f0 |
 
-### Client Instantiation
+### Submitting a job
 
 In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet](#set-up-the-wallet)) and a `METASCHEDULER_ADDR` (see section [Compatibility Matrix](#compatibility-matrix) below).
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { parseUnits } from "@ethersproject/units";
-import * as dotenv from "dotenv";
-dotenv.config();
+import type { Hex } from "viem";
 
 async function main() {
   // Create the DeepSquareClient
   const deepSquareClient = new DeepSquareClient(
-    process.env.PRIVATE_KEY as string,
+    process.env.PRIVATE_KEY as Hex, // Hex is a `0x{string}`
+    undefined, // Optional Viem WalletClient instead of Private key. Which is certainly safer.
+    process.env.METASCHEDULER_ADDR as Hex // Passing the smart-contracts address explicitely avoid unexpected changes.
   );
 }
 ```
 
-For example, to run a simple 'Hello World' job with 1000 credits, you can follow the instructions provided. In this example, we assume that you have an allowance of at least 1000 credits. You can establish this allowance either from the [nexus portal](https://app.deepsquare.run/) header or by using the setAllowance method.
+Let's run a simple "Hello World" job with 1000 credits allocated.
+
+In this example, we assume that you have an allowance of at least 1000 credits. You can establish this allowance either from the [nexus portal](https://app.deepsquare.run/) header or by using the `setAllowance` method.
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { parseUnits } from "@ethersproject/units";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { parseEther, type Hex } from "viem";
 
 async function main() {
-  // Create the DeepSquareClient
-  const deepSquareClient = new DeepSquareClient(
-    process.env.PRIVATE_KEY as string,
-  );
-  
-  const myJob = {
-    resources: {
-      tasks: 1,
-      gpusPerTask: 0,
-      cpusPerTask: 1,
-      memPerCpu: 1024,
-    },
-    enableLogging: true,
-    steps: [
-      {
-        name: "hello world",
-        run: {
-          command: 'echo "Hello World"',
-        },
-      },
-    ],
-  };
-  const credits = parseUnits("1000", 18);
-  const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
-}
+  // ...
 
-main();
-```
-
-> Important note: The amount must be an BigNumber with 18 decimals. The easiest is to use parseUnits to convert credits to big number with the right number of digits.
-
-### Retrieve job information
-
-You can retrieve job information by using the `getJob` method :
-
-```typescript
-const job = deepSquareClient.getJob(jobId);
-```
-
-The returned object contains several properties including :
-
-- `status` :
-
-```typescript
-enum JobStatus {
-  PENDING = 0,
-  META_SCHEDULED = 1,
-  SCHEDULED = 2,
-  RUNNING = 3,
-  CANCELLED = 4,
-  FINISHED = 5,
-  FAILED = 6,
-  OUT_OF_CREDITS = 7,
-}
-```
-
-- `cost` which contains the `finalCost` property that represents the job cost in credit once it is finished.
-- `time` which contains the timestamps `start` and `end` representing the time bounds of the job.
-
-Optional : You can also compute some more information using utility functions :
-
-```typescript
-import computeCost from "./computeCost";
-import computeCostPerMin from "./computeCostPerMin";
-
-const costPerMin = computeCostPerMin(jobSummary);
-const currentCost = computeCost(jobSummary);
-const timeLeft = (jobSummary.cost.maxCost - currentCost) / costPerMin;
-```
-
-### Retrieve job logs
-
-Job logs can be retrieved using a gRPC streaming service.
-Here is how to use it:
-
-1. Get the log methods
-
-```typescript
-const logsMethods = deepSquareClient.getLogsMethods(jobId);
-const [read, stopFetch] = await logsMethods.fetchLogs();
-const decoder = new TextDecoder();
-```
-
-2. Fetch the logs :
-
-The `fetchLogs` function opens a stream and returns an AsyncIterable you can read this way :
-
-```typescript
-for await (const log of read) {
-  const lineStr = decoder.decode(log.data);
-  console.log(lineStr);
-}
-```
-
-3. Once you are done, you should close the stream
-
-```typescript
-stopFetch();
-```
-
-### Cancel a job
-
-To cancel a job you can use :
-
-```typescript
-await deepSquareClient.cancel(jobId);
-```
-
-### Full example
-
-Below is a plain typescript fully working example that launches the "hello world" job.
-For a detailed breakdown of the code follow this [guide](examples/hello-world/README.md)
-
-> Don't forget to setup your env
-
-```typescript
-import DeepSquareClient from "@deepsquare/deepsquare-client";
-import { parseUnits } from "@ethersproject/units";
-import * as dotenv from "dotenv";
-dotenv.config();
-
-async function main() {
-  // Create the DeepSquareClient
-  const deepSquareClient = new DeepSquareClient(process.env.PRIVATE_KEY as string);
   const myJob = {
     resources: {
       tasks: 1,
@@ -250,30 +114,28 @@ async function main() {
     ],
   };
 
-  // Set allowance (you can also do that by loading your private key in metamask add head to https://app.deepsquare.run)
-  const depositAmount = parseUnits("1000000", 18);
+  // 'Allowance' lets DeepSquare use a set amount of your tokens to pay for jobs, like a spending limit.
+  // DeepSquare can only use up to the limit you set, ensuring control and security over your wallet.
+  const depositAmount = parseEther("1000");
   await deepSquareClient.setAllowance(depositAmount);
 
   // Launch the job
-  const credits = parseUnits("1000", 18);
+  // The 'credits' specify how much of your allowance is used for a particular job. For instance,
+  // if you set an allowance of 1000 and use 100 credits for a job, you'll still have 900 in allowance
+  // for future jobs, no need to set a new allowance until your total credits exceed it.
+  const credits = parseEther("1000");
   const jobId = await deepSquareClient.submitJob(myJob, "myJob", credits);
-  const job = deepSquareClient.getJob(jobId);
-
-  // Print logs
-  const logsMethods = deepSquareClient.getLogsMethods(jobId);
-  const [read, stopFetch] = await logsMethods.fetchLogs();
-  const decoder = new TextDecoder();
-
-  for await (const log of read) {
-    const lineStr = decoder.decode(log.data);
-    console.log(lineStr);
-  }
-
-  stopFetch();
 }
 
 main();
 ```
+
+> [!WARNING]
+> The amount must be a `bigint` with 18 decimals (like Wei). The easiest is to use the `parseEther` utility from Viem to convert a number to bigint with the right number of digits.
+
+### More examples
+
+More complete examples are available in the [examples directory](https://github.com/deepsquare-io/deepsquare-client/tree/main/examples).
 
 ## Job specification
 
@@ -291,7 +153,7 @@ If you run into any issues:
 
 If these steps don't resolve the issue:
 
-- Post an [issue](https://github.com/deepsquare-io/deepsquare-client/issues) on the DeepSquare GitHub repository, providing a detailed account of the problem.
+- Create an [issue](https://github.com/deepsquare-io/deepsquare-client/issues) on the DeepSquare GitHub repository, providing a detailed account of the problem.
 - Reach the [Discord community](https://discord.gg/UwaHJcNvq9) for direct support and engaging discussions.
 
-Remember, the DeepSquare team is always here to help and ensure a seamless experience for you.
+The DeepSquare team is always happy to help you and ensure a seamless experience for you.
