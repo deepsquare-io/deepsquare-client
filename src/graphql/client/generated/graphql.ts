@@ -476,6 +476,8 @@ export type MutationValidateArgs = {
  * Connect a network interface on a StepRun.
  *
  * The network interface is connected via slirp4netns.
+ *
+ * If using wireguard, please mapUid to root (mapUid=0).
  */
 export type NetworkInterface = {
   /**
@@ -806,21 +808,19 @@ export type StepRun = {
    */
   env?: InputMaybe<Array<EnvVar>>;
   /**
-   * Remap UID to root. Does not grant elevated system permissions, despite appearances.
+   * Remap GID. Does not grant elevated system permissions, despite appearances.
    *
-   * If the "default" (Enroot) container runtime is used, it will use the `--container-remap-root` flags.
-   *
-   * If the "apptainer" container runtime is used, the `--fakeroot` flag will be passed.
-   *
-   * If no container runtime is used, `unshare --user --map-root-user --mount` will be used and a user namespace will be created.
-   *
-   * It is not recommended to use mapRoot with network=slirp4netns, as it will create 2 user namespaces (and therefore will be useless).
-   *
-   * If null, default to false.
-   *
-   * Go name: "MapRoot".
+   * Go name: "MapGID".
    */
-  mapRoot?: InputMaybe<Scalars["Boolean"]>;
+  mapGid?: InputMaybe<Scalars["Int"]>;
+  /**
+   * Remap UID. Does not grant elevated system permissions, despite appearances.
+   *
+   * MapUID doesn't work very well with Apptainer. You can still map to root, but you cannot map to an unknown user.
+   *
+   * Go name: "MapUID".
+   */
+  mapUid?: InputMaybe<Scalars["Int"]>;
   /**
    * MPI selection.
    *
@@ -835,8 +835,6 @@ export type StepRun = {
    * Type of core networking functionality.
    *
    * Either: "host" (default) or "slirp4netns" (rootless network namespace).
-   *
-   * Using "slirp4netns" will automatically enables mapRoot.
    *
    * Go name: "Network".
    */
