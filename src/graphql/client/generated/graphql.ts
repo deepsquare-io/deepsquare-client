@@ -89,6 +89,12 @@ export type ContainerRun = {
    */
   image: Scalars["String"];
   /**
+   * Mount the home directories.
+   *
+   * Go name: "MountHome".
+   */
+  mountHome?: InputMaybe<Scalars["Boolean"]>;
+  /**
    * [DEPRECATED] Mounts decribes a Bind Mount.
    *
    * Please use predefined mounts like $STORAGE_PATH, $DEEPSQUARE_TMP, ...
@@ -102,6 +108,12 @@ export type ContainerRun = {
    * Go name: "Password".
    */
   password?: InputMaybe<Scalars["String"]>;
+  /**
+   * Disable write permissions on the container root file system. Does not applies to mounts.
+   *
+   * Go name: "ReadOnlyRootFS"
+   */
+  readOnlyRootFS?: InputMaybe<Scalars["Boolean"]>;
   /**
    * Container registry host.
    *

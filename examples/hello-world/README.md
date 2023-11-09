@@ -34,9 +34,9 @@ Replace `<Your_Private_Key>` with the private key from your crypto wallet. Note:
 
 Replace `<MetaScheduler_Address>` with the Metascheduler contract address. You can find this in our [compatibility matrix](../..//README.md#compatibility-matrix).
 
-## Run the Example 
+## Run the Example
 
-To simply the run the example use : 
+To simply the run the example use :
 
 ```
 pnpm start
@@ -52,7 +52,6 @@ Let's break down `deepsquare-client/examples/hello-world/index.ts`
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 
 import { parseUnits } from "@ethersproject/units";
-
 
 import dotenv from "dotenv";
 
@@ -78,7 +77,9 @@ const uses = [{ key: "os", value: "linux" }] as never;
 This line defines tags as key-value pair that are used to add constraints on the compute provider that can run our workload. For example, we might want to exclusively run our job in Sion in Switzerland and add the pair `{ key: 'region', value: 'ch-sion'}`
 
 ```typescript
-const deepSquareClient = new DeepSquareClient(process.env.PRIVATE_KEY as string);
+const deepSquareClient = new DeepSquareClient(
+  process.env.PRIVATE_KEY as string
+);
 ```
 
 Here we're creating an instance of `DeepSquareClient`, passing in the private key and MetaScheduler address from our environment variables.

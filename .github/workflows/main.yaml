@@ -24,8 +24,8 @@ jobs:
       - name: Use Node.js LTS
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
+          node-version: "lts/*"
+          cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
@@ -49,8 +49,8 @@ jobs:
       - name: Use Node.js LTS
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
+          node-version: "lts/*"
+          cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
