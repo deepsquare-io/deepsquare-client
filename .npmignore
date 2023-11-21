@@ -1,0 +1,5 @@
+examples/
+.github/
+node_modules/
+scripts/
+.env
