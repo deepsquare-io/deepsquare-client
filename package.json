@@ -1,11 +1,11 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.15.0-alpha.5",
+  "version": "0.15.0-alpha.6",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
     "graphql:gen": "graphql-codegen --config codegen.yml",
-    "build": "bun build.ts",
+    "build": "tsup --format cjs,esm --dts-resolve",
     "test:watch": "vitest",
     "lint": "eslint --ext .js,.ts,.tsx src/",
     "lint:fix": "eslint --ext .js,.ts,.tsx src/ --fix",
@@ -14,14 +14,28 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "module": "./dist/index.mts",
   "exports": {
-    ".": "./dist/index.js",
-    "./grpc/node": "./dist/grpc/node/index.js",
-    "./grpc/browser": "./dist/grpc/browser/index.js"
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./grpc/node": {
+      "import": "./dist/grpc/node/index.mjs",
+      "require": "./dist/grpc/node/index.js",
+      "default": "./dist/grpc/node/index.js",
+      "types": "./dist/grpc/node/index.d.ts"
+    },
+    "./grpc/browser": {
+      "import": "./dist/grpc/browser/index.mjs",
+      "require": "./dist/grpc/browser/index.js",
+      "default": "./dist/grpc/browser/index.js",
+      "types": "./dist/grpc/browser/index.d.ts"
+    }
   },
   "keywords": [],
   "author": "",
@@ -50,7 +64,6 @@
     "@types/node": "^20.9.3",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
-    "bun-plugin-dts": "^0.2.1",
     "eslint": "^8.54.0",
     "eslint-config-next": "^14.0.3",
     "eslint-config-prettier": "^9.0.0",
@@ -61,6 +74,7 @@
     "graphql-tag": "^2.12.6",
     "prettier": "^3.1.0",
     "ts-node": "^10.9.1",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.2"
   }
 }
