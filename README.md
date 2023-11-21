@@ -73,12 +73,14 @@ In this example we assume you have a `PRIVATE_KEY` (see section [Setup a wallet]
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc/node";
 import type { Hex } from "viem";
 
 async function main() {
   // Create the DeepSquareClient
   const deepSquareClient = DeepSquareClient.withPrivateKey(
     process.env.PRIVATE_KEY as Hex, // Hex is a `0x{string}`
+    createLoggerClient, // Select the logger (use node or browser depending on the platform)
     process.env.METASCHEDULER_ADDR as Hex, // Passing the smart-contracts address explicitely avoid unexpected changes.
   );
 }
@@ -90,6 +92,7 @@ In this example, we assume that you have an allowance of at least 1000 credits. 
 
 ```typescript
 import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc/node";
 import { parseEther, type Hex } from "viem";
 
 async function main() {
