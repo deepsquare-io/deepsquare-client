@@ -5,37 +5,33 @@
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
     "graphql:gen": "graphql-codegen --config codegen.yml",
-    "build": "tsup --format cjs,esm --dts-resolve",
+    "build": "tsup --dts-resolve",
     "test:watch": "vitest",
     "lint": "eslint --ext .js,.ts,.tsx src/",
     "lint:fix": "eslint --ext .js,.ts,.tsx src/ --fix",
     "gen:eth": "scripts/generate-eth.sh"
   },
   "files": [
-    "dist"
+    "/dist",
+    "/grpc"
   ],
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "module": "./dist/index.mts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./grpc/node": {
-      "import": "./dist/grpc/node/index.mjs",
-      "require": "./dist/grpc/node/index.js",
       "default": "./dist/grpc/node/index.js",
       "types": "./dist/grpc/node/index.d.ts"
     },
     "./grpc/browser": {
-      "import": "./dist/grpc/browser/index.mjs",
-      "require": "./dist/grpc/browser/index.js",
       "default": "./dist/grpc/browser/index.js",
       "types": "./dist/grpc/browser/index.d.ts"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "keywords": [],
   "author": "",

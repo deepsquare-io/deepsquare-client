@@ -9,8 +9,9 @@
   },
   "dependencies": {
     "@deepsquare/deepsquare-client": "file:../../",
-    "viem": "^1.15.1",
-    "dotenv": "^16.0.3"
+    "@wagmi/connectors": "^3.1.5",
+    "dotenv": "^16.0.3",
+    "viem": "^1.15.1"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
@@ -19,5 +20,6 @@
     "@typescript-eslint/parser": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "eslint-config-prettier": "^8.3.0"
-  }
+  },
+  "type": "module"
 }
