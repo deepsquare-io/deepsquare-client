@@ -1,7 +1,7 @@
 import DeepSquareClient from "@deepsquare/deepsquare-client";
+import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc/node";
 import dotenv from "dotenv";
 import { Hex } from "viem";
-import { createLoggerClient } from "../../lib/client-browser.js";
 
 dotenv.config();
 

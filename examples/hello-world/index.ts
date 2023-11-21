@@ -2,7 +2,7 @@ import DeepSquareClient, {
   FormatJobStatus,
   isJobTerminated,
 } from "@deepsquare/deepsquare-client";
-import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc";
+import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc/node";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
 import { parseEther, type Hex } from "viem";

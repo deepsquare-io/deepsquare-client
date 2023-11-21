@@ -1,24 +1,26 @@
 import dts from "bun-plugin-dts";
 import * as fs from "fs";
 
-fs.rmSync("./lib", { recursive: true });
+fs.rmSync("./dist", { recursive: true });
 
 Bun.build({
   format: "esm",
   target: "node",
-  outdir: "./lib",
+  outdir: "./dist",
   minify: true,
   entrypoints: ["./src/index.ts"],
   sourcemap: "external",
   plugins: [dts()],
 });
 
+fs.mkdirSync("./dist/grpc", { recursive: true });
+
 Bun.build({
   format: "esm",
   target: "node",
-  outdir: "./lib",
+  outdir: "./dist/grpc/node",
   minify: true,
-  entrypoints: ["./src/grpc/client.ts"],
+  entrypoints: ["./src/grpc/node/index.ts"],
   sourcemap: "external",
   plugins: [dts()],
 });
@@ -26,9 +28,9 @@ Bun.build({
 Bun.build({
   format: "esm",
   target: "browser",
-  outdir: "./lib",
+  outdir: "./dist/grpc/browser",
   minify: true,
-  entrypoints: ["./src/grpc/client-browser.ts"],
+  entrypoints: ["./src/grpc/browser/index.ts"],
   sourcemap: "external",
   plugins: [dts()],
 });

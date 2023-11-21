@@ -3,7 +3,7 @@ node_modules
 
 /.idea
 
-/lib
+/dist
 /.parcel-cache
 pnpm-lock.yaml
 package.json

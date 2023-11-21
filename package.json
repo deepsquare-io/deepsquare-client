@@ -1,6 +1,6 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.15.0-alpha.3",
+  "version": "0.15.0-alpha.4",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
@@ -11,26 +11,17 @@
     "lint:fix": "eslint --ext .js,.ts,.tsx src/ --fix",
     "gen:eth": "scripts/generate-eth.sh"
   },
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "require": "./lib/index.js",
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
-    },
-    "./grpc": {
-      "require": "./lib/client.js",
-      "import": "./lib/client.js",
-      "types": "./lib/client.d.ts",
-      "default": "./lib/client.js"
-    },
-    "./grpc-browser": {
-      "require": "./lib/client-browser.js",
-      "import": "./lib/client-browser.js",
-      "types": "./lib/client-browser.d.ts",
-      "default": "./lib/client-browser.js"
-    }
+    ".": "./dist/index.js",
+    "./grpc/node": "./dist/grpc/node/index.js",
+    "./grpc/browser": "./dist/grpc/browser/index.js"
   },
   "keywords": [],
   "author": "",
