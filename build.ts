@@ -5,7 +5,7 @@ fs.rmSync("./dist", { recursive: true });
 
 Bun.build({
   format: "esm",
-  target: "node",
+  target: "browser",
   outdir: "./dist",
   minify: true,
   entrypoints: ["./src/index.ts"],
