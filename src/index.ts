@@ -97,7 +97,7 @@ export default class DeepSquareClient {
       transport: webSocket("wss://testnet.deepsquare.run/ws"),
       chain: deepSquareChain,
     }),
-    private readonly loggerClientFactory: () => ILoggerAPIClient = createLoggerClient
+    private readonly loggerClientFactory: () => Promise<ILoggerAPIClient> = createLoggerClient
   ) {
     if (privateKey) {
       this.wallet = createWalletClient({
@@ -493,7 +493,7 @@ export default class DeepSquareClient {
           );
         }
 
-        const service = new GRPCService(this.loggerClientFactory());
+        const service = new GRPCService(await this.loggerClientFactory());
 
         const { hash, timestamp } = await this.getJobHash(jobId);
 
