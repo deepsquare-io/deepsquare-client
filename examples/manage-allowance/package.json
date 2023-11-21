@@ -8,7 +8,7 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
-    "@deepsquare/deepsquare-client": "workspace:*",
+    "@deepsquare/deepsquare-client": "file:../../",
     "viem": "^1.15.1",
     "dotenv": "^16.0.3"
   },

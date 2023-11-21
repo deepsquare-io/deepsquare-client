@@ -2,6 +2,7 @@ import DeepSquareClient, {
   FormatJobStatus,
   isJobTerminated,
 } from "@deepsquare/deepsquare-client";
+import { createLoggerClient } from "@deepsquare/deepsquare-client/grpc";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 import dotenv from "dotenv";
 import { parseEther, type Hex } from "viem";
@@ -10,10 +11,10 @@ dotenv.config();
 
 async function main() {
   // Instantiate the DeepSquareClient
-  const deepSquareClient = new DeepSquareClient(
+  const deepSquareClient = DeepSquareClient.withPrivateKey(
     process.env.PRIVATE_KEY as Hex,
-    undefined,
-    process.env.METASCHEDULER_ADDR as Hex
+    createLoggerClient,
+    process.env.METASCHEDULER_ADDR as Hex,
   );
 
   // Worflow
@@ -55,7 +56,7 @@ async function main() {
 
   // Use a separate process for checking job status
   const [transitions, stopWatchJobTransitions] =
-    deepSquareClient.watchJobTransitions();
+    await deepSquareClient.watchJobTransitions();
   (async () => {
     for await (const tr of transitions) {
       if (tr.args._jobId == jobId) {

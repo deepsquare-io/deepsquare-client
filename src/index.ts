@@ -16,7 +16,6 @@ import { MetaSchedulerAbi } from "./abis/MetaScheduler";
 import { ProviderManagerAbi } from "./abis/ProviderManager";
 import type { Job as GQLJob } from "./graphql/client/generated/graphql";
 import { SubmitDocument } from "./graphql/client/generated/graphql";
-import { createLoggerClient } from "./grpc/client";
 import type { ReadResponse } from "./grpc/generated/logger/v1alpha1/log";
 import type { ILoggerAPIClient } from "./grpc/generated/logger/v1alpha1/log.client";
 import { GRPCService } from "./grpc/service";
@@ -68,7 +67,6 @@ export {
 
 export default class DeepSquareClient {
   private lock = new AsyncLock();
-  private readonly wallet?: WalletClient;
   private creditAddr?: Hex;
   private providerManagerAddr?: Hex;
   private jobRepositoryAddr?: Hex;
@@ -83,11 +81,11 @@ export default class DeepSquareClient {
    * @param loggerClientFactory {() => ILoggerAPIClient} Logger client factory.
    */
   constructor(
-    privateKey: Hex | undefined = undefined,
-    wallet: WalletClient | undefined = undefined,
+    private readonly wallet: WalletClient | undefined = undefined,
+    private readonly loggerClientFactory: () => ILoggerAPIClient,
     private readonly metaSchedulerAddr: Hex = "0x7524fBB0c1e099A4A472C5A7b0B1E1E3aBd3fE97",
     private readonly sbatchServiceClient: GraphQLClient = new GraphQLClient(
-      "https://sbatch.deepsquare.run/graphql"
+      "https://sbatch.deepsquare.run/graphql",
     ),
     private readonly publicClient: PublicClient = createPublicClient({
       transport: http("https://testnet.deepsquare.run/rpc"),
@@ -97,17 +95,28 @@ export default class DeepSquareClient {
       transport: webSocket("wss://testnet.deepsquare.run/ws"),
       chain: deepSquareChain,
     }),
-    private readonly loggerClientFactory: () => Promise<ILoggerAPIClient> = createLoggerClient
-  ) {
-    if (privateKey) {
-      this.wallet = createWalletClient({
+  ) {}
+
+  static withPrivateKey(
+    privateKey: Hex,
+    loggerClientFactory: () => ILoggerAPIClient,
+    metaSchedulerAddr: Hex | undefined = undefined,
+    sbatchServiceClient: GraphQLClient | undefined = undefined,
+    publicClient: PublicClient | undefined = undefined,
+    wsClient: PublicClient | undefined = undefined,
+  ): DeepSquareClient {
+    return new DeepSquareClient(
+      createWalletClient({
         account: privateKeyToAccount(privateKey),
         chain: deepSquareChain,
         transport: http("https://testnet.deepsquare.run/rpc"),
-      });
-    } else {
-      this.wallet = wallet;
-    }
+      }),
+      loggerClientFactory,
+      metaSchedulerAddr,
+      sbatchServiceClient,
+      publicClient,
+      wsClient,
+    );
   }
 
   /**
@@ -163,7 +172,7 @@ export default class DeepSquareClient {
   async setAllowance(amount: bigint) {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+        "Client has been instanced without wallet client and is therefore unable to execute write operations",
       );
     }
 
@@ -194,7 +203,7 @@ export default class DeepSquareClient {
   async getAllowance(): Promise<bigint> {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
+        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations",
       );
     }
 
@@ -220,7 +229,7 @@ export default class DeepSquareClient {
     if (!address) {
       if (!this.wallet) {
         throw new Error(
-          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
+          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations",
         );
       }
       address = this.wallet.account!.address;
@@ -245,7 +254,7 @@ export default class DeepSquareClient {
   async transferCredits(to: Hex, amount: bigint) {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations"
+        "Client has been instanced without wallet client and is therefore unable to execute 'self-read' operations",
       );
     }
 
@@ -277,11 +286,11 @@ export default class DeepSquareClient {
     job: GQLJob,
     jobName: string,
     maxAmount = 1000n,
-    uses: Label[] = []
+    uses: Label[] = [],
   ): Promise<Hex> {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+        "Client has been instanced without wallet client and is therefore unable to execute write operations",
       );
     }
 
@@ -307,10 +316,10 @@ export default class DeepSquareClient {
               ? job.output.s3
                 ? 2
                 : job.output.http
-                ? job.output.http.url === "https://transfer.deepsquare.run/"
-                  ? 0
-                  : 1
-                : 4
+                  ? job.output.http.url === "https://transfer.deepsquare.run/"
+                    ? 0
+                    : 1
+                  : 4
               : 4,
             batchLocationHash: hash.submit,
             uses: uses,
@@ -339,7 +348,7 @@ export default class DeepSquareClient {
     if (!walletAddress) {
       if (!this.wallet) {
         throw new Error(
-          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations"
+          "Client has been instanced without wallet client and is therefore unable to execute 'self' operations",
         );
       }
       walletAddress = this.wallet.account!.address;
@@ -405,7 +414,7 @@ export default class DeepSquareClient {
   async topUp(jobId: Hex, amount = 1000n) {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+        "Client has been instanced without wallet client and is therefore unable to execute write operations",
       );
     }
 
@@ -431,7 +440,7 @@ export default class DeepSquareClient {
   async cancel(jobId: Hex) {
     if (!this.wallet) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute write operations"
+        "Client has been instanced without wallet client and is therefore unable to execute write operations",
       );
     }
 
@@ -459,7 +468,7 @@ export default class DeepSquareClient {
   async getJobHash(jobId: string): Promise<{ hash: Hex; timestamp: number }> {
     if (!this.wallet || !this.wallet.account) {
       throw new Error(
-        "Client has been instanced without wallet client and is therefore unable to execute signing operations"
+        "Client has been instanced without wallet client and is therefore unable to execute signing operations",
       );
     }
     const timestamp = Date.now();
@@ -489,11 +498,11 @@ export default class DeepSquareClient {
       fetchLogs: async () => {
         if (!this.wallet || !this.wallet.account) {
           throw new Error(
-            "Client has been instanced without wallet client and is therefore unable to execute signing operations"
+            "Client has been instanced without wallet client and is therefore unable to execute signing operations",
           );
         }
 
-        const service = new GRPCService(await this.loggerClientFactory());
+        const service = new GRPCService(this.loggerClientFactory());
 
         const { hash, timestamp } = await this.getJobHash(jobId);
 
@@ -501,7 +510,7 @@ export default class DeepSquareClient {
           this.wallet.account.address,
           jobId,
           hash,
-          timestamp
+          timestamp,
         );
       },
     };

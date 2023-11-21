@@ -27,14 +27,14 @@ export interface ILoggerAPIClient {
    */
   read(
     input: ReadRequest,
-    options?: RpcOptions
+    options?: RpcOptions,
   ): ServerStreamingCall<ReadRequest, ReadResponse>;
   /**
    * @generated from protobuf rpc: WatchList(logger.v1alpha1.WatchListRequest) returns (stream logger.v1alpha1.WatchListResponse);
    */
   watchList(
     input: WatchListRequest,
-    options?: RpcOptions
+    options?: RpcOptions,
   ): ServerStreamingCall<WatchListRequest, WatchListResponse>;
 }
 /**
@@ -49,7 +49,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
    * @generated from protobuf rpc: Write(stream logger.v1alpha1.WriteRequest) returns (logger.v1alpha1.WriteResponse);
    */
   write(
-    options?: RpcOptions
+    options?: RpcOptions,
   ): ClientStreamingCall<WriteRequest, WriteResponse> {
     const method = this.methods[0],
       opt = this._transport.mergeOptions(options);
@@ -57,7 +57,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
       "clientStreaming",
       this._transport,
       method,
-      opt
+      opt,
     );
   }
   /**
@@ -65,7 +65,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
    */
   read(
     input: ReadRequest,
-    options?: RpcOptions
+    options?: RpcOptions,
   ): ServerStreamingCall<ReadRequest, ReadResponse> {
     const method = this.methods[1],
       opt = this._transport.mergeOptions(options);
@@ -74,7 +74,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
       this._transport,
       method,
       opt,
-      input
+      input,
     );
   }
   /**
@@ -82,7 +82,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
    */
   watchList(
     input: WatchListRequest,
-    options?: RpcOptions
+    options?: RpcOptions,
   ): ServerStreamingCall<WatchListRequest, WatchListResponse> {
     const method = this.methods[2],
       opt = this._transport.mergeOptions(options);
@@ -91,7 +91,7 @@ export class LoggerAPIClient implements ILoggerAPIClient, ServiceInfo {
       this._transport,
       method,
       opt,
-      input
+      input,
     );
   }
 }

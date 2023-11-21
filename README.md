@@ -77,10 +77,9 @@ import type { Hex } from "viem";
 
 async function main() {
   // Create the DeepSquareClient
-  const deepSquareClient = new DeepSquareClient(
+  const deepSquareClient = DeepSquareClient.withPrivateKey(
     process.env.PRIVATE_KEY as Hex, // Hex is a `0x{string}`
-    undefined, // Optional Viem WalletClient instead of Private key. Which is certainly safer.
-    process.env.METASCHEDULER_ADDR as Hex // Passing the smart-contracts address explicitely avoid unexpected changes.
+    process.env.METASCHEDULER_ADDR as Hex, // Passing the smart-contracts address explicitely avoid unexpected changes.
   );
 }
 ```

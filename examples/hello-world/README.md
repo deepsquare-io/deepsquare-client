@@ -14,7 +14,7 @@ Follow these steps:
 
 3\. Navigate to the directory containing the example code: `examples/hello-world`
 
-4\. Run `pnpm install` to install the necessary dependencies.
+4\. Run `bun install` to install the necessary dependencies.
 
 ## Configuration
 
@@ -39,7 +39,7 @@ Replace `<MetaScheduler_Address>` with the Metascheduler contract address. You c
 To simply the run the example use :
 
 ```
-pnpm start
+bun run start
 ```
 
 ## Step-by-Step Guide
@@ -78,7 +78,7 @@ This line defines tags as key-value pair that are used to add constraints on the
 
 ```typescript
 const deepSquareClient = new DeepSquareClient(
-  process.env.PRIVATE_KEY as string
+  process.env.PRIVATE_KEY as string,
 );
 ```
 

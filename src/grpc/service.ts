@@ -11,7 +11,7 @@ export class GRPCService {
     address: Hex,
     jobId: string,
     signedHash: Hex,
-    timestamp: number
+    timestamp: number,
   ): [RpcOutputStream<ReadResponse>, () => void] {
     const abortReadAndWatch = new AbortController();
 
@@ -25,7 +25,7 @@ export class GRPCService {
       {
         abort: abortReadAndWatch.signal,
         timeout: 3_600_000, // 1h
-      }
+      },
     );
     return [
       responses,

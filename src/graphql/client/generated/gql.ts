@@ -36,13 +36,13 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "query Job($batchLocationHash: String!) {\n  job(batchLocationHash: $batchLocationHash)\n}"
+  source: "query Job($batchLocationHash: String!) {\n  job(batchLocationHash: $batchLocationHash)\n}",
 ): (typeof documents)["query Job($batchLocationHash: String!) {\n  job(batchLocationHash: $batchLocationHash)\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation Submit($job: Job!) {\n  submit(job: $job)\n}"
+  source: "mutation Submit($job: Job!) {\n  submit(job: $job)\n}",
 ): (typeof documents)["mutation Submit($job: Job!) {\n  submit(job: $job)\n}"];
 
 export function graphql(source: string) {

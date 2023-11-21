@@ -1,15 +1,16 @@
 import DeepSquareClient from "@deepsquare/deepsquare-client";
 import dotenv from "dotenv";
 import { Hex } from "viem";
+import { createLoggerClient } from "../../lib/client-browser.js";
 
 dotenv.config();
 
 async function main() {
   // Instantiate the DeepSquareClient
-  const client = new DeepSquareClient(
+  const client = DeepSquareClient.withPrivateKey(
     process.env.PRIVATE_KEY as Hex,
-    undefined,
-    process.env.METASCHEDULER_ADDR as Hex
+    createLoggerClient,
+    process.env.METASCHEDULER_ADDR as Hex,
   );
 
   // Watch live approvals and changes on the allowance
@@ -24,8 +25,8 @@ async function main() {
           `<--approval: ${JSON.stringify(
             approval.args,
             (key, value) =>
-              typeof value === "bigint" ? value.toString() : value // return everything else unchanged
-          )}`
+              typeof value === "bigint" ? value.toString() : value, // return everything else unchanged
+          )}`,
         );
       }
     })();

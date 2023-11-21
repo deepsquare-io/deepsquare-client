@@ -2,16 +2,17 @@ import DeepSquareClient from "@deepsquare/deepsquare-client";
 import dotenv from "dotenv";
 import { Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { createLoggerClient } from "../../lib/client.js";
 
 dotenv.config();
 
 async function main() {
   // Instantiate the DeepSquareClient
   const account = privateKeyToAccount(process.env.PRIVATE_KEY as Hex);
-  const client = new DeepSquareClient(
+  const client = DeepSquareClient.withPrivateKey(
     process.env.PRIVATE_KEY as Hex,
-    undefined,
-    process.env.METASCHEDULER_ADDR as Hex
+    createLoggerClient,
+    process.env.METASCHEDULER_ADDR as Hex,
   );
 
   // Watch live transfers and changes on the balance
@@ -26,8 +27,8 @@ async function main() {
           `<--transfer: ${JSON.stringify(
             transfer.args,
             (key, value) =>
-              typeof value === "bigint" ? value.toString() : value // return everything else unchanged
-          )}`
+              typeof value === "bigint" ? value.toString() : value, // return everything else unchanged
+          )}`,
         );
       }
     })();

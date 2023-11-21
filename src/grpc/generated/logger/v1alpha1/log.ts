@@ -150,7 +150,7 @@ class WriteRequest$Type extends MessageType<WriteRequest> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: WriteRequest
+    target?: WriteRequest,
   ): WriteRequest {
     let message = target ?? this.create(),
       end = reader.pos + length;
@@ -173,7 +173,7 @@ class WriteRequest$Type extends MessageType<WriteRequest> {
           let u = options.readUnknownField;
           if (u === "throw")
             throw new globalThis.Error(
-              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`
+              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`,
             );
           let d = reader.skip(wireType);
           if (u !== false)
@@ -182,7 +182,7 @@ class WriteRequest$Type extends MessageType<WriteRequest> {
               message,
               fieldNo,
               wireType,
-              d
+              d,
             );
       }
     }
@@ -191,7 +191,7 @@ class WriteRequest$Type extends MessageType<WriteRequest> {
   internalBinaryWrite(
     message: WriteRequest,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     /* string log_name = 1; */
     if (message.logName !== "")
@@ -210,7 +210,7 @@ class WriteRequest$Type extends MessageType<WriteRequest> {
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }
@@ -238,21 +238,21 @@ class WriteResponse$Type extends MessageType<WriteResponse> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: WriteResponse
+    target?: WriteResponse,
   ): WriteResponse {
     return target ?? this.create();
   }
   internalBinaryWrite(
     message: WriteResponse,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     let u = options.writeUnknownFields;
     if (u !== false)
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }
@@ -301,7 +301,7 @@ class ReadRequest$Type extends MessageType<ReadRequest> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: ReadRequest
+    target?: ReadRequest,
   ): ReadRequest {
     let message = target ?? this.create(),
       end = reader.pos + length;
@@ -324,7 +324,7 @@ class ReadRequest$Type extends MessageType<ReadRequest> {
           let u = options.readUnknownField;
           if (u === "throw")
             throw new globalThis.Error(
-              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`
+              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`,
             );
           let d = reader.skip(wireType);
           if (u !== false)
@@ -333,7 +333,7 @@ class ReadRequest$Type extends MessageType<ReadRequest> {
               message,
               fieldNo,
               wireType,
-              d
+              d,
             );
       }
     }
@@ -342,7 +342,7 @@ class ReadRequest$Type extends MessageType<ReadRequest> {
   internalBinaryWrite(
     message: ReadRequest,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     /* string address = 1; */
     if (message.address !== "")
@@ -361,7 +361,7 @@ class ReadRequest$Type extends MessageType<ReadRequest> {
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }
@@ -398,7 +398,7 @@ class ReadResponse$Type extends MessageType<ReadResponse> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: ReadResponse
+    target?: ReadResponse,
   ): ReadResponse {
     let message = target ?? this.create(),
       end = reader.pos + length;
@@ -415,7 +415,7 @@ class ReadResponse$Type extends MessageType<ReadResponse> {
           let u = options.readUnknownField;
           if (u === "throw")
             throw new globalThis.Error(
-              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`
+              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`,
             );
           let d = reader.skip(wireType);
           if (u !== false)
@@ -424,7 +424,7 @@ class ReadResponse$Type extends MessageType<ReadResponse> {
               message,
               fieldNo,
               wireType,
-              d
+              d,
             );
       }
     }
@@ -433,7 +433,7 @@ class ReadResponse$Type extends MessageType<ReadResponse> {
   internalBinaryWrite(
     message: ReadResponse,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     /* bytes data = 1; */
     if (message.data.length)
@@ -446,7 +446,7 @@ class ReadResponse$Type extends MessageType<ReadResponse> {
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }
@@ -493,7 +493,7 @@ class WatchListRequest$Type extends MessageType<WatchListRequest> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: WatchListRequest
+    target?: WatchListRequest,
   ): WatchListRequest {
     let message = target ?? this.create(),
       end = reader.pos + length;
@@ -513,7 +513,7 @@ class WatchListRequest$Type extends MessageType<WatchListRequest> {
           let u = options.readUnknownField;
           if (u === "throw")
             throw new globalThis.Error(
-              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`
+              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`,
             );
           let d = reader.skip(wireType);
           if (u !== false)
@@ -522,7 +522,7 @@ class WatchListRequest$Type extends MessageType<WatchListRequest> {
               message,
               fieldNo,
               wireType,
-              d
+              d,
             );
       }
     }
@@ -531,7 +531,7 @@ class WatchListRequest$Type extends MessageType<WatchListRequest> {
   internalBinaryWrite(
     message: WatchListRequest,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     /* string address = 1; */
     if (message.address !== "")
@@ -547,7 +547,7 @@ class WatchListRequest$Type extends MessageType<WatchListRequest> {
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }
@@ -583,7 +583,7 @@ class WatchListResponse$Type extends MessageType<WatchListResponse> {
     reader: IBinaryReader,
     length: number,
     options: BinaryReadOptions,
-    target?: WatchListResponse
+    target?: WatchListResponse,
   ): WatchListResponse {
     let message = target ?? this.create(),
       end = reader.pos + length;
@@ -597,7 +597,7 @@ class WatchListResponse$Type extends MessageType<WatchListResponse> {
           let u = options.readUnknownField;
           if (u === "throw")
             throw new globalThis.Error(
-              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`
+              `Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`,
             );
           let d = reader.skip(wireType);
           if (u !== false)
@@ -606,7 +606,7 @@ class WatchListResponse$Type extends MessageType<WatchListResponse> {
               message,
               fieldNo,
               wireType,
-              d
+              d,
             );
       }
     }
@@ -615,7 +615,7 @@ class WatchListResponse$Type extends MessageType<WatchListResponse> {
   internalBinaryWrite(
     message: WatchListResponse,
     writer: IBinaryWriter,
-    options: BinaryWriteOptions
+    options: BinaryWriteOptions,
   ): IBinaryWriter {
     /* repeated string log_names = 1; */
     for (let i = 0; i < message.logNames.length; i++)
@@ -625,7 +625,7 @@ class WatchListResponse$Type extends MessageType<WatchListResponse> {
       (u == true ? UnknownFieldHandler.onWrite : u)(
         this.typeName,
         message,
-        writer
+        writer,
       );
     return writer;
   }

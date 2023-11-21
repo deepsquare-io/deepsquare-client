@@ -1,26 +1,35 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.15.0-alpha.1",
+  "version": "0.15.0-alpha.2",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
     "graphql:gen": "graphql-codegen --config codegen.yml",
-    "build": "rm -Rf .parcel-cache && parcel build",
+    "build": "bun build.ts",
     "test:watch": "vitest",
     "lint": "eslint --ext .js,.ts,.tsx src/",
     "lint:fix": "eslint --ext .js,.ts,.tsx src/ --fix",
     "gen:eth": "scripts/generate-eth.sh"
   },
-  "source": "src/index.ts",
-  "main": "lib/index.cjs",
-  "module": "lib/index.mjs",
-  "types": "lib/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.mjs",
+      "require": "./lib/index.js",
+      "import": "./lib/index.js",
       "types": "./lib/index.d.ts",
-      "default": "./lib/index.mjs"
+      "default": "./lib/index.js"
+    },
+    "./grpc": {
+      "require": "./lib/client.js",
+      "import": "./lib/client.js",
+      "types": "./lib/client.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./grpc-browser": {
+      "require": "./lib/client-browser.js",
+      "import": "./lib/client-browser.js",
+      "types": "./lib/client-browser.d.ts",
+      "default": "./lib/client-browser.js"
     }
   },
   "keywords": [],
@@ -40,21 +49,17 @@
     "viem": "^1.19.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.3",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@parcel/core": "^2.10.3",
-    "@parcel/packager-ts": "^2.10.3",
-    "@parcel/transformer-typescript-types": "^2.10.3",
     "@types/async-lock": "^1.4.2",
     "@types/node": "^20.9.3",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
-    "esbuild": "^0.19.7",
+    "bun-plugin-dts": "^0.2.1",
     "eslint": "^8.54.0",
     "eslint-config-next": "^14.0.3",
     "eslint-config-prettier": "^9.0.0",
@@ -63,7 +68,6 @@
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-prettier": "^5.0.1",
     "graphql-tag": "^2.12.6",
-    "parcel": "^2.10.3",
     "prettier": "^3.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"

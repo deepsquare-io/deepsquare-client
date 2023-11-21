@@ -7,10 +7,10 @@ import { JobStatus } from "../types/enums/JobStatus";
  */
 export function isJobTerminated(status: number): boolean {
   return (
-    status === JobStatus.CANCELLED ||
-    status === JobStatus.FAILED ||
-    status === JobStatus.FINISHED ||
-    status === JobStatus.OUT_OF_CREDITS ||
-    status === JobStatus.PANICKED
+    status === JobStatus.CANCELLED.valueOf() ||
+    status === JobStatus.FAILED.valueOf() ||
+    status === JobStatus.FINISHED.valueOf() ||
+    status === JobStatus.OUT_OF_CREDITS.valueOf() ||
+    status === JobStatus.PANICKED.valueOf()
   );
 }
