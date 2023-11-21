@@ -1,6 +1,6 @@
 {
   "name": "@deepsquare/deepsquare-client",
-  "version": "0.15.0-alpha.7",
+  "version": "0.15.0-alpha.8",
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
@@ -20,16 +20,16 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./grpc/node": {
-      "default": "./dist/grpc/node/index.js",
-      "types": "./dist/grpc/node/index.d.ts"
+      "types": "./dist/grpc/node/index.d.ts",
+      "default": "./dist/grpc/node/index.js"
     },
     "./grpc/browser": {
-      "default": "./dist/grpc/browser/index.js",
-      "types": "./dist/grpc/browser/index.d.ts"
+      "types": "./dist/grpc/browser/index.d.ts",
+      "default": "./dist/grpc/browser/index.js"
     },
     "./package.json": "./package.json"
   },
