@@ -83,5 +83,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          TAG=$(node -e 'console.log(process.env.GITHUB_REF.includes("-rc") || process.env.GITHUB_REF.includes("-beta") || process.env.GITHUB_REF.includes("-alpha") ? "next" : "latest")')
+          export TAG_NAME="${{ github.event.release.tag_name }}"
+          TAG=$(node -e 'console.log(process.env.TAG_NAME.includes("-rc") || process.env.TAG_NAME.includes("-beta") || process.env.TAG_NAME.includes("-alpha") ? "next" : "latest")')
           npm publish --tag $TAG
