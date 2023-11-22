@@ -73,8 +73,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git tag -d ${{ github.event.release.tag_name }}
-          git push origin --delete ${{ github.event.release.tag_name }}
+          git tag -d ${{ github.event.release.tag_name }} || true
+          git push origin --delete ${{ github.event.release.tag_name }} || true
           npm version ${{ github.event.release.tag_name }} --allow-same-version
           git push origin ${{ github.event.release.tag_name }} --tags
 
