@@ -1,0 +1,85 @@
+name: Release CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: Precise a GitHub release version.
+        required: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run linting
+        run: bun run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    needs: [lint]
+
+    steps:
+      - name: Checkout code to branch
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run build
+        run: bun run build
+
+      - name: Git configuration
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Bump version and retag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag -d ${{ inputs.version }} || true
+          git push origin --delete ${{ inputs.version }} || true
+          npm version ${{ inputs.version }} --allow-same-version
+          git push origin ${{ inputs.version }} --tags
+
+      - uses: sersoft-gmbh/setup-gh-cli-action@v2
+        with:
+          version: stable
+
+      - name: Create release and upload binaries
+        run: |
+          gh release create ${{ inputs.version }} -t ${{ inputs.version }} --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          export TAG_NAME="${{ inputs.version }}"
+          TAG=$(node -e 'console.log(process.env.TAG_NAME.includes("-rc") || process.env.TAG_NAME.includes("-beta") || process.env.TAG_NAME.includes("-alpha") ? "next" : "latest")')
+          npm publish --tag $TAG
