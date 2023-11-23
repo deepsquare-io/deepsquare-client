@@ -1,4 +1,4 @@
 {
   "type": "module",
-  "main": "../../dist/grpc/node/index.js"
+  "main": "../../dist/node.js"
 }
