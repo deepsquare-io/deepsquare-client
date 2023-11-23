@@ -67,7 +67,7 @@ jobs:
 
       - name: Bump version and retag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
           git push origin --delete ${{ inputs.version }} || true
           npm version ${{ inputs.version }} --allow-same-version
@@ -81,7 +81,7 @@ jobs:
         run: |
           gh release create ${{ inputs.version }} -t ${{ inputs.version }} --generate-notes
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: Publish
         env:
