@@ -60,11 +60,6 @@ jobs:
       - name: Run build
         run: bun run build
 
-      - name: Git configuration
-        run: |
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Actions"
-
       - name: Bump version and retag
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
