@@ -65,7 +65,7 @@ export const IJobRepositoryAbi = [
             components: [
               {
                 internalType: "uint64",
-                name: "gpusPerTask",
+                name: "gpus",
                 type: "uint64",
               },
               {
@@ -281,7 +281,7 @@ export const IJobRepositoryAbi = [
             components: [
               {
                 internalType: "uint64",
-                name: "gpusPerTask",
+                name: "gpus",
                 type: "uint64",
               },
               {
@@ -541,7 +541,7 @@ export const IJobRepositoryAbi = [
         components: [
           {
             internalType: "uint64",
-            name: "gpusPerTask",
+            name: "gpus",
             type: "uint64",
           },
           {
@@ -812,7 +812,7 @@ export const IJobRepositoryAbi = [
             components: [
               {
                 internalType: "uint64",
-                name: "gpusPerTask",
+                name: "gpus",
                 type: "uint64",
               },
               {
