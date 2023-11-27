@@ -309,7 +309,7 @@ export default class DeepSquareClient {
         args: [
           {
             ntasks: BigInt(job.resources.tasks),
-            gpusPerTask: BigInt(job.resources.gpusPerTask),
+            gpus: BigInt(job.resources.gpus),
             cpusPerTask: BigInt(job.resources.cpusPerTask),
             memPerCpu: BigInt(job.resources.memPerCpu),
             storageType: job.output
