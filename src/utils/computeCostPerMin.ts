@@ -15,8 +15,7 @@ export function computeCostPerMin(summary: JobSummary): bigint {
   if (!summary.provider) return 0n;
   const tasks = summary.definition.ntasks;
   const gpuCost =
-    summary.definition.gpusPerTask *
-    summary.provider.providerPrices.gpuPricePerMin;
+    summary.definition.gpus * summary.provider.providerPrices.gpuPricePerMin;
   const cpuCost =
     summary.definition.cpusPerTask *
     summary.provider.providerPrices.cpuPricePerMin;
@@ -24,5 +23,5 @@ export function computeCostPerMin(summary: JobSummary): bigint {
     summary.definition.memPerCpu *
     summary.definition.cpusPerTask *
     summary.provider.providerPrices.memPricePerMin;
-  return (tasks * (gpuCost + cpuCost + memCost)) / 1000000n;
+  return (tasks * (cpuCost + memCost) + gpuCost) / 1000000n;
 }
