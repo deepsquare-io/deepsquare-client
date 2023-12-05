@@ -38,15 +38,33 @@ export type Bore = {
   /**
    * Bore server IP/Address.
    *
+   * Deprecated: Use boreAddress.
+   *
    * Go name: "Address".
    */
-  address: Scalars["String"]["input"];
+  address?: InputMaybe<Scalars["String"]["input"]>;
+  /**
+   * Bore server IP/Address:Port.
+   *
+   * Go name: "BoreAddress".
+   */
+  boreAddress?: InputMaybe<Scalars["String"]["input"]>;
   /**
    * The bore server port.
    *
+   * Deprecated: Use boreAddress.
+   *
    * Go name: "Port".
    */
-  port: Scalars["Int"]["input"];
+  port?: InputMaybe<Scalars["Int"]["input"]>;
+  /**
+   * Secret used to authenticate on a Bore server.
+   *
+   * This secret is used to identify the client.
+   *
+   * Go name: "Secret".
+   */
+  secret?: InputMaybe<Scalars["String"]["input"]>;
   /**
    * Target port.
    *
