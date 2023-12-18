@@ -4,7 +4,7 @@
   "description": "Back-end package interacting with the DeepSquare Grid",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,sass,json,json5,md,mdx,yml,yaml}\"",
-    "graphql:gen": "graphql-codegen --config codegen.yml",
+    "gen:graphql": "graphql-codegen --config codegen.yml",
     "build": "bun build.ts",
     "test:watch": "vitest",
     "lint": "eslint --ext .js,.ts,.tsx src/",

@@ -799,13 +799,11 @@ export type StepRun = {
   /**
    * Add custom network interfaces.
    *
-   * ONLY enabled if network is "slirp4netns".
+   * ONLY enabled if network is "slirp4netns" or "pasta".
    *
-   * Due to the nature of slirp4netns, the user is automatically mapped as root in order to create network namespaces and add new network interfaces.
+   * You may need to map to root to be able to create network interfaces like Wireguard.
    *
-   * The tunnel interfaces will be named net0, net1, ... netX.
-   *
-   * The default network interface is tap0, which is a TAP interface connecting the host and the network namespace.
+   * The default network interface is net0, which is a TAP interface connecting the host and the network namespace.
    *
    * Go name: "CustomNetworkInterfaces".
    */
@@ -821,9 +819,9 @@ export type StepRun = {
    */
   disableCpuBinding?: InputMaybe<Scalars["Boolean"]["input"]>;
   /**
-   * Configuration for the DNS in "slirp4netns" mode.
+   * Configuration for the DNS in "slirp4netns" or "pasta" mode.
    *
-   * ONLY enabled if network is "slirp4netns".
+   * ONLY enabled if network is "slirp4netns" or "pasta".
    *
    * A comma-separated list of DNS IP.
    *
@@ -863,7 +861,11 @@ export type StepRun = {
   /**
    * Type of core networking functionality.
    *
-   * Either: "host" (default) or "slirp4netns" (rootless network namespace).
+   * Either: "host" (default) or "slirp4netns" (rootless network namespace) or "pasta" (simple rootless network namespace)
+   *
+   * "slirp4netns" uses "slirp" to forward traffic from a network namespace to the host.
+   *
+   * "pasta" is an alternative to "slirp4netns" and uses "passt" to forward traffic from a network namespace to the host.
    *
    * Go name: "Network".
    */
@@ -1002,6 +1004,8 @@ export type TransportData = {
  * Wireguard VPN Transport for StepRun.
  *
  * The Wireguard VPN can be used as a gateway for the steps. All that is needed is a Wireguard server outside the cluster that acts as a public gateway.
+ *
+ * The interface are named wg0, wg1, ..., wgN.
  *
  * Wireguard transport uses UDP hole punching to connect to the VPN Server.
  *
