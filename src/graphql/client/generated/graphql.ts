@@ -291,6 +291,14 @@ export type Job = {
    * Go name: "Steps".
    */
   steps: Array<Step>;
+  /**
+   * A list of virtual network.
+   *
+   * Can only be used with network namespaces.
+   *
+   * Go name: "VirtualNetworks".
+   */
+  virtualNetworks?: InputMaybe<Array<VirtualNetwork>>;
 };
 
 /** JobResources are the allocated resources for a job in a cluster. */
@@ -515,6 +523,14 @@ export type NetworkInterface = {
    * Go name: "Bore".
    */
   bore?: InputMaybe<Bore>;
+  /**
+   * Use a DeepSquare-managed virtual network for inter-step communication.
+   *
+   * It uses Wireguard to interconnect the steps. The communication are encrypted.
+   *
+   * Go name: "VNet".
+   */
+  vnet?: InputMaybe<VNet>;
   /**
    * Use the wireguard transport.
    *
@@ -1000,12 +1016,60 @@ export type TransportData = {
   s3?: InputMaybe<S3Data>;
 };
 
+/** Use VNet as network interface. */
+export type VNet = {
+  /**
+   * Address (CIDR) of the interface.
+   *
+   * Example: "10.0.0.2/24" which means
+   *
+   *   - The interface's IP is 10.0.0.2.
+   *
+   *   - Route packets with destination 10.0.0.0/24 to that interface.
+   *
+   * Go name: "Address"
+   */
+  address: Scalars["String"]["input"];
+  /**
+   * Name of the network to be used. Must exists.
+   *
+   * See Job.Networks.
+   *
+   * Go name: "Name".
+   */
+  name: Scalars["String"]["input"];
+};
+
+/**
+ * A virtual network is a network that can be used to connect network namespaces.
+ *
+ * For now, the virtual network use
+ */
+export type VirtualNetwork = {
+  /**
+   * Gateway address (CIDR). Note this does not forward to the internet. This is only used for NAT traversal.
+   *
+   * Example: "10.0.0.1/24". IPv6 is also supported.
+   *
+   * Go name: "GatewayAddress".
+   */
+  gatewayAddress: Scalars["String"]["input"];
+  /**
+   * Name of the virtual network.
+   *
+   * Use this name to reference the network.
+   *
+   * Go name: "Name".
+   */
+  name: Scalars["String"]["input"];
+};
+
 /**
  * Wireguard VPN Transport for StepRun.
  *
  * The Wireguard VPN can be used as a gateway for the steps. All that is needed is a Wireguard server outside the cluster that acts as a public gateway.
  *
- * The interface are named wg0, wg1, ..., wgN.
+ * The interfaces are named wg0, wg1, ..., wgN.
  *
  * Wireguard transport uses UDP hole punching to connect to the VPN Server.
  *
