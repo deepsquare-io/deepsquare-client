@@ -793,13 +793,15 @@ export type StepFor = {
  */
 export type StepRun = {
   /**
-   * Command specifies a shell script.
+   * Command specifies a shell script or CMD.
    *
-   * If container is used, command automatically overwrite the ENTRYPOINT and CMD. If you want to execute the entrypoint, it MUST be re-specified.
+   * If container is used, `command` and `shell` automatically overwrite the ENTRYPOINT and CMD.
    *
-   * You can install and use skopeo to inspect an image without having to pull it.
+   * If you want to execute the default ENTRYPOINT and CMD, set the `command` empty.
    *
-   * Example: skopeo inspect --config docker://curlimages/curl:latest will gives "/entrypoint.sh" as ENTRYPOINT and "curl" as CMD. Therefore command="/entrypoint.sh curl".
+   * If you want to execute the default ENTRYPOINT with a custom CMD, set the `command` to your args and set the `shell` to `ENTRYPOINT`.
+   *
+   * Right now, ENTRYPOINT cannot be overriden for security reasons.
    *
    * Go name: "Command".
    */
@@ -895,7 +897,9 @@ export type StepRun = {
   /**
    * Shell to use.
    *
-   * Accepted: /bin/bash, /bin/ash, /bin/sh
+   * Use "ENTRYPOINT" to use the default ENTRYPOINT.
+   *
+   * Accepted: /bin/bash, /bin/ash, /bin/sh, ENTRYPOINT
    * Default: /bin/sh
    *
    * Go name: "Shell".
