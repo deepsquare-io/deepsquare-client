@@ -156,6 +156,6 @@ If you run into any issues:
 If these steps don't resolve the issue:
 
 - Create an [issue](https://github.com/deepsquare-io/deepsquare-client/issues) on the DeepSquare GitHub repository, providing a detailed account of the problem.
-- Reach the [Discord community](https://discord.gg/UwaHJcNvq9) for direct support and engaging discussions.
+- Reach the [Discord community](https://discord.gg/KYWh28BkUE) for direct support and engaging discussions.
 
 The DeepSquare team is always happy to help you and ensure a seamless experience for you.
